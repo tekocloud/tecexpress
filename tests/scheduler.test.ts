@@ -1,0 +1,170 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { defineComponent, h, nextTick, ref } from 'vue'
+import { TxScheduler, type Appointment, type AppointmentChangeEvent, type AppointmentUpdatingEvent } from '../src'
+
+const initial: Appointment[] = [
+  { id: 'a', text: 'Besprechung', startDate: '2026-10-23T09:00', endDate: '2026-10-23T10:00', description: 'Notiz' },
+  { id: 'b', text: 'Release', startDate: '2026-10-22', endDate: '2026-10-23', allDay: true }
+]
+const mounted: VueWrapper[] = []
+function scheduler(props = {}, slots = {}) {
+  const wrapper = mount(TxScheduler, { props: { currentDate: '2026-10-23', ...props }, slots, attachTo: document.body })
+  mounted.push(wrapper); return wrapper
+}
+afterEach(() => { mounted.splice(0).reverse().forEach(wrapper => wrapper.unmount()); document.body.innerHTML = '' })
+async function create(wrapper: VueWrapper, title = 'Neuer Workshop') {
+  await wrapper.get('.tx-scheduler-actions > button').trigger('click')
+  await nextTick()
+  await wrapper.get('input[id$="-text"]').setValue(title)
+  await wrapper.get('input[id$="-start"]').setValue('2026-10-23T11:00')
+  await wrapper.get('input[id$="-end"]').setValue('2026-10-23T12:00')
+}
+async function submit(wrapper: VueWrapper) { await wrapper.get('form').trigger('submit'); await nextTick() }
+
+describe('TxScheduler', () => {
+  it('renders three views, all-day appointments and month boundaries', async () => {
+    const wrapper = scheduler({ dataSource: initial })
+    expect(wrapper.findAll('.tx-scheduler-day-column')).toHaveLength(7)
+    expect(wrapper.findAll('.tx-appointment')).toHaveLength(2)
+    expect(wrapper.get('.tx-scheduler-allday-cell .tx-appointment').text()).toContain('Release')
+    await wrapper.findAll('.tx-scheduler-views button')[2].trigger('click')
+    expect(wrapper.findAll('.tx-scheduler-month-day')).toHaveLength(42)
+    await wrapper.findAll('.tx-scheduler-views button')[0].trigger('click')
+    expect(wrapper.findAll('.tx-scheduler-day-column')).toHaveLength(1)
+    expect(wrapper.findAll('.tx-appointment')).toHaveLength(1)
+  })
+  it('supports date/view models and responds to external model changes', async () => {
+    const wrapper = scheduler({ currentView: 'month', currentDate: '2026-01-31' })
+    await wrapper.get('[aria-label="Nächster Zeitraum"]').trigger('click')
+    const next = wrapper.emitted('update:currentDate')?.[0]?.[0] as Date
+    expect([next.getMonth(), next.getDate()]).toEqual([1, 28])
+    expect(wrapper.get('.tx-scheduler-period').text()).toContain('Januar')
+    await wrapper.setProps({ currentDate: next, currentView: 'day' })
+    expect(wrapper.get('.tx-scheduler-period').text()).toContain('28. Februar')
+    await wrapper.get('[aria-label="Kalenderdatum"]').setValue('2027-01-01')
+    expect((wrapper.emitted('update:currentDate')?.at(-1)?.[0] as Date).getFullYear()).toBe(2027)
+  })
+  it('creates internally without mutating input and emits lifecycle events', async () => {
+    const wrapper = scheduler()
+    await create(wrapper); await submit(wrapper)
+    expect(wrapper.emitted('appointmentAdding')).toHaveLength(1)
+    expect(wrapper.emitted('appointmentAdded')).toHaveLength(1)
+    const added = (wrapper.emitted('update:dataSource')?.[0]?.[0] as Appointment[])[0]
+    expect(added).toMatchObject({ text: 'Neuer Workshop', allDay: false })
+    expect(added.startDate).toBeInstanceOf(Date)
+    expect(wrapper.findAll('.tx-appointment')).toHaveLength(1)
+    expect(wrapper.find('[role=dialog]').exists()).toBe(false)
+  })
+  it('round trips controlled data, updates and deletes with confirmation', async () => {
+    const data = ref<Appointment[]>(initial.map(item => ({ ...item })))
+    const parent = mount(defineComponent({ setup: () => () => h(TxScheduler, { currentDate: '2026-10-23', dataSource: data.value, 'onUpdate:dataSource': next => { data.value = next } }) }), { attachTo: document.body })
+    mounted.push(parent)
+    await parent.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    await parent.get('input[id$="-text"]').setValue('Aktualisiert')
+    await submit(parent)
+    expect(data.value[0].text).toBe('Aktualisiert')
+    expect(initial[0].text).toBe('Besprechung')
+    await parent.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    await parent.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    expect(data.value).toHaveLength(2)
+    expect(parent.text()).toContain('endgültig löschen?')
+    await parent.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    expect(data.value).toHaveLength(1)
+    expect(parent.findComponent(TxScheduler).emitted('appointmentDeleted')).toHaveLength(1)
+  })
+  it('validates title and dates and keeps invalid edits out of data', async () => {
+    const wrapper = scheduler()
+    await create(wrapper, ' '); await submit(wrapper)
+    expect(wrapper.get('[role=alert]').text()).toContain('Titel')
+    await wrapper.get('input[id$="-text"]').setValue('Prüfung')
+    await wrapper.get('input[id$="-end"]').setValue('2026-10-23T10:00')
+    await submit(wrapper)
+    expect(wrapper.get('[role=alert]').text()).toContain('nach dem Beginn')
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+  })
+  it('allows cancelling additions, updates and deletions', async () => {
+    const cancel = (event: AppointmentChangeEvent | AppointmentUpdatingEvent) => { event.cancel = true }
+    const wrapper = scheduler({ onAppointmentAdding: cancel })
+    await create(wrapper); await submit(wrapper)
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+    expect(wrapper.get('[role=alert]').text()).toContain('abgebrochen')
+    await wrapper.get('.tx-popup-header button').trigger('click')
+    await wrapper.setProps({ dataSource: initial, onAppointmentUpdating: cancel, onAppointmentDeleting: cancel })
+    await wrapper.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    await wrapper.get('input[id$="-text"]').setValue('Änderung')
+    await submit(wrapper)
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+    await wrapper.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    await wrapper.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+  })
+  it('detects concurrent changes instead of overwriting or resurrecting appointments', async () => {
+    const wrapper = scheduler({ dataSource: initial })
+    await wrapper.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    await wrapper.setProps({ dataSource: [{ ...initial[0], text: 'Extern geändert' }, initial[1]] })
+    await submit(wrapper)
+    expect(wrapper.get('[role=alert]').text()).toContain('zwischenzeitlich')
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+    await wrapper.setProps({ dataSource: [] })
+    await wrapper.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    await wrapper.get('.tx-popup-footer .tx-button-danger').trigger('click')
+    expect(wrapper.emitted('update:dataSource')).toBeUndefined()
+  })
+  it('honors readOnly, disabled, loading and individual editing permissions', async () => {
+    const wrapper = scheduler({ dataSource: initial, readOnly: true })
+    expect(wrapper.find('.tx-scheduler-actions > button').exists()).toBe(false)
+    await wrapper.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    expect(wrapper.get('input[id$="-text"]').attributes('readonly')).toBeDefined()
+    expect(wrapper.find('.tx-popup-footer .tx-button-danger').exists()).toBe(false)
+    await wrapper.get('.tx-popup-header button').trigger('click')
+    await wrapper.setProps({ readOnly: false, editing: { allowAdding: false, allowUpdating: false, allowDeleting: true } })
+    await wrapper.get('.tx-scheduler-day-column .tx-appointment').trigger('click')
+    expect(wrapper.get('input[id$="-text"]').attributes('readonly')).toBeDefined()
+    expect(wrapper.find('.tx-popup-footer .tx-button-danger').exists()).toBe(true)
+    await wrapper.get('.tx-popup-header button').trigger('click')
+    await wrapper.setProps({ disabled: true })
+    await wrapper.get('[aria-label="Nächster Zeitraum"]').trigger('click')
+    expect(wrapper.emitted('update:currentDate')).toBeUndefined()
+    await wrapper.setProps({ disabled: false, loading: true })
+    expect(wrapper.attributes('aria-busy')).toBe('true')
+    expect(wrapper.find('.tx-scheduler-time').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Termine werden geladen')
+  })
+  it('creates all-day appointments with exclusive ends and converts to/from timed form', async () => {
+    const wrapper = scheduler()
+    await wrapper.get('.tx-scheduler-allday-add').trigger('click')
+    expect(wrapper.get('input[id$="-start"]').element).toHaveProperty('value', '2026-10-19')
+    expect(wrapper.get('input[id$="-end"]').element).toHaveProperty('value', '2026-10-20')
+    await wrapper.get('input[id$="-text"]').setValue('Ganztag')
+    await wrapper.get('form input[type=checkbox]').setValue(false)
+    expect(wrapper.get('input[id$="-start"]').attributes('type')).toBe('datetime-local')
+    await wrapper.get('form input[type=checkbox]').setValue(true)
+    await submit(wrapper)
+    expect((wrapper.emitted('update:dataSource')?.[0]?.[0] as Appointment[])[0].allDay).toBe(true)
+  })
+  it('supports keyboard navigation and creates from an activated time cell', async () => {
+    const wrapper = scheduler()
+    await wrapper.get('[data-day="0"][data-slot="0"]').trigger('keydown', { key: 'ArrowRight' })
+    const target = wrapper.get('[data-day="1"][data-slot="0"]')
+    expect(document.activeElement).toBe(target.element)
+    await target.trigger('keydown', { key: 'ArrowDown' })
+    const next = wrapper.get('[data-day="1"][data-slot="1"]')
+    expect(document.activeElement).toBe(next.element)
+    await next.trigger('click')
+    expect(wrapper.emitted('cellClick')?.[0]?.[0]).toMatchObject({ allDay: false })
+    expect(wrapper.get('input[id$="-start"]').element).toHaveProperty('value', '2026-10-20T08:30')
+  })
+  it('exposes appointment slot data and reacts to external replacements', async () => {
+    const slot = vi.fn(({ appointmentData }: { appointmentData: Appointment }) => h('em', appointmentData.text))
+    const wrapper = scheduler({ dataSource: initial }, { appointment: slot })
+    expect(wrapper.get('.tx-scheduler-day-column em').text()).toBe('Besprechung')
+    expect(slot.mock.calls[0][0]).toHaveProperty('view', 'week')
+    await wrapper.setProps({ dataSource: [] })
+    expect(wrapper.find('.tx-appointment').exists()).toBe(false)
+    expect(wrapper.get('.tx-scheduler-footer').text()).toContain('0 Termine')
+  })
+  it('rejects unsupported configuration instead of rendering a misleading calendar', () => {
+    for (const props of [{ cellDuration: 0 }, { startDayHour: 18, endDayHour: 8 }, { firstDayOfWeek: 7 }, { views: [] }]) expect(() => scheduler(props)).toThrow('TxScheduler')
+  })
+})

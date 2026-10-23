@@ -1,0 +1,18 @@
+:root, [data-tx-theme="light"] {
+  color-scheme: light;
+  --tx-bg: #f3f5fa;
+  --tx-surface: #ffffff;
+  --tx-surface-alt: #f7f9fc;
+  --tx-text: #172339;
+  --tx-muted: #53627a;
+  --tx-border: #c7d0df;
+  --tx-accent: #365bc6;
+  --tx-accent-text: #ffffff;
+  --tx-hover: #e9eefb;
+  --tx-selection: #e1eaff;
+  --tx-danger: #b42338;
+  --tx-success: #137553;
+  --tx-focus: #315dd6;
+  --tx-shadow: 0 20px 70px #17233926;
+  --tx-backdrop: #101b386b;
+}

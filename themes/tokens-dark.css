@@ -1,0 +1,18 @@
+[data-tx-theme="dark"] {
+  color-scheme: dark;
+  --tx-bg: #101725;
+  --tx-surface: #182236;
+  --tx-surface-alt: #1d2a40;
+  --tx-text: #edf2fc;
+  --tx-muted: #b0bfd6;
+  --tx-border: #465974;
+  --tx-accent: #a9beff;
+  --tx-accent-text: #132348;
+  --tx-hover: #283c5c;
+  --tx-selection: #2b416b;
+  --tx-danger: #ff9cad;
+  --tx-success: #7bdbb4;
+  --tx-focus: #b5c8ff;
+  --tx-shadow: 0 20px 70px #00000066;
+  --tx-backdrop: #020714a6;
+}

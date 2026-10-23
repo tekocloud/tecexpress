@@ -1,0 +1,76 @@
+import { expect, test } from '@playwright/test'
+import { resolve } from 'node:path'
+
+test('public package demo: models, data interactions, keyboard and overlays', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Gute Oberflächen')
+  const grid = page.getByRole('region', { name: 'Aufträge' })
+  await expect(grid.locator('tbody tr')).toHaveCount(5)
+  await grid.getByLabel('Standort filtern').fill('Berlin')
+  await expect(grid.locator('tbody tr')).toHaveCount(4)
+  await grid.getByLabel('Alle Zeilen dieser Seite auswählen').check()
+  await expect(grid).toContainText('4 ausgewählt')
+  await grid.getByLabel('Standort filtern').fill('')
+  await grid.getByRole('button', { name: 'Nächste Seite' }).click()
+  await expect(grid).toContainText('Seite 2 / 5')
+  await page.getByLabel('Name', { exact: true }).fill('Erika Muster')
+  await expect(page.locator('.editor-footer code')).toContainText('Erika Muster')
+  await page.getByRole('switch', { name: 'Benachrichtigungen aktiv' }).focus()
+  await page.keyboard.press('Space')
+  await expect(page.getByRole('switch', { name: 'Benachrichtigungen aktiv' })).not.toBeChecked()
+  await page.getByLabel('Kategorie').selectOption({ label: 'Design & Gestaltung' })
+  await expect(page.getByLabel('Kategorie')).toHaveValue('1')
+  const trigger = page.getByRole('button', { name: 'Dialog öffnen', exact: true })
+  await trigger.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Dialog schließen' })).toBeFocused()
+  await dialog.getByRole('button', { name: 'Bestätigen' }).focus()
+  await page.keyboard.press('Tab')
+  await expect(dialog.getByRole('button', { name: 'Dialog schließen' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+  await page.getByRole('tab', { name: 'Übersicht', exact: true }).focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByRole('tab', { name: 'Details', exact: true })).toBeFocused()
+  await page.getByRole('button', { name: 'Toast anzeigen' }).click()
+  await expect(page.locator('.tx-toast')).toContainText('Alles erledigt')
+  expect(errors).toEqual([])
+})
+
+for (const theme of ['light', 'dark']) {
+  test(`theme ${theme}: desktop, mobile and feedback states`, async ({ page }, testInfo) => {
+    await page.addInitScript(value => localStorage.setItem('tx-demo-theme', value), theme)
+    await page.goto('/')
+    await expect(page.locator('html')).toHaveAttribute('data-tx-theme', theme)
+    const style = await page.locator('body').evaluate(el => ({ bg: getComputedStyle(el).backgroundColor, text: getComputedStyle(el).color }))
+    expect(style.bg).toBe(theme === 'dark' ? 'rgb(16, 23, 37)' : 'rgb(243, 245, 250)')
+    expect(style.text).toBe(theme === 'dark' ? 'rgb(237, 242, 252)' : 'rgb(23, 35, 57)')
+    await page.screenshot({ path: testInfo.outputPath(`${theme}-desktop.png`), fullPage: true })
+    await page.getByRole('button', { name: 'Dialog öffnen', exact: true }).click()
+    await page.screenshot({ path: testInfo.outputPath(`${theme}-dialog.png`) })
+    await page.keyboard.press('Escape')
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.screenshot({ path: testInfo.outputPath(`${theme}-mobile.png`), fullPage: true })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.getByRole('button', { name: 'Theme wechseln' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-tx-theme', theme === 'light' ? 'dark' : 'light')
+  })
+}
+
+for (const theme of ['light', 'dark']) {
+  test(`standalone ${theme} CSS export applies without theme attribute`, async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => {
+      document.querySelectorAll('style, link[rel=stylesheet]').forEach(el => el.remove())
+      document.documentElement.removeAttribute('data-tx-theme')
+    })
+    const themePath = resolve(`themes/${theme}.css`).replaceAll('\\', '/')
+    await page.addStyleTag({ url: `/@fs/${themePath}?direct` })
+    await expect.poll(() => page.getByRole('button', { name: 'Theme wechseln' }).evaluate(el => getComputedStyle(el).backgroundColor)).toBe(theme === 'dark' ? 'rgb(24, 34, 54)' : 'rgb(255, 255, 255)')
+    await expect(page.locator('html')).not.toHaveAttribute('data-tx-theme')
+  })
+}
