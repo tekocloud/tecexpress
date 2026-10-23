@@ -4,3 +4,10 @@ demo/dist/
 playwright-report/
 test-results/
 *.tgz
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+flutter/pubspec.lock
+coverage/
+*.iml
+.idea/

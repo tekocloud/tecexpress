@@ -1,54 +1,16 @@
 {
-  "name": "tecexpress",
-  "version": "0.2.0",
-  "description": "Independent Vue 3 UI components with light and dark themes",
-  "type": "module",
-  "license": "MIT",
-  "main": "./dist/tecexpress.js",
-  "module": "./dist/tecexpress.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/tecexpress.js"
-    },
-    "./themes/light.css": "./themes/light.css",
-    "./themes/dark.css": "./themes/dark.css",
-    "./themes/index.css": "./themes/index.css"
-  },
-  "files": [
-    "dist",
-    "themes",
-    "docs",
-    "README.md",
-    "LICENSE"
-  ],
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "name": "tecexpress-workspace",
+  "version": "0.4.0",
+  "private": true,
+  "workspaces": ["npm"],
   "scripts": {
-    "dev": "vite --config demo/vite.config.ts",
-    "build": "vite build && tsc -p tsconfig.build.json",
-    "typecheck": "vue-tsc --noEmit",
-    "test": "vitest run",
-    "test:browser": "playwright test",
-    "test:package": "node scripts/verify-package.mjs",
-    "build:demo": "npm run build && vite build --config demo/vite.config.ts",
-    "prepack": "npm run build"
-  },
-  "peerDependencies": {
-    "vue": "^3.5.0"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.56.0",
-    "@types/node": "^24.0.0",
-    "@vitejs/plugin-vue": "^6.0.0",
-    "@vue/test-utils": "^2.4.6",
-    "jsdom": "^30.1.3",
-    "typescript": "^5.9.0",
-    "vite": "^7.1.0",
-    "vitest": "^5.0.5",
-    "vue": "^3.5.0",
-    "vue-tsc": "^3.1.0"
+    "dev": "npm run dev --workspace tecexpress",
+    "build": "npm run build --workspace tecexpress",
+    "typecheck": "npm run typecheck --workspace tecexpress",
+    "test": "npm test --workspace tecexpress",
+    "test:browser": "npm run test:browser --workspace tecexpress",
+    "test:package": "npm run test:package --workspace tecexpress",
+    "build:demo": "npm run build:demo --workspace tecexpress",
+    "pack:npm": "npm pack --workspace tecexpress --pack-destination npm"
   }
 }

@@ -1,135 +1,46 @@
 # tecexpress
 
-Eigenständige Vue-3-Komponentenbibliothek unter MIT-Lizenz, ohne Lizenzkey. Version 0.2.0 enthält 17 UI-Komponenten und `TxColumn` als DataGrid-Konfiguration, TypeScript-Deklarationen sowie Light- und Dark-Theme.
+Eigenständige UI-Bibliotheken unter MIT-Lizenz, ohne Lizenzkey: Vue 3 und natives Flutter mit Light-/Dark-Themes.
 
-## Lokal starten
+**Veröffentlichen: [PUBLISHING.md](PUBLISHING.md) erklärt Schritt für Schritt den Upload auf npm und pub.dev.** Es wird nichts automatisch veröffentlicht.
 
-Für die Entwicklung Node.js **24.15 oder neuer innerhalb von 24.x** verwenden (die Testumgebung benötigt eine aktuelle Node-Version).
+| Ordner | Inhalt | Einstieg |
+| --- | --- | --- |
+| [`npm/`](npm/) | Vue-Paket `tecexpress` 0.4.0, TypeScript, CSS-Themes, Demo und Tests | [Vue-Anleitung](npm/README.md) |
+| [`flutter/`](flutter/) | Flutter-Paket `tecexpress` 0.4.0 für Android, iOS, Web, Windows, macOS und Linux | [Flutter-Anleitung](flutter/README.md) |
+
+Die aktuellen 21 Komponenten und Konfigurationen stehen auf beiden Seiten zur Verfügung. [Funktions- und API-Zuordnung](flutter/COMPONENTS.md). Die APIs folgen den Konventionen des jeweiligen Frameworks.
+
+## Vue entwickeln
+
+Im Projektstamm, mit Node.js 24.15+ innerhalb von 24.x:
 
 ```sh
-npm install
+npm ci
 npm run build
 npm run dev
 ```
 
-Demo: http://127.0.0.1:5173. Nach Änderungen unter `src/` erneut `npm run build` ausführen: Die Demo verwendet bewusst das gebaute Paket über seine öffentlichen Exporte. Änderungen an Demo und CSS werden von Vite direkt übernommen.
+Demo: http://127.0.0.1:5173. `npm test`, `npm run typecheck`, `npm run test:browser`, `npm run build:demo` und `npm run test:package` funktionieren weiterhin aus dem Stamm. Der Workspace-Stamm ist privat; das öffentliche Paket liegt in `npm/`.
+
+## Flutter entwickeln
+
+Mit Flutter 3.47.7 / Dart 3.13.5 oder kompatiblen neueren Versionen:
 
 ```sh
-npm run typecheck
-npm test
-npx playwright install chromium
-npm run test:browser
-npm run test:package
-npm run build:demo
-npm pack
+cd flutter
+flutter pub get
+flutter analyze
+flutter test
+cd example
+flutter pub get
+flutter run -d chrome
 ```
 
-`npm pack` erzeugt `tecexpress-0.2.0.tgz`. In einem anderen Vue-Projekt mit `npm install /pfad/zu/tecexpress-0.2.0.tgz` installieren. Das Paket wurde nicht in einer Registry veröffentlicht. `npm run test:package` prüft eine echte Installation in einem temporären Consumer-Projekt und gibt dessen Pfad aus. `demo/dist/` enthält nach `build:demo` die statisch hostbare Demo.
+Alternativ `flutter run -d windows`. Weitere Plattformen benötigen ihre üblichen SDKs und Build-Werkzeuge. Der Showcase demonstriert alle 21 Gegenstücke.
 
-## Einzelimporte
+## Validierung und CI
 
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { TxButton, TxTextBox } from 'tecexpress'
-import 'tecexpress/themes/light.css'
-const name = ref('Stefan')
-</script>
+Die Workflows unter `.github/workflows/` prüfen das npm-Paket sowie Flutter und Beispiel-Builds für alle sechs Zielplattformen. Lokale und noch nicht auf GitHub ausgeführte Prüfungen sind im [Prüfbericht](VALIDATION.md) getrennt dokumentiert.
 
-<template>
-  <TxTextBox v-model="name" label="Name" />
-  <TxButton text="Speichern" type="default" @click="console.log(name)" />
-</template>
-```
-
-Optional alle Komponenten global registrieren:
-
-```ts
-import { createApp } from 'vue'
-import Tecexpress from 'tecexpress'
-import App from './App.vue'
-import 'tecexpress/themes/index.css'
-createApp(App).use(Tecexpress).mount('#app')
-```
-
-## Themes
-
-Für ein festes Theme genau einen Import verwenden:
-
-```ts
-import 'tecexpress/themes/light.css'
-// alternativ: import 'tecexpress/themes/dark.css'
-```
-
-Für Laufzeitumschaltung:
-
-```ts
-import 'tecexpress/themes/index.css'
-document.documentElement.dataset.txTheme = 'dark' // oder 'light'
-```
-
-Ohne Attribut startet der gemeinsame Export im Light-Theme. `data-tx-theme` funktioniert auch auf einem umschließenden Element. Overlays bleiben in diesem Theme-Kontext. Tokens nach dem Theme-Import auf einem eigenen Container überschreiben:
-
-```css
-.my-app {
-  --tx-accent: #6636c6;
-  --tx-accent-text: #ffffff;
-  --tx-radius: 10px;
-  --tx-control-height: 44px;
-}
-```
-
-Semantische Tokens: `--tx-bg`, `--tx-surface`, `--tx-surface-alt`, `--tx-text`, `--tx-muted`, `--tx-border`, `--tx-accent`, `--tx-accent-text`, `--tx-hover`, `--tx-selection`, `--tx-danger`, `--tx-success`, `--tx-focus`, `--tx-shadow`, `--tx-backdrop`. Grundlagen: `--tx-font`, `--tx-font-size`, `--tx-radius`, `--tx-space`, `--tx-control-height`. Die Bibliothek setzt kein globales Body-Layout; die Anwendung kann `background: var(--tx-bg); color: var(--tx-text)` verwenden.
-
-## DataGrid
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { TxDataGrid, TxColumn, type RowKey } from 'tecexpress'
-const selected = ref<RowKey[]>([])
-const orders = [
-  { id: 'TX-1', customer: 'Werkraum Berlin', amount: 120 },
-  { id: 'TX-2', customer: 'Atelier Fischer', amount: 80 }
-]
-</script>
-
-<template>
-  <TxDataGrid :data-source="orders" key-expr="id" :page-size="10"
-    selection="multiple" v-model:selected-row-keys="selected">
-    <TxColumn data-field="customer" caption="Kunde" />
-    <TxColumn data-field="amount" caption="Betrag" cell-template="money" />
-    <template #money="{ value }">{{ Number(value).toFixed(2) }} €</template>
-  </TxDataGrid>
-</template>
-```
-
-## Scheduler
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { TxScheduler, type Appointment } from 'tecexpress'
-import 'tecexpress/themes/index.css'
-const appointments = ref<Appointment[]>([
-  { id: 1, text: 'Projektbesprechung', startDate: '2026-10-23T09:00', endDate: '2026-10-23T10:00' }
-])
-</script>
-
-<template>
-  <TxScheduler v-model:data-source="appointments" current-date="2026-10-23" />
-</template>
-```
-
-Tag, Woche und Monat; Termine anlegen, bearbeiten und löschen; Ganztagstermine, mehrtägige Termine und nebeneinander angeordnete Überschneidungen. Datumsnavigation ohne feste Datumsbindung: `current-date` weglassen oder `v-model:current-date` verwenden. [Scheduler-API, Datenvertrag und Grenzen](docs/scheduler.md).
-
-Ausführliche Props, Events, Slots und Beispiele für **jede** ausgelieferte Komponente: [API](docs/api.md). Den vollständigen ausführbaren Showcase findest du in [demo/App.vue](demo/App.vue).
-
-## Umfang und Weiterentwicklung
-
-- Enthalten: Button, TextBox, TextArea, NumberBox, CheckBox, Switch, SelectBox, DateBox, Popup, Tabs, Toolbar, Menu, Tooltip, Toast, LoadIndicator, DataGrid, Column und Scheduler.
-- DataGrid: lokale Arrays, Einspaltensortierung, kombinierte Textfilter, Pagination, Auswahl und Zell-Slots.
-- Noch nicht enthalten: DataGrid-Bearbeitung, Remote-Stores, Virtualisierung, Charts, Form, Scheduler-Wiederholungen/Ressourcen/Drag-and-drop und die übrigen Komponenten der langfristigen Suite.
-- DevExtreme-ähnliche Namen erleichtern den Einstieg; tecexpress ist kein unveränderter Ersatz. Eigene Gestaltung und Implementierung, keine DevExtreme-Laufzeitabhängigkeit, kein Instanzobjekt oder `option()`-API.
-
-[Versionierter Komponenten-Katalog und Entwicklungsphasen](docs/catalog-26.1.md) · [Änderungen](docs/CHANGELOG.md) · [MIT-Lizenz](LICENSE)
+Backend-/KI-Dienste, Scheduler-Serien und Ressourcenplanung gehören nicht zum aktuellen Umfang. [MIT-Lizenz](LICENSE).

@@ -1,0 +1,89 @@
+name: Validate packages
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  vue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build:demo
+      - run: npx playwright install --with-deps chromium
+        working-directory: npm
+      - run: npm run test:browser
+      - run: npm run test:package
+      - run: npm publish --dry-run --access public
+        working-directory: npm
+
+  flutter-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: flutter
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter pub get
+        working-directory: flutter/example
+      - run: dart format --output=none --set-exit-if-changed lib test tool example/lib example/test
+      - run: flutter analyze
+      - run: flutter test
+      - run: dart run tool/verify_consumer.dart
+      - run: flutter test
+        working-directory: flutter/example
+      - run: flutter pub publish --dry-run
+
+  flutter-platforms:
+    name: Flutter ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: web, arguments: '--release' }
+          - { os: windows-latest, target: windows, arguments: '--release' }
+          - { os: ubuntu-latest, target: linux, arguments: '--release' }
+          - { os: macos-latest, target: macos, arguments: '--release' }
+          - { os: macos-latest, target: ios, arguments: '--release --no-codesign' }
+          - { os: ubuntu-latest, target: apk, arguments: '--debug' }
+    defaults:
+      run:
+        working-directory: flutter/example
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        if: matrix.target == 'apk'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Linux desktop dependencies
+        if: matrix.target == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ${{ matrix.target }} ${{ matrix.arguments }}
