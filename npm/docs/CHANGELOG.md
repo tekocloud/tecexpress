@@ -2,6 +2,7 @@
 
 ## 0.4.0 · 23.10.2026
 
+- npm-Paket unter der Organisation `tekocloud.de` als `@tekocloud.de/tecexpress`; Importe und Theme-Pfade verwenden diesen Scope.
 - Eigenständig veröffentlichbares Vue-Paket im Ordner npm/; stabile Exporte und Theme-Pfade.
 - Native Flutter-Gegenstücke in flutter/, gemeinsame Release-Anleitung im Projektstamm.
 - Workspace-Weiterleitungen, Registry-Metadaten, Prepack-Prüfungen und plattformübergreifende CI.

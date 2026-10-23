@@ -1,5 +1,5 @@
 {
-  "name": "tecexpress",
+  "name": "@tekocloud.de/tecexpress",
   "version": "0.4.0",
   "description": "Independent Vue 3 UI components with light and dark themes",
   "type": "module",
@@ -34,12 +34,12 @@
   "scripts": {
     "dev": "vite --config demo/vite.config.ts",
     "build": "vite build && tsc -p tsconfig.build.json",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "npm run build && vue-tsc --noEmit",
     "test": "vitest run",
     "test:browser": "playwright test",
     "test:package": "node scripts/verify-package.mjs",
     "build:demo": "npm run build && vite build --config demo/vite.config.ts",
-    "check": "npm run typecheck && npm test && npm run build",
+    "check": "npm run typecheck && npm test",
     "prepack": "npm run check"
   },
   "peerDependencies": {

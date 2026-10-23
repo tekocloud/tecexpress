@@ -7,35 +7,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tecexpress_example/showcase.dart';
 
+import 'support/sdk_fonts.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     // Use the SDK's real fonts for visual QA instead of the test-only Ahem font.
-    var directory = File(Platform.resolvedExecutable).parent;
-    Directory? fonts;
-    for (var i = 0; i < 12; i++) {
-      final candidate = Directory(
-        '${directory.path}/bin/cache/artifacts/material_fonts',
-      );
-      if (candidate.existsSync()) {
-        fonts = candidate;
-        break;
-      }
-      if (directory.parent.path == directory.path) break;
-      directory = directory.parent;
-    }
-    if (fonts == null) {
-      throw StateError('Flutter SDK material_fonts were not found.');
-    }
+    final fonts = await sdkFontsDirectory();
     for (final entry in {
       'Roboto': 'roboto-regular.ttf',
       'MaterialIcons': 'materialicons-regular.otf',
     }.entries) {
       final loader = FontLoader(entry.key)
         ..addFont(
-          File('${fonts.path}/${entry.value}')
-              .readAsBytes()
-              .then(ByteData.sublistView),
+          sdkFontFile(
+            fonts,
+            entry.value,
+          ).readAsBytes().then(ByteData.sublistView),
         );
       await loader.load();
     }

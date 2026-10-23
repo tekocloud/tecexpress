@@ -54,8 +54,8 @@ Externe Datenänderungen während eines geöffneten Bearbeitungsdialogs werden v
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxScheduler, type Appointment } from 'tecexpress'
-import 'tecexpress/themes/index.css'
+import { TxScheduler, type Appointment } from '@tekocloud.de/tecexpress'
+import '@tekocloud.de/tecexpress/themes/index.css'
 const appointments = ref<Appointment[]>([
   { id: 1, text: 'Projektbesprechung', startDate: '2026-10-23T09:00', endDate: '2026-10-23T10:00' }
 ])

@@ -4,13 +4,13 @@
   "private": true,
   "workspaces": ["npm"],
   "scripts": {
-    "dev": "npm run dev --workspace tecexpress",
-    "build": "npm run build --workspace tecexpress",
-    "typecheck": "npm run typecheck --workspace tecexpress",
-    "test": "npm test --workspace tecexpress",
-    "test:browser": "npm run test:browser --workspace tecexpress",
-    "test:package": "npm run test:package --workspace tecexpress",
-    "build:demo": "npm run build:demo --workspace tecexpress",
-    "pack:npm": "npm pack --workspace tecexpress --pack-destination npm"
+    "dev": "npm run dev --workspace @tekocloud.de/tecexpress",
+    "build": "npm run build --workspace @tekocloud.de/tecexpress",
+    "typecheck": "npm run typecheck --workspace @tekocloud.de/tecexpress",
+    "test": "npm test --workspace @tekocloud.de/tecexpress",
+    "test:browser": "npm run test:browser --workspace @tekocloud.de/tecexpress",
+    "test:package": "npm run test:package --workspace @tekocloud.de/tecexpress",
+    "build:demo": "npm run build:demo --workspace @tekocloud.de/tecexpress",
+    "pack:npm": "npm pack --workspace @tekocloud.de/tecexpress --pack-destination npm"
   }
 }

@@ -63,8 +63,8 @@ Kein Backend, keine KI, Uploads, Nachrichtenedits, Lesebestätigungen oder echte
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxCard, TxCardView, TxChat, type ChatMessage } from 'tecexpress'
-import 'tecexpress/themes/index.css'
+import { TxCard, TxCardView, TxChat, type ChatMessage } from '@tekocloud.de/tecexpress'
+import '@tekocloud.de/tecexpress/themes/index.css'
 const messages = ref<ChatMessage[]>([])
 const user = { id: 'me', name: 'Stefan' }
 const projects = [{ id: 1, title: 'Portal', subtitle: 'In Bearbeitung', owner: 'Designteam' }]

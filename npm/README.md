@@ -1,4 +1,4 @@
-# tecexpress
+# @tekocloud.de/tecexpress
 
 Eigenständige Vue-3-Komponentenbibliothek unter MIT-Lizenz, ohne Lizenzkey. Version 0.4.0 enthält 20 UI-Komponenten und `TxColumn` als DataGrid-Konfiguration, TypeScript-Deklarationen sowie Light- und Dark-Theme.
 
@@ -26,15 +26,21 @@ npm run build:demo
 npm pack
 ```
 
-`npm pack` erzeugt `tecexpress-0.4.0.tgz`. In einem anderen Vue-Projekt mit `npm install /pfad/zu/tecexpress-0.4.0.tgz` installieren. Das Paket wurde nicht in einer Registry veröffentlicht. `npm run test:package` prüft eine echte Installation in einem temporären Consumer-Projekt und gibt dessen Pfad aus. `demo/dist/` enthält nach `build:demo` die statisch hostbare Demo.
+`npm pack` erzeugt `tekocloud.de-tecexpress-0.4.0.tgz`. In einem anderen Vue-Projekt mit `npm install /pfad/zu/tekocloud.de-tecexpress-0.4.0.tgz` installieren. `npm run test:package` prüft eine echte Installation in einem temporären Consumer-Projekt und gibt dessen Pfad aus. `demo/dist/` enthält nach `build:demo` die statisch hostbare Demo.
+
+## Installation
+
+```sh
+npm install @tekocloud.de/tecexpress vue@^3.5.0
+```
 
 ## Einzelimporte
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxButton, TxTextBox } from 'tecexpress'
-import 'tecexpress/themes/light.css'
+import { TxButton, TxTextBox } from '@tekocloud.de/tecexpress'
+import '@tekocloud.de/tecexpress/themes/light.css'
 const name = ref('Stefan')
 </script>
 
@@ -48,9 +54,9 @@ Optional alle Komponenten global registrieren:
 
 ```ts
 import { createApp } from 'vue'
-import Tecexpress from 'tecexpress'
+import Tecexpress from '@tekocloud.de/tecexpress'
 import App from './App.vue'
-import 'tecexpress/themes/index.css'
+import '@tekocloud.de/tecexpress/themes/index.css'
 createApp(App).use(Tecexpress).mount('#app')
 ```
 
@@ -59,14 +65,14 @@ createApp(App).use(Tecexpress).mount('#app')
 Für ein festes Theme genau einen Import verwenden:
 
 ```ts
-import 'tecexpress/themes/light.css'
-// alternativ: import 'tecexpress/themes/dark.css'
+import '@tekocloud.de/tecexpress/themes/light.css'
+// alternativ: import '@tekocloud.de/tecexpress/themes/dark.css'
 ```
 
 Für Laufzeitumschaltung:
 
 ```ts
-import 'tecexpress/themes/index.css'
+import '@tekocloud.de/tecexpress/themes/index.css'
 document.documentElement.dataset.txTheme = 'dark' // oder 'light'
 ```
 
@@ -88,7 +94,7 @@ Semantische Tokens: `--tx-bg`, `--tx-surface`, `--tx-surface-alt`, `--tx-text`, 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxDataGrid, TxColumn, type RowKey } from 'tecexpress'
+import { TxDataGrid, TxColumn, type RowKey } from '@tekocloud.de/tecexpress'
 const selected = ref<RowKey[]>([])
 const orders = [
   { id: 'TX-1', customer: 'Werkraum Berlin', amount: 120 },
@@ -111,8 +117,8 @@ const orders = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxScheduler, type Appointment } from 'tecexpress'
-import 'tecexpress/themes/index.css'
+import { TxScheduler, type Appointment } from '@tekocloud.de/tecexpress'
+import '@tekocloud.de/tecexpress/themes/index.css'
 const appointments = ref<Appointment[]>([
   { id: 1, text: 'Projektbesprechung', startDate: '2026-10-23T09:00', endDate: '2026-10-23T10:00' }
 ])
@@ -130,8 +136,8 @@ Tag, Woche und Monat; Termine anlegen, bearbeiten und löschen; Ganztagstermine,
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TxCard, TxCardView, TxChat, type ChatMessage } from 'tecexpress'
-import 'tecexpress/themes/index.css'
+import { TxCard, TxCardView, TxChat, type ChatMessage } from '@tekocloud.de/tecexpress'
+import '@tekocloud.de/tecexpress/themes/index.css'
 const messages = ref<ChatMessage[]>([])
 const user = { id: 'me', name: 'Stefan' }
 const projects = [{ id: 1, title: 'Kundenportal', subtitle: 'In Bearbeitung' }]
