@@ -26,8 +26,8 @@ import { readFileSync } from 'node:fs'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import Tecexpress, * as library from '@tekocloud.de/tecexpress'
-const expected = ['TxButton','TxTextBox','TxTextArea','TxNumberBox','TxCheckBox','TxSwitch','TxSelectBox','TxDateBox','TxTabs','TxToolbar','TxMenu','TxPopup','TxTooltip','TxToast','TxLoadIndicator','TxDataGrid','TxColumn','TxScheduler','TxCard','TxCardView','TxChat']
-assert.deepEqual(Object.keys(library).filter(key => key.startsWith('Tx')).sort(), expected.sort())
+const expected = ['TxButton','TxTextBox','TxTextArea','TxNumberBox','TxCheckBox','TxSwitch','TxSelectBox','TxDateBox','TxTabs','TxToolbar','TxMenu','TxPopup','TxTooltip','TxToast','TxLoadIndicator','TxDataGrid','TxColumn','TxScheduler','TxCard','TxCardView','TxChat','TxRadioGroup','TxButtonGroup','TxLookup','TxTagBox','TxList','TxGallery','TxFloatingActionButton','TxContextMenu','TxActionSheet','TxRangeSlider','TxRangeSelector','TxFileManager','TxFileUploader','TxMap','TxTabPanel','TxLoadPanel']
+assert.deepEqual(Object.keys(library).filter(key => key.startsWith('Tx')).sort(), [...expected, 'TxDataSource', 'TxArrayStore', 'TxCustomStore', 'TxMemoryFileProvider'].sort())
 const app = createSSRApp({ render: () => h(library.TxDataGrid, { dataSource: [{id: 1, name: 'Paketprobe'}] }) })
 app.use(Tecexpress)
 for (const name of expected) assert.ok(app.component(name))
@@ -39,7 +39,15 @@ assert.match(await renderToString(cards), /Karten-Paketprobe/)
 const chat = createSSRApp({ render: () => h(library.TxChat, { user: {id: 'me', name: 'Stefan'}, items: [{id: 1, text: 'Chat-Paketprobe', timestamp: '2026-10-23T09:00', author: {id: 'me', name: 'Stefan'}}] }) })
 assert.match(await renderToString(chat), /Chat-Paketprobe/)
 for (const name of ['light','dark','index']) assert.ok(readFileSync(new URL(import.meta.resolve('@tekocloud.de/tecexpress/themes/' + name + '.css')), 'utf8').includes('@import'))
-console.log('21 Exporte einschließlich Card, CardView und Chat, globale Registrierung, SSR und alle Theme-Exporte erfolgreich geprüft.')
+const source = new library.TxDataSource({ store: [{ id: 1, name: 'DataSource-Paketprobe' }], key: 'id', paginate: false })
+await source.load()
+const bound = createSSRApp({ render: () => h(library.TxDataGrid, { dataSource: source }) })
+assert.match(await renderToString(bound), /DataSource-Paketprobe/)
+source.dispose()
+const configured = createSSRApp({ render: () => h(library.TxDataGrid, { dataSource: { store: [{ id: 1, name: 'Konfiguration-SSR' }], key: 'id' } }) })
+assert.match(await renderToString(configured), /Konfiguration-SSR/)
+assert.equal(typeof library.notify, 'function')
+console.log('37 Komponenten/Konfigurationen, 4 Store-/Provider-Klassen, globale Registrierung, DataSource-SSR und Theme-Exporte erfolgreich geprüft.')
 `)
 const result = spawnSync(process.execPath, ['smoke.mjs'], { cwd: consumer, encoding: 'utf8' })
 if (result.status !== 0) throw new Error(result.stderr || result.stdout)

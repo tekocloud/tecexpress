@@ -27,10 +27,14 @@ class TxItem<T> {
     required this.value,
     required this.text,
     this.disabled = false,
+    this.group,
+    this.icon,
   });
   final T value;
   final String text;
   final bool disabled;
+  final String? group;
+  final IconData? icon;
 }
 
 class TxMenuItem {

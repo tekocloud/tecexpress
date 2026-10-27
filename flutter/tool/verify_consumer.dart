@@ -45,7 +45,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 void main() {
-  testWidgets('all 21 public entries compile and native widgets render', (tester) async {
+  testWidgets('all 37 public entries compile and native widgets render', (tester) async {
     final user = TxChatUser(id: 'me', name: 'Consumer');
     final objects = <Object>[
       const TxButton(text: 'Button'), const TxTextBox(), const TxTextArea(),
@@ -57,9 +57,19 @@ void main() {
       TxDataGrid<int>(dataSource: const [1], keyOf: (row) => row, columns: [TxColumn(caption: 'ID', valueGetter: (row) => row)]),
       TxColumn<int>(caption: 'Column', valueGetter: (row) => row),
       TxScheduler(currentDate: DateTime(2026, 10, 23)), const TxCard(title: 'Card'),
-      TxCardView<int>(dataSource: const [1], keyOf: (row) => row, titleOf: (row) => '$row'), TxChat(user: user)
+      TxCardView<int>(dataSource: const [1], keyOf: (row) => row, titleOf: (row) => '$row'), TxChat(user: user),
+      const TxRadioGroup<int>(), const TxButtonGroup<int>(), const TxLookup<int>(), const TxTagBox<int>(),
+      TxList<int>(textOf: (v) => '$v', keyOf: (v) => v), TxGallery<int>(itemBuilder: (_, v) => Text('$v')),
+      const TxFloatingActionButton(), const TxContextMenu(child: Text('Context')), const TxActionSheet(),
+      const TxRangeSlider(value: RangeValues(0, 1)), TxRangeSelector<int>(value: const RangeValues(0, 1), min: 0, max: 10, argumentOf: (v) => v.toDouble(), valueOf: (v) => v.toDouble()),
+      TxFileManager(provider: TxMemoryFileProvider()), const TxFileUploader(), const TxMap(),
+      TxTabPanel(builder: (_, i) => Text('$i')), const TxLoadPanel(visible: false)
     ];
-    expect(objects.length, 21);
+    expect(objects.length, 37);
+    final source = TxDataSource<int>.array([1, 2], keyOf: (v) => v);
+    await source.load();
+    expect(source.items, [1, 2]);
+    source.dispose();
     await tester.pumpWidget(MaterialApp(theme: TxTheme.light(), darkTheme: TxTheme.dark(),
       locale: const Locale('de'), localizationsDelegates: TxLocalizations.delegates,
       supportedLocales: TxLocalizations.supportedLocales,

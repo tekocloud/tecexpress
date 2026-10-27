@@ -1,3 +1,5 @@
+import 'source.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ class TxChat extends StatefulWidget {
     super.key,
     required this.user,
     this.items,
+    this.dataSource,
     this.onItemsChanged,
     this.controller,
     this.initialText = '',
@@ -46,6 +49,7 @@ class TxChat extends StatefulWidget {
   }) : assert(maxLength > 0);
   final TxChatUser user;
   final List<TxChatMessage>? items;
+  final Object? dataSource;
   final ValueChanged<List<TxChatMessage>>? onItemsChanged;
   final TextEditingController? controller;
   final String initialText;
@@ -76,7 +80,13 @@ class TxChat extends StatefulWidget {
   State<TxChat> createState() => _TxChatState();
 }
 
-class _TxChatState extends State<TxChat> {
+class _TxChatState extends State<TxChat>
+    with TxSourceState<TxChat, TxChatMessage> {
+  @override
+  Object? get sourceInput => widget.dataSource;
+  @override
+  List<TxChatMessage> get sourceFallback => widget.items ?? _items;
+
   late TextEditingController _text;
   final _scroll = ScrollController(), _inputFocus = FocusNode();
   List<TxChatMessage> _items = [];
@@ -86,7 +96,7 @@ class _TxChatState extends State<TxChat> {
   int _counter = 0, _unread = 0;
   bool _atBottom = true;
   String? _error;
-  List<TxChatMessage> get _source => widget.items ?? _items;
+  List<TxChatMessage> get _source => sourceItems;
   bool get _blocked =>
       widget.disabled || widget.readOnly || widget.loading || widget.sending;
   bool get _canSend =>
@@ -163,8 +173,9 @@ class _TxChatState extends State<TxChat> {
     if (_error != null) setState(() => _error = null);
   }
 
-  void _send() {
-    if (!_canSend || !_text.value.composing.isCollapsed) return;
+  bool _committing = false;
+  Future<void> _send() async {
+    if (_committing || !_canSend || !_text.value.composing.isCollapsed) return;
     Object id;
     do {
       id = 'tx-chat-${identityHashCode(this)}-${++_counter}';
@@ -180,6 +191,11 @@ class _TxChatState extends State<TxChat> {
       widget.onMessageEntered?.call(event);
       if (event.cancel) return;
       final next = [..._source, message];
+      if (boundSource != null) {
+        _committing = true;
+        await boundSource!.insert(message);
+        if (!mounted) return;
+      }
       setState(() {
         _items = next;
         _error = null;
@@ -193,7 +209,9 @@ class _TxChatState extends State<TxChat> {
       widget.onMessageSent?.call(message);
       _inputFocus.requestFocus();
     } catch (error) {
-      setState(() => _error = '$error');
+      if (mounted) setState(() => _error = '$error');
+    } finally {
+      _committing = false;
     }
   }
 

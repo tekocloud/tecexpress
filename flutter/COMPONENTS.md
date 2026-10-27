@@ -1,6 +1,6 @@
-# Vue ↔ Flutter · Komponenten und API · 0.4.0
+# Vue ↔ Flutter · Komponenten und API · 0.5.0
 
-Alle 21 öffentlichen Vue-Komponenten beziehungsweise Konfigurationen haben ein natives Flutter-Gegenstück. Die Tabelle beschreibt den vorhandenen Umfang, keine vollständige DevExtreme-Kompatibilität. Sämtliche Flutter-Widgets werden aus `package:tecexpress/tecexpress.dart` importiert. Der Showcase enthält jede Tabellenzeile; `TxColumn` wird als DataGrid-Konfiguration gezeigt.
+Alle bisherigen 21 öffentlichen Vue-Komponenten beziehungsweise Konfigurationen haben weiterhin ein natives Flutter-Gegenstück. Weitere 16 Widgets und die DataSource-Infrastruktur sind in [Erweiterungen 0.5.0](EXTENSIONS.md) dokumentiert. Die Tabelle beschreibt den vorhandenen Umfang, keine vollständige DevExtreme-Kompatibilität. Sämtliche Flutter-Widgets werden aus `package:tecexpress/tecexpress.dart` importiert. Der Showcase enthält jede Tabellenzeile; `TxColumn` wird als DataGrid-Konfiguration gezeigt.
 
 | Vue / Flutter | Flutter-Funktionen und wesentliche API |
 | --- | --- |
@@ -35,7 +35,7 @@ Alle 21 öffentlichen Vue-Komponenten beziehungsweise Konfigurationen haben ein 
 - `TxChange<T>.cancel` ist ein synchroner Abbruchmechanismus. Scheduler-Ereignisse: `onAppointmentAdding/Updating/Deleting`, anschließend `onAppointmentAdded/Updated/Deleted`. Updates verwenden `TxAppointmentUpdate(oldData, newData)`. `onAppointmentClick` und `onCellClick` melden Aktivierungen.
 - Chat: `onMessageEntered` meldet vor Aufnahme eine `TxChange<TxChatMessage>`; `onMessageSent` nach lokalem Änderungsvorschlag eine Nachricht. `TxMessageStatus.sent` bestätigt keine Serverzustellung. `pending/error` sind von der Anwendung steuerbare Anzeigen.
 - Wer Werte oder Listen übergibt, übernimmt Änderungen mit den passenden Callbacks. Textcontroller können sowohl programmatisch als auch durch Eingaben aktualisiert werden; nur intern erzeugte Controller werden vom Paket entsorgt.
-- Anwendungsdaten werden weder persistiert noch an externe Dienste gesendet. Remote-Stores, Scheduler-Serien/Ressourcen/Drag-and-drop, HTML-Chat und Dateiuploads gehören nicht zu dieser Version.
+- Es gibt keine implizite Persistenz oder Dienstanbindung. Remote-Stores und Dateiuploads stehen seit 0.5.0 über konfigurierbare Adapter zur Verfügung. Scheduler-Serien/Ressourcen/Drag-and-drop und HTML-Chat sind weiterhin nicht enthalten.
 
 ## Themen, Plattformen und Prüfungen
 

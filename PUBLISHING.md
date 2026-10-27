@@ -6,8 +6,8 @@ Diese Anleitung liegt bewusst im **Projektstamm**. Sie beschreibt manuelle Relea
 
 | Paket | Verzeichnis für den Upload | Manifest | Aktuelle Version |
 | --- | --- | --- | --- |
-| Vue / npm (`@tekocloud.de/tecexpress`) | `npm/` | `npm/package.json` | `0.4.0` |
-| Flutter / pub.dev | `flutter/` | `flutter/pubspec.yaml` | `0.4.0` |
+| Vue / npm (`@tekocloud.de/tecexpress`) | `npm/` | `npm/package.json` | `0.5.0` |
+| Flutter / pub.dev | `flutter/` | `flutter/pubspec.yaml` | `0.5.0` |
 
 Du brauchst Node.js 24.15+ innerhalb von 24.x, npm, Flutter mindestens 3.47.7 mit Dart mindestens 3.13.5, einen npm-Account und für pub.dev einen Google-Account. Flutter muss in deinem Terminal verfügbar sein; nach einer PATH-Änderung das Terminal neu öffnen. `flutter doctor -v` zeigt die verfügbaren Build-Ziele. Windows benötigt Visual Studio mit C++-Desktopwerkzeugen, Android ein JDK und Android-SDK, Apple-Builds einen Mac mit Xcode.
 
@@ -66,12 +66,12 @@ npm pack --dry-run
 npm pack
 ```
 
-Bei Version 0.4.0 entsteht hier `tekocloud.de-tecexpress-0.4.0.tgz`. Die Ausgabe muss nur `dist/`, `themes/`, `docs/`, Paket-README, Manifest und MIT-Lizenz enthalten. Kein Flutter-Ordner, keine Demo-Builds, Zugangsdaten oder lokalen Testberichte. `prepack` führt Typprüfung, Komponententests und Build aus. Browser- und Consumer-Prüfungen sind die separaten Schritte oben.
+Bei Version 0.5.0 entsteht hier `tekocloud.de-tecexpress-0.5.0.tgz`. Die Ausgabe muss nur `dist/`, `themes/`, `docs/`, Paket-README, Manifest und MIT-Lizenz enthalten. Kein Flutter-Ordner, keine Demo-Builds, Zugangsdaten oder lokalen Testberichte. `prepack` führt Typprüfung, Komponententests und Build aus. Browser- und Consumer-Prüfungen sind die separaten Schritte oben.
 
 Optional das Archiv auflisten:
 
 ```sh
-tar -tf tekocloud.de-tecexpress-0.4.0.tgz
+tar -tf tekocloud.de-tecexpress-0.5.0.tgz
 ```
 
 ## 4. npm: anmelden und veröffentlichen
@@ -109,14 +109,14 @@ Das Archiv wurde erstellt, die Veröffentlichung aber wegen der Authentifizierun
 
 Falls weiterhin ein vorhandener Token verwendet wird, dessen Herkunft in der lokalen npm-Konfiguration oder den Terminal-Umgebungsvariablen prüfen. Tokenwerte nicht ausgeben oder weitergeben. Für tokenbasierte direkte Uploads muss ein granularer Token Schreibrechte auf das Paket und **Bypass 2FA** besitzen; ein Token kann fehlende Paketberechtigungen nicht ersetzen. Paket-Einstellungen können tokenbasierte Uploads vollständig verbieten. Für künftige CI-Veröffentlichungen [Trusted Publishing](https://docs.npmjs.com/trusted-publishers/) verwenden; dieser Workspace veröffentlicht derzeit nicht automatisch.
 
-Für diesen abgelehnten Upload ist keine Versionsänderung nötig, sofern `npm view @tekocloud.de/tecexpress@0.4.0 version --registry=https://registry.npmjs.org/` bestätigt, dass die Version noch nicht veröffentlicht ist. Ein erfolgreicher Dry-run prüft diese Authentifizierung nicht.
+Die folgende Prüfung muss vor einem erneuten Upload bestätigen, dass die gewünschte Version noch frei ist. Nur dann ist keine weitere Versionsänderung nötig, sofern `npm view @tekocloud.de/tecexpress@0.5.0 version --registry=https://registry.npmjs.org/` bestätigt, dass die Version noch nicht veröffentlicht ist. Ein erfolgreicher Dry-run prüft diese Authentifizierung nicht.
 
 Details: [npm-Vorgaben für 2FA beim Veröffentlichen](https://docs.npmjs.com/requiring-2fa-for-package-publishing-and-settings-modification/) und [2FA einrichten](https://docs.npmjs.com/configuring-two-factor-authentication/).
 
 Danach prüfen:
 
 ```sh
-npm view @tekocloud.de/tecexpress@0.4.0 version dist.tarball --registry=https://registry.npmjs.org/
+npm view @tekocloud.de/tecexpress@0.5.0 version dist.tarball --registry=https://registry.npmjs.org/
 ```
 
 ## 5. pub.dev: prüfen und Upload simulieren
@@ -172,7 +172,7 @@ Vom Projektstamm:
 mkdir ../tecexpress-npm-smoke
 cd ../tecexpress-npm-smoke
 npm init -y
-npm install @tekocloud.de/tecexpress@0.4.0 vue@^3.5.0
+npm install @tekocloud.de/tecexpress@0.5.0 vue@^3.5.0
 node --input-type=module -e "import('@tekocloud.de/tecexpress').then(m => console.log(Object.keys(m)))"
 ```
 
@@ -182,7 +182,7 @@ Für Flutter im übergeordneten Verzeichnis:
 cd ..
 flutter create tecexpress_flutter_smoke
 cd tecexpress_flutter_smoke
-flutter pub add tecexpress:^0.4.0
+flutter pub add tecexpress:^0.5.0
 ```
 
 In der neuen App `package:tecexpress/tecexpress.dart` importieren, `MaterialApp(theme: TxTheme.light(), darkTheme: TxTheme.dark(), home: Scaffold(body: TxCard(title: 'Registry-Test', child: Text('Installiert'))))` verwenden und `flutter analyze` sowie `flutter run -d chrome` ausführen. Das vollständige Theme-/Lokalisierungsbeispiel steht in der Flutter-README.

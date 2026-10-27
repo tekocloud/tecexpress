@@ -1,3 +1,5 @@
+import 'source.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -44,7 +46,7 @@ class TxScheduler extends StatefulWidget {
     this.onAppointmentUpdated,
     this.onAppointmentDeleted,
   });
-  final List<TxAppointment>? dataSource;
+  final Object? dataSource;
   final ValueChanged<List<TxAppointment>>? onDataSourceChanged;
   final DateTime? currentDate;
   final ValueChanged<DateTime>? onCurrentDateChanged;
@@ -73,7 +75,13 @@ class TxScheduler extends StatefulWidget {
   State<TxScheduler> createState() => _TxSchedulerState();
 }
 
-class _TxSchedulerState extends State<TxScheduler> {
+class _TxSchedulerState extends State<TxScheduler>
+    with TxSourceState<TxScheduler, TxAppointment> {
+  @override
+  Object? get sourceInput => widget.dataSource;
+  @override
+  List<TxAppointment> get sourceFallback => _data;
+
   DateTime _date = txDay(DateTime.now());
   TxSchedulerView? _view;
   List<TxAppointment> _data = [];
@@ -87,7 +95,7 @@ class _TxSchedulerState extends State<TxScheduler> {
           : widget.views.contains(TxSchedulerView.week)
           ? TxSchedulerView.week
           : widget.views.first);
-  List<TxAppointment> get _appointments => widget.dataSource ?? _data;
+  List<TxAppointment> get _appointments => sourceItems;
   bool get _blocked => widget.disabled || widget.loading;
   bool get _canAdd =>
       !_blocked && !widget.readOnly && widget.editing.allowAdding;
@@ -111,11 +119,11 @@ class _TxSchedulerState extends State<TxScheduler> {
       a.allDay == b.allDay &&
       a.startDate == b.startDate &&
       a.endDate == b.endDate;
-  String? _commit(
+  Future<String?> _commit(
     TxAppointment candidate,
     TxAppointment? original,
     bool delete,
-  ) {
+  ) async {
     if (!mounted) return 'Der Kalender ist nicht mehr verfügbar.';
     if (_blocked ||
         widget.readOnly ||
@@ -165,6 +173,16 @@ class _TxSchedulerState extends State<TxScheduler> {
                 .map((item) => item.id == original.id ? candidate : item)
                 .toList();
       txValidateKeys(next, (item) => item.id);
+      if (boundSource != null) {
+        if (delete) {
+          await boundSource!.remove(original!.id);
+        } else if (original == null) {
+          await boundSource!.insert(candidate);
+        } else {
+          await boundSource!.update(original.id, (_) => candidate);
+        }
+        if (!mounted) return 'Kalender geschlossen';
+      }
       setState(() => _data = next);
       widget.onDataSourceChanged?.call(List.unmodifiable(next));
       if (delete) {
@@ -730,7 +748,7 @@ class _AppointmentEditor extends StatefulWidget {
   final Object id;
   final DateTime start, end;
   final bool allDay, canSave, canDelete;
-  final String? Function(TxAppointment candidate, bool delete) commit;
+  final Future<String?> Function(TxAppointment candidate, bool delete) commit;
   @override
   State<_AppointmentEditor> createState() => _AppointmentEditorState();
 }
@@ -754,7 +772,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
     ),
   );
   String? _error;
-  bool _confirmDelete = false;
+  bool _confirmDelete = false, _saving = false;
   @override
   void dispose() {
     _title.dispose();
@@ -764,7 +782,9 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
     super.dispose();
   }
 
-  void _save({bool delete = false}) {
+  Future<void> _save({bool delete = false}) async {
+    if (_saving) return;
+    setState(() => _saving = true);
     try {
       final candidate = delete
           ? widget.original!
@@ -776,7 +796,8 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
               allDay: _allDay,
               description: _description.text,
             );
-      final error = widget.commit(candidate, delete);
+      final error = await widget.commit(candidate, delete);
+      if (!mounted) return;
       if (error == null) {
         Navigator.of(context).pop();
       } else {
@@ -786,6 +807,8 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
       setState(
         () => _error = error is FormatException ? error.message : '$error',
       );
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 

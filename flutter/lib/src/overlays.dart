@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'theme.dart';
+import 'models.dart';
 
 class TxPopup extends StatefulWidget {
   const TxPopup({
@@ -16,10 +17,21 @@ class TxPopup extends StatefulWidget {
     this.showCloseButton = true,
     this.hideOnOutsideClick = false,
     this.width = 480,
+    this.height,
+    this.fullScreen = false,
+    this.dragEnabled = false,
+    this.resizeEnabled = false,
+    this.alignment = Alignment.center,
+    this.onShowing,
+    this.onHiding,
   });
   final bool visible, showCloseButton, hideOnOutsideClick;
   final String title;
   final double width;
+  final double? height;
+  final bool fullScreen, dragEnabled, resizeEnabled;
+  final Alignment alignment;
+  final ValueChanged<TxChange<bool>>? onShowing, onHiding;
   final Widget child;
   final List<Widget> actions;
   final ValueChanged<bool>? onVisibleChanged;
@@ -72,18 +84,37 @@ class _TxPopupState extends State<TxPopup> {
   void _reconcile() {
     if (!mounted) return;
     if (widget.visible && _route == null) {
+      final event = TxChange(true);
+      widget.onShowing?.call(event);
+      if (event.cancel) return;
       final navigator = Navigator.of(context, rootNavigator: true);
       final route = DialogRoute<void>(
         context: context,
         barrierDismissible: widget.hideOnOutsideClick,
         builder: (_) => ValueListenableBuilder(
           valueListenable: _revision,
-          builder: (_, revision, child) => _PopupSurface(
-            title: widget.title,
-            width: widget.width,
-            actions: widget.actions,
-            showCloseButton: widget.showCloseButton,
-            child: widget.child,
+          builder: (_, revision, child) => PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              final event = TxChange(false);
+              widget.onHiding?.call(event);
+              if (!event.cancel) {
+                Navigator.of(context, rootNavigator: true).pop();
+              }
+            },
+            child: _PopupSurface(
+              title: widget.title,
+              width: widget.width,
+              actions: widget.actions,
+              showCloseButton: widget.showCloseButton,
+              height: widget.height,
+              fullScreen: widget.fullScreen,
+              dragEnabled: widget.dragEnabled,
+              resizeEnabled: widget.resizeEnabled,
+              alignment: widget.alignment,
+              child: widget.child,
+            ),
           ),
         ),
       );
@@ -120,19 +151,34 @@ class _TxPopupState extends State<TxPopup> {
   Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
-class _PopupSurface extends StatelessWidget {
+class _PopupSurface extends StatefulWidget {
   const _PopupSurface({
     required this.title,
     required this.width,
     required this.child,
     required this.actions,
     required this.showCloseButton,
+    this.height,
+    this.fullScreen = false,
+    this.dragEnabled = false,
+    this.resizeEnabled = false,
+    this.alignment = Alignment.center,
   });
   final String title;
   final double width;
   final Widget child;
   final List<Widget> actions;
   final bool showCloseButton;
+  final double? height;
+  final bool fullScreen, dragEnabled, resizeEnabled;
+  final Alignment alignment;
+  @override
+  State<_PopupSurface> createState() => _PopupSurfaceState();
+}
+
+class _PopupSurfaceState extends State<_PopupSurface> {
+  Offset _offset = Offset.zero;
+  double? _width, _height;
   @override
   Widget build(BuildContext context) => CallbackShortcuts(
     bindings: {
@@ -141,53 +187,99 @@ class _PopupSurface extends StatelessWidget {
     },
     child: Focus(
       autofocus: true,
-      child: Dialog(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: width,
-            maxHeight: MediaQuery.sizeOf(context).height * .9,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
+      child: Transform.translate(
+        offset: _offset,
+        child: Dialog(
+          alignment: widget.alignment,
+          insetPadding: widget.fullScreen
+              ? EdgeInsets.zero
+              : const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: widget.fullScreen
+                  ? MediaQuery.sizeOf(context).width
+                  : _width ?? widget.width,
+              maxHeight: widget.fullScreen
+                  ? MediaQuery.sizeOf(context).height
+                  : _height ??
+                        widget.height ??
+                        MediaQuery.sizeOf(context).height * .9,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                height: widget.fullScreen
+                    ? MediaQuery.sizeOf(context).height - 40
+                    : _height ?? widget.height,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge,
+                    GestureDetector(
+                      onPanUpdate: widget.dragEnabled && !widget.fullScreen
+                          ? (details) =>
+                                setState(() => _offset += details.delta)
+                          : null,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          if (widget.showCloseButton)
+                            IconButton(
+                              tooltip: 'Dialog schließen',
+                              onPressed: () => Navigator.of(context).maybePop(),
+                              icon: const Icon(Icons.close),
+                            ),
+                        ],
                       ),
                     ),
-                    if (showCloseButton)
-                      IconButton(
-                        tooltip: 'Dialog schließen',
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
+                    const Divider(),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: widget.child,
+                        ),
+                      ),
+                    ),
+                    if (widget.actions.isNotEmpty) ...[
+                      const Divider(),
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: widget.actions,
+                      ),
+                    ],
+                    if (widget.resizeEnabled && !widget.fullScreen)
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                          onPanUpdate: (details) => setState(() {
+                            _width =
+                                ((_width ?? widget.width) + details.delta.dx)
+                                    .clamp(
+                                      240,
+                                      MediaQuery.sizeOf(context).width - 40,
+                                    );
+                            _height =
+                                ((_height ?? widget.height ?? 320) +
+                                        details.delta.dy)
+                                    .clamp(
+                                      160,
+                                      MediaQuery.sizeOf(context).height * .9,
+                                    );
+                          }),
+                          child: const Icon(Icons.open_in_full, size: 18),
+                        ),
                       ),
                   ],
                 ),
-                const Divider(),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: child,
-                    ),
-                  ),
-                ),
-                if (actions.isNotEmpty) ...[
-                  const Divider(),
-                  Wrap(
-                    alignment: WrapAlignment.end,
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: actions,
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         ),
@@ -196,22 +288,80 @@ class _PopupSurface extends StatelessWidget {
   );
 }
 
-class TxTooltip extends StatelessWidget {
+class TxTooltip extends StatefulWidget {
   const TxTooltip({
     super.key,
     required this.text,
     required this.child,
     this.disabled = false,
+    this.waitDuration = Duration.zero,
+    this.showDuration = const Duration(seconds: 3),
+    this.preferBelow = false,
+    this.triggerMode = TooltipTriggerMode.longPress,
+    this.visible,
+    this.content,
   });
   final String text;
   final Widget child;
   final bool disabled;
+  final Duration waitDuration, showDuration;
+  final bool preferBelow;
+  final TooltipTriggerMode triggerMode;
+  final bool? visible;
+  final Widget? content;
   @override
-  Widget build(BuildContext context) =>
-      disabled ? child : Tooltip(message: text, child: child);
+  State<TxTooltip> createState() => _TxTooltipState();
 }
 
-enum TxToastType { info, success, error }
+class _TxTooltipState extends State<TxTooltip> {
+  final _tooltip = GlobalKey<TooltipState>();
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(covariant TxTooltip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.visible == true && !widget.disabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.visible == true) {
+          _tooltip.currentState?.ensureTooltipVisible();
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      widget.disabled || widget.visible == false
+      ? widget.child
+      : Tooltip(
+          key: _tooltip,
+          message: widget.content == null ? widget.text : null,
+          richMessage: widget.content == null
+              ? null
+              : WidgetSpan(child: widget.content!),
+          waitDuration: widget.visible == true
+              ? Duration.zero
+              : widget.waitDuration,
+          showDuration: widget.visible == true
+              ? const Duration(days: 365)
+              : widget.showDuration,
+          preferBelow: widget.preferBelow,
+          triggerMode: widget.visible == true
+              ? TooltipTriggerMode.manual
+              : widget.triggerMode,
+          child: widget.child,
+        );
+}
+
+enum TxToastType { info, success, warning, error }
 
 class TxToast extends StatefulWidget {
   const TxToast({

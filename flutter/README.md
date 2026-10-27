@@ -1,8 +1,12 @@
 # tecexpress für Flutter
 
-Native Flutter-UI-Bibliothek unter MIT-Lizenz, Version **0.4.0**, ohne Lizenzkey. Alle 21 vorhandenen tecexpress-Komponenten beziehungsweise Konfigurationen sind enthalten. Keine WebView, keine DevExtreme-Laufzeitabhängigkeit, keine kommerzielle UI-Abhängigkeit.
+Native Flutter-UI-Bibliothek unter MIT-Lizenz, Version **0.5.0**, ohne Lizenzkey. Alle 37 tecexpress-Komponenten beziehungsweise Konfigurationen sind enthalten. Keine WebView, keine DevExtreme-Laufzeitabhängigkeit, keine kommerzielle UI-Abhängigkeit.
 
 **Veröffentlichung auf pub.dev und npm: [zentrale Anleitung im Repository](https://github.com/tekocloud/tecexpress/blob/main/PUBLISHING.md).**
+
+## Neu in 0.5.0
+
+Gemeinsame `TxDataSource<T>` mit Array-/Custom-Stores, 16 zusätzliche Widgets, erweiterte Overlays und Datei-/Upload-/Kartenadapter. [DataSource, Funktionsmatrix und Migration](EXTENSIONS.md).
 
 ## Installation
 
@@ -95,7 +99,7 @@ Chat zeigt lokale Nachrichten. `onMessageEntered` kann synchron mit `change.canc
 
 ## API und Showcase
 
-[Vollständige Zuordnung der 21 Komponenten, Funktionen und Unterschiede](COMPONENTS.md). API-Dokumentation lässt sich mit `dart doc` erzeugen. Ausführbare Beispiele aller Komponenten: `example/lib/showcase.dart`.
+[API-Zuordnung der bisherigen Komponenten, Funktionen und Unterschiede](COMPONENTS.md). API-Dokumentation lässt sich mit `dart doc` erzeugen. Ausführbare Beispiele aller Komponenten: `example/lib/showcase.dart`.
 
 ```sh
 flutter pub get

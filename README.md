@@ -6,10 +6,12 @@ Eigenständige UI-Bibliotheken unter MIT-Lizenz, ohne Lizenzkey: Vue 3 und nativ
 
 | Ordner | Inhalt | Einstieg |
 | --- | --- | --- |
-| [`npm/`](npm/) | Vue-Paket `@tekocloud.de/tecexpress` 0.4.0, TypeScript, CSS-Themes, Demo und Tests | [Vue-Anleitung](npm/README.md) |
-| [`flutter/`](flutter/) | Flutter-Paket `tecexpress` 0.4.0 für Android, iOS, Web, Windows, macOS und Linux | [Flutter-Anleitung](flutter/README.md) |
+| [`npm/`](npm/) | Vue-Paket `@tekocloud.de/tecexpress` 0.5.0, TypeScript, CSS-Themes, Demo und Tests | [Vue-Anleitung](npm/README.md) |
+| [`flutter/`](flutter/) | Flutter-Paket `tecexpress` 0.5.0 für Android, iOS, Web, Windows, macOS und Linux | [Flutter-Anleitung](flutter/README.md) |
 
-Die aktuellen 21 Komponenten und Konfigurationen stehen auf beiden Seiten zur Verfügung. [Funktions- und API-Zuordnung](flutter/COMPONENTS.md). Die APIs folgen den Konventionen des jeweiligen Frameworks.
+Die aktuellen 37 Komponenten und Konfigurationen stehen auf beiden Seiten zur Verfügung, ergänzt um TxDataSource, Stores sowie Datei-/Upload-/Kartenadapter. [Funktions- und API-Zuordnung](flutter/COMPONENTS.md). Die APIs folgen den Konventionen des jeweiligen Frameworks.
+
+Die neuen APIs und Plattformunterschiede stehen in der [Funktionsmatrix](flutter/EXTENSIONS.md), die Vue-Datenbindung unter [TxDataSource](npm/docs/data-source.md).
 
 ## Vue entwickeln
 
@@ -37,7 +39,7 @@ flutter pub get
 flutter run -d chrome
 ```
 
-Alternativ `flutter run -d windows`. Weitere Plattformen benötigen ihre üblichen SDKs und Build-Werkzeuge. Der Showcase demonstriert alle 21 Gegenstücke.
+Alternativ `flutter run -d windows`. Weitere Plattformen benötigen ihre üblichen SDKs und Build-Werkzeuge. Der Showcase demonstriert alle 37 Gegenstücke und die DataSource-Anbindung.
 
 ## Validierung und CI
 

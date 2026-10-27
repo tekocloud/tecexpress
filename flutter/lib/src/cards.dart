@@ -1,3 +1,5 @@
+import 'source.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -147,7 +149,7 @@ class TxCardView<T> extends StatefulWidget {
     this.contentBuilder,
     this.footerBuilder,
   }) : assert(pageSize > 0);
-  final List<T> dataSource;
+  final Object dataSource;
   final Object Function(T row) keyOf;
   final String Function(T row) titleOf;
   final String? Function(T row)? subtitleOf, imageOf, imageAltOf, searchTextOf;
@@ -172,16 +174,36 @@ class TxCardView<T> extends StatefulWidget {
   State<TxCardView<T>> createState() => _TxCardViewState<T>();
 }
 
-class _TxCardViewState<T> extends State<TxCardView<T>> {
+class _TxCardViewState<T> extends State<TxCardView<T>>
+    with TxSourceState<TxCardView<T>, T> {
+  @override
+  Object? get sourceInput => widget.dataSource;
+  @override
+  List<T> get sourceFallback => <T>[];
+  @override
+  void sourceChanged() {
+    if (boundSource?.loading ?? false) return;
+    final before = widget.selectedCardKeys ?? _selected, next = _keys;
+    if (before.length != next.length || !before.containsAll(next)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _select(next);
+      });
+    }
+  }
+
   final _searchController = TextEditingController();
   String _search = '';
   int _page = 0;
   Set<Object> _selected = {};
   Set<Object> get _keys {
     if (widget.selection == TxSelectionMode.none) return {};
-    final existing = widget.dataSource.map(widget.keyOf).toSet();
+    final existing = sourceItems.map(widget.keyOf).toSet();
     final keys = (widget.selectedCardKeys ?? _selected)
-        .where(existing.contains)
+        .where(
+          (key) => boundSource != null
+              ? boundSource!.containsKey(key) != false
+              : existing.contains(key),
+        )
         .toSet();
     return widget.selection == TxSelectionMode.single && keys.isNotEmpty
         ? {keys.first}
@@ -194,16 +216,32 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
     widget.onSelectionChanged?.call(
       TxSelection(
         keys: keys,
-        data: widget.dataSource.where(
-          (item) => keys.contains(widget.keyOf(item)),
-        ),
+        data: sourceItems.where((item) => keys.contains(widget.keyOf(item))),
       ),
     );
   }
 
-  void _pageTo(int page) {
+  void _pageTo(int page, {bool updateQuery = false}) {
     setState(() => _page = page);
     widget.onPageIndexChanged?.call(page);
+    if (boundSource != null) {
+      final source = boundSource!;
+      if (!updateQuery) {
+        source.configure(pageIndex: page).catchError((_) => <T>[]);
+        return;
+      }
+      source
+          .configure(
+            pageIndex: page,
+            searchValue: _search,
+            searchExpr: [
+              (row) =>
+                  widget.searchTextOf?.call(row) ??
+                  '${widget.titleOf(row)} ${widget.subtitleOf?.call(row) ?? ''}',
+            ],
+          )
+          .catchError((_) => <T>[]);
+    }
   }
 
   @override
@@ -212,6 +250,11 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
     if (oldWidget.pageSize != widget.pageSize ||
         oldWidget.searchEnabled != widget.searchEnabled) {
       _page = 0;
+    }
+    if (oldWidget.pageSize != widget.pageSize) {
+      boundSource
+          ?.configure(pageSize: widget.pageSize)
+          .catchError((_) => <T>[]);
     }
     final keys = _keys, before = widget.selectedCardKeys ?? _selected;
     if (before.length != keys.length || !before.containsAll(keys)) {
@@ -230,18 +273,29 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    txValidateKeys(widget.dataSource, widget.keyOf);
+    txValidateKeys(sourceItems, widget.keyOf);
     final tokens = txThemeOf(context),
-        blocked = widget.disabled || widget.loading;
+        blocked =
+            widget.disabled ||
+            widget.loading ||
+            (boundSource?.loading ?? false);
     final query = widget.searchEnabled ? _search.trim().toLowerCase() : '';
-    final filtered = widget.dataSource.where((row) {
+    final filtered = sourceItems.where((row) {
       final text =
           widget.searchTextOf?.call(row) ??
           '${widget.titleOf(row)} ${widget.subtitleOf?.call(row) ?? ''} ${widget.columns.map((field) => field.valueGetter(row) ?? '').join(' ')}';
-      return text.toLowerCase().contains(query);
+      return boundSource != null || text.toLowerCase().contains(query);
     }).toList();
-    final pageCount = math.max(1, (filtered.length / widget.pageSize).ceil()),
-        page = (widget.pageIndex ?? _page).clamp(0, pageCount - 1),
+    final pageCount = math.max(
+          1,
+          ((boundSource?.totalCount ?? filtered.length) /
+                  (boundSource?.pageSize ?? widget.pageSize))
+              .ceil(),
+        ),
+        page = (widget.pageIndex ?? boundSource?.pageIndex ?? _page).clamp(
+          0,
+          pageCount - 1,
+        ),
         keys = _keys;
     if (page != (widget.pageIndex ?? _page)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -266,14 +320,14 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
                     disabled: blocked,
                     onChanged: (text) {
                       setState(() => _search = text);
-                      _pageTo(0);
+                      _pageTo(0, updateQuery: true);
                       widget.onSearchChanged?.call(text);
                     },
                   ),
                 ),
               ),
             ),
-          if (widget.loading)
+          if (widget.loading || (boundSource?.loading ?? false))
             const Padding(
               padding: EdgeInsets.all(40),
               child: Center(
@@ -299,8 +353,14 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
                   children: [
                     for (final row
                         in filtered
-                            .skip(page * widget.pageSize)
-                            .take(widget.pageSize))
+                            .skip(
+                              boundSource == null ? page * widget.pageSize : 0,
+                            )
+                            .take(
+                              boundSource == null
+                                  ? widget.pageSize
+                                  : filtered.length,
+                            ))
                       SizedBox(
                         width: width,
                         child: DecoratedBox(
@@ -431,7 +491,7 @@ class _TxCardViewState<T> extends State<TxCardView<T>> {
               page: page,
               pageCount: pageCount,
               countText:
-                  '${filtered.length} Karten${widget.selection != TxSelectionMode.none ? ' · ${keys.length} ausgewählt' : ''}',
+                  '${boundSource?.totalCount ?? filtered.length} Karten${widget.selection != TxSelectionMode.none ? ' · ${keys.length} ausgewählt' : ''}',
               disabled: blocked,
               onChanged: _pageTo,
             ),

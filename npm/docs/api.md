@@ -1,6 +1,10 @@
-# API · tecexpress 0.4.0
+# API · tecexpress 0.5.0
 
 Alle Komponenten werden aus `@tekocloud.de/tecexpress` importiert. CamelCase-Props lassen sich in Templates als kebab-case schreiben. Native Attribute und Listener sind möglich; bei Editoren gehen sie an das Eingabeelement, bei anderen Komponenten an das Wurzelelement. Globale Registrierung: `app.use(Tecexpress)`.
+
+## DataSource und Erweiterungen
+
+[TxDataSource, Stores und Konfiguration](data-source.md) · [Neue Komponenten, Adapter und notify](extensions.md).
 
 ## Karten und Chat
 

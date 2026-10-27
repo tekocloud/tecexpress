@@ -1,43 +1,36 @@
-# Prüfbericht · tecexpress 0.4.0
+# Prüfbericht · tecexpress 0.5.0
 
-Stand: 23.10.2026. Lokal auf Windows mit Node.js 24.22.1, npm 11.19.1, Flutter 3.47.7 und Dart 3.13.5 geprüft. Es wurden keine Registry-Uploads, Anmeldungen, Git-Pushes oder Release-Tags ausgeführt.
+Stand: 27.10.2026. Lokal auf Windows mit Node.js 24.22.1, Flutter 3.47.7 und Dart 3.13.5. Keine Veröffentlichung, Git-Pushes oder Release-Tags. Die folgenden Ergebnisse betreffen die Arbeitskopie dieser Erweiterung; ältere Ergebnisse der Version 0.4.0 werden nicht als Nachweis für 0.5.0 verwendet.
 
-## Lokal erfolgreich
+## Lokal geprüft
 
 | Bereich | Ergebnis |
 | --- | --- |
-| Root npm-Workspace | `npm ci` erfolgreich, Root-Befehle delegieren an `npm/`. |
-| Vue-Typen und Komponenten | Typprüfung ohne Fehler; 69 Tests bestanden. |
-| Vue-Browser | 13 Chromium-Tests bestanden, inklusive Themes und Mobilansicht. |
-| Vue-Builds | Bibliothek und Vite-Demo gebaut; 21 öffentliche Exporte erhalten. |
-| npm-Consumer | Gepacktes Paket in einem separaten temporären Projekt installiert; Exporte, SSR und Themes erfolgreich geprüft. |
-| npm-Publishing | `npm publish --dry-run --access public` erfolgreich; Authentifizierung für echten Upload noch erforderlich. |
-| Flutter-Format und Analyse | Formatprüfung ohne Änderungen; `flutter analyze` ohne Meldungen. |
-| Flutter-Bibliothek | 24 Logik-/Widgettests bestanden: Editoren, Controller, Auswahl/Filter, Kalendergrenzen, Terminbearbeitung, Cancellation/Konflikte, Chat/IME/Timer/Scroll und Overlays. |
-| Flutter-Showcase | 7 Tests bestanden: SDK-Schriftauflösung und Dateinamenschreibweise, Start/Themewechsel und alle fünf Bereiche in Light/Dark bei 1200 und 390 Pixeln. |
-| Flutter-Consumer | Separates temporäres Projekt importiert alle 21 öffentlichen Gegenstücke und rendert native Widgets; Test bestanden. |
-| Flutter Web | Showcase mit `flutter build web --release` gebaut. |
-| Flutter Windows | Showcase mit `flutter build windows --release` gebaut. |
-| pub.dev-Publishing | `flutter pub publish --dry-run` erfolgreich, **0 Warnungen**. |
+| Vue-Typen | `npm run typecheck`, einschließlich öffentlicher Deklarationen und Demo. |
+| Vue-Tests | 95 Tests: bestehende Funktionen, DataSource-Abfragen/CRUD/Abbruch/Fehler, gemeinsam genutzte Instanzen, Grid-/CardView-Paging, neue Controls, Overlays, Datei- und Uploadadapter. |
+| Vue-Browser | 16 Chromium-Tests: bestehende Abläufe, gemeinsame Datenbindung, entfernte Suche, Dateioperationen, Benachrichtigungsstapel, Desktop/Mobil und Light/Dark. |
+| Vue-Builds | Bibliotheks- und Demo-Build. |
+| npm-Consumer | Gepacktes Paket in einem separaten temporären Projekt installiert; 37 Komponenten/Konfigurationen, 4 Store-/Provider-Klassen, globale Registrierung, SSR, DataSource-SSR und Theme-Exporte geprüft. |
+| Flutter-Format/Analyse | `dart format --output=none --set-exit-if-changed lib test tool example/lib example/test` und `flutter analyze`. |
+| Flutter-Bibliothek | 39 Logik-/Widget-/Adaptertests; einschließlich eines echten lokalen HTTP-Servers für Multipart-/Chunk-Verträge. |
+| Flutter-Showcase | 7 Tests; Layout-/Screenshotprüfungen aller sechs Bereiche bei 1200 und 390 Pixeln in Light/Dark. |
+| Flutter-Consumer | Separates temporäres Projekt importiert alle 37 Gegenstücke und die DataSource und rendert native Widgets. |
+| pub.dev-Dry-run | Paketvalidierung mit einer Warnung wegen der noch nicht committeten Änderungen; keine Veröffentlichung. |
+| Flutter Web | `flutter build web --release` erfolgreich. |
 
-Screenshots der Flutter-Layoutprüfungen: `flutter/example/build/qa/`; geprüft mit echten SDK-Schriften. Screenshots und Builddateien sind keine Veröffentlichungsinhalte.
+Die neuen Vue- und Flutter-Mobilansichten wurden zusätzlich anhand der erzeugten Screenshots visuell geprüft. Artefakte liegen unter `npm/test-results/` beziehungsweise `flutter/example/build/qa/`; sie gehören nicht zum veröffentlichten Paket.
 
-## Paketinhalte
+## Lokal nicht erfolgreich beziehungsweise nicht ausgeführt
 
-- npm: `dist/`, `themes/`, Dokumentation, README, Manifest und MIT-Lizenz; keine Flutter-Quellen oder Demo-Builds.
-- pub.dev: Dart-Quellen, Manifest, Dokumentation, Lizenz und veröffentlichbare Beispieldateien. Cache-/Buildordner, lokale SDK-Konfiguration, signierungsbezogene Dateien und Prüfwerkzeuge werden ausgeschlossen.
-- Die Paketarchive enthalten keine Registry-Zugangsdaten. Die Root-Konfiguration und Beispiel-App sind privat beziehungsweise `publish_to: none`.
+- **Windows:** `flutter build windows --release` endet vor der Kompilierung mit „Building with plugins requires symlink support“. Die neuen Dateiplugins benötigen Symlink-Unterstützung beziehungsweise Windows-Entwicklermodus. Es wurden keine Systemeinstellungen geändert.
+- **Android:** SDK 36 und Java 17 sind vorhanden. `flutter build apk --release` endet beim Gradle-Start mit `java.io.IOException: Unable to establish loopback connection`. Ein erneuter Versuch mit ausschließlich prozesslokaler IPv4-Präferenz scheiterte ebenfalls. Für diese Arbeitskopie liegt deshalb kein erfolgreicher APK-Nachweis vor.
+- **Linux, macOS, iOS:** Auf diesem Windows-Host nicht gebaut und nicht auf Geräten getestet.
+- **Remote-CI:** `.github/workflows/validate.yml` enthält weiterhin Qualitäts-/Consumer-/Paketprüfungen und sechs Plattformbuilds. Es wurde kein Remote-Lauf für diese Änderungen gestartet; dessen Ergebnisse stehen aus.
 
-## Nachprüfung der gemeldeten CI-Fehler
+## Aussagegrenzen
 
-- `npm run typecheck` baut jetzt zuerst die öffentlichen Exporte und Deklarationen. Lokal auch ohne vorhandenes `npm/dist/` erfolgreich geprüft; 69 Vue-Tests bestanden.
-- Die visuellen Flutter-Tests ermitteln das SDK über die aktive `package_config.json` und suchen Schriften unabhängig von der Groß-/Kleinschreibung. Alle 7 Showcase-Tests, Formatprüfung und `flutter analyze` lokal erfolgreich. Die genaue Ausnahme des gemeldeten CI-Setups war im bereitgestellten Auszug nicht enthalten; der nächste CI-Lauf muss die Korrektur auf Ubuntu bestätigen.
-- Die Flutter-CI verwendet den ausführlichen Testreporter, damit Fehler einschließlich Setup-Ausnahmen im Log sichtbar sind.
-
-## Remote-Prüfung ausstehend
-
-`.github/workflows/validate.yml` enthält Vue-/Flutter-Prüfungen, Consumer- und Dry-run-Prüfungen sowie Flutter-Beispielbuilds für Web, Windows, Linux, macOS, iOS ohne Codesign und Android-APK. Der Nutzer meldete CI-Fehler; für die obigen Korrekturen liegt noch kein Remote-Laufergebnis vor. Android, iOS, macOS und Linux wurden in dieser lokalen Windows-Sitzung nicht gebaut und nicht auf Geräten getestet.
-
-Die erfolgreichen lokalen Windows-/Web-Builds und gemeinsamen Widgettests sind keine Aussage über gerätespezifische Laufzeittests auf allen sechs Plattformen. Die CI stellt weitere Buildnachweise nach einem eigenen Git-Push bereit.
-
-Manuelle Veröffentlichung und Registry-Installation nach dem echten Upload: [PUBLISHING.md](PUBLISHING.md).
+- Umfang und Unterschiede der DevExtreme-orientierten Implementierungen stehen in [EXTENSIONS.md](flutter/EXTENSIONS.md). Es wird keine vollständige DevExpress-API-/Optionsparität behauptet.
+- Dateioperationen wurden mit dem Speicher-Provider geprüft. Produktive Dateiserver, Kartenanbieter, Zugangsdaten und Geocoding-/Routingdienste müssen durch die konsumierende Anwendung konfiguriert und separat geprüft werden.
+- HTTP-Tests prüfen Multipart, Chunk-Metadaten, Fehler, Abbruch und Neustart; serverseitige Chunk-Zusammenführung und resumierbare Protokolle sind keine Bibliotheksfunktion.
+- Native Auswahl-, Drop- und Speicherdialoge wurden hier nicht auf sämtlichen Zielgeräten interaktiv getestet. Flutter-Downloads bieten `onDownload` für eigene Plattformintegration.
+- Paket-/Consumerprüfungen sind keine Registry-Veröffentlichung. Anleitung: [PUBLISHING.md](PUBLISHING.md).

@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.5.0 · 2026-10-27
+
+- TxDataSource mit konfigurierbaren Array-/Custom-Stores, Filtern, Suche, Sortierung, Gruppen, Paging, CRUD, Abbruch und Änderungsbenachrichtigungen.
+- DataSource-Bindung auch für bestehende Komponenten, ohne zweite lokale Seitenverarbeitung in Grid/CardView.
+- 16 zusätzliche Widgets und erweiterte Popup-/Tooltip-/Toast-Funktionen; programmatische Benachrichtigungsstapel.
+- Datei-Provider, Speicher-Provider, Dateiauswahl/Drop, HTTP-/Chunk-Uploads und konfigurierbare Kachelkarte.
+- Erweiterte Showcases, API-/Migrationsdokumentation und Prüfungen. Plattformgrenzen stehen in EXTENSIONS.md.
+
 ## 0.4.0 · 2026-10-23
 
 - Erstes eigenständiges natives Flutter-Paket mit 21 Gegenstücken zur Vue-Bibliothek.

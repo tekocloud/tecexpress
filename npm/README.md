@@ -1,8 +1,12 @@
 # @tekocloud.de/tecexpress
 
-Eigenständige Vue-3-Komponentenbibliothek unter MIT-Lizenz, ohne Lizenzkey. Version 0.4.0 enthält 20 UI-Komponenten und `TxColumn` als DataGrid-Konfiguration, TypeScript-Deklarationen sowie Light- und Dark-Theme.
+Eigenständige Vue-3-Komponentenbibliothek unter MIT-Lizenz, ohne Lizenzkey. Version 0.5.0 enthält 36 UI-Komponenten und `TxColumn` als DataGrid-Konfiguration, TypeScript-Deklarationen sowie Light- und Dark-Theme.
 
 **Veröffentlichen:** [Zentrale Anleitung für npm und pub.dev](https://github.com/tekocloud/tecexpress/blob/main/PUBLISHING.md).
+
+## Neu in 0.5.0
+
+`TxDataSource`, Array-/Custom-Stores und gemeinsame lokale/entfernte Datenbindung für bestehende und neue Komponenten. RadioGroup, RangeSlider/Selector, TagBox, Lookup, ButtonGroup, FAB, FileManager/Uploader, TabPanel, ContextMenu, ActionSheet, List, Gallery, LoadPanel, Map und `notify`; bestehende Overlays erweitert. [DataSource](docs/data-source.md) · [Neue APIs und Adapter](docs/extensions.md).
 
 ## Lokal starten
 
@@ -26,7 +30,7 @@ npm run build:demo
 npm pack
 ```
 
-`npm pack` erzeugt `tekocloud.de-tecexpress-0.4.0.tgz`. In einem anderen Vue-Projekt mit `npm install /pfad/zu/tekocloud.de-tecexpress-0.4.0.tgz` installieren. `npm run test:package` prüft eine echte Installation in einem temporären Consumer-Projekt und gibt dessen Pfad aus. `demo/dist/` enthält nach `build:demo` die statisch hostbare Demo.
+`npm pack` erzeugt `tekocloud.de-tecexpress-0.5.0.tgz`. In einem anderen Vue-Projekt mit `npm install /pfad/zu/tekocloud.de-tecexpress-0.5.0.tgz` installieren. `npm run test:package` prüft eine echte Installation in einem temporären Consumer-Projekt und gibt dessen Pfad aus. `demo/dist/` enthält nach `build:demo` die statisch hostbare Demo.
 
 ## Installation
 

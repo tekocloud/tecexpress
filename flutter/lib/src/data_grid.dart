@@ -1,3 +1,5 @@
+import 'source.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -29,7 +31,7 @@ class TxDataGrid<T> extends StatefulWidget {
     this.noDataText = 'Keine Daten vorhanden.',
     this.label = 'Datentabelle',
   }) : assert(pageSize > 0);
-  final List<T> dataSource;
+  final Object dataSource;
   final Object Function(T row) keyOf;
   final List<TxColumn<T>> columns;
   final bool filterRow, loading, disabled;
@@ -48,7 +50,23 @@ class TxDataGrid<T> extends StatefulWidget {
   State<TxDataGrid<T>> createState() => _TxDataGridState<T>();
 }
 
-class _TxDataGridState<T> extends State<TxDataGrid<T>> {
+class _TxDataGridState<T> extends State<TxDataGrid<T>>
+    with TxSourceState<TxDataGrid<T>, T> {
+  @override
+  Object? get sourceInput => widget.dataSource;
+  @override
+  List<T> get sourceFallback => <T>[];
+  @override
+  void sourceChanged() {
+    if (boundSource?.loading ?? false) return;
+    final before = widget.selectedRowKeys ?? _selected, next = _keys;
+    if (before.length != next.length || !before.containsAll(next)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _select(next);
+      });
+    }
+  }
+
   final _filters = <String, String>{};
   final _filterControllers = <String, TextEditingController>{};
   Set<Object> _selected = {};
@@ -57,9 +75,13 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
   bool _descending = false;
   String _field(TxColumn<T> column) => column.dataField ?? column.caption;
   Set<Object> get _keys {
-    final existing = widget.dataSource.map(widget.keyOf).toSet();
+    final existing = sourceItems.map(widget.keyOf).toSet();
     var keys = (widget.selectedRowKeys ?? _selected)
-        .where(existing.contains)
+        .where(
+          (key) => boundSource != null
+              ? boundSource!.containsKey(key) != false
+              : existing.contains(key),
+        )
         .toSet();
     if (widget.selection == TxSelectionMode.none) return {};
     if (widget.selection == TxSelectionMode.single && keys.length > 1) {
@@ -74,22 +96,58 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
     widget.onSelectionChanged?.call(
       TxSelection(
         keys: keys,
-        data: widget.dataSource.where(
-          (row) => keys.contains(widget.keyOf(row)),
-        ),
+        data: sourceItems.where((row) => keys.contains(widget.keyOf(row))),
       ),
     );
   }
 
-  void _pageTo(int page) {
+  void _pageTo(int page, {bool updateQuery = false}) {
     setState(() => _page = page);
     widget.onPageIndexChanged?.call(page);
+    if (boundSource != null) {
+      final source = boundSource!;
+      if (!updateQuery) {
+        source.configure(pageIndex: page).catchError((_) => <T>[]);
+        return;
+      }
+      final column = widget.columns
+          .where((v) => _field(v) == _sort)
+          .firstOrNull;
+      source
+          .configure(
+            pageIndex: page,
+            sort: column == null
+                ? []
+                : [TxSort<T>(column.valueGetter, desc: _descending)],
+            clearFilter: _filters.values.every((v) => v.isEmpty),
+            filter: _filters.values.every((v) => v.isEmpty)
+                ? null
+                : TxFilter<T>.and(
+                    widget.columns
+                        .where((c) => (_filters[_field(c)] ?? '').isNotEmpty)
+                        .map(
+                          (c) => TxFilter<T>(
+                            c.valueGetter,
+                            _filters[_field(c)],
+                            operator: TxFilterOperator.contains,
+                          ),
+                        )
+                        .toList(),
+                  ),
+          )
+          .catchError((_) => <T>[]);
+    }
   }
 
   @override
   void didUpdateWidget(covariant TxDataGrid<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.pageSize != widget.pageSize) _page = 0;
+    if (oldWidget.pageSize != widget.pageSize) {
+      _page = 0;
+      boundSource
+          ?.configure(pageSize: widget.pageSize)
+          .catchError((_) => <T>[]);
+    }
     final keys = _keys, before = widget.selectedRowKeys ?? _selected;
     if (keys.length != before.length || !keys.containsAll(before)) {
       _selected = keys;
@@ -109,33 +167,38 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
 
   @override
   Widget build(BuildContext context) {
-    txValidateKeys(widget.dataSource, widget.keyOf);
+    txValidateKeys(sourceItems, widget.keyOf);
     final tokens = txThemeOf(context),
-        blocked = widget.disabled || widget.loading;
+        blocked =
+            widget.disabled ||
+            widget.loading ||
+            (boundSource?.loading ?? false);
     final columns = widget.columns.where((column) => column.visible).toList();
     if (columns.map(_field).toSet().length != columns.length) {
       throw ArgumentError(
         'Spalten benötigen eindeutige dataField- oder caption-Werte.',
       );
     }
-    final indexed = widget.dataSource
+    final indexed = sourceItems
         .asMap()
         .entries
         .where(
-          (entry) => columns.every((column) {
-            final query = widget.filterRow && column.allowFiltering
-                ? _filters[_field(column)] ?? ''
-                : '';
-            return '${column.valueGetter(entry.value) ?? ''}'
-                .toLowerCase()
-                .contains(query.toLowerCase());
-          }),
+          (entry) =>
+              boundSource != null ||
+              columns.every((column) {
+                final query = widget.filterRow && column.allowFiltering
+                    ? _filters[_field(column)] ?? ''
+                    : '';
+                return '${column.valueGetter(entry.value) ?? ''}'
+                    .toLowerCase()
+                    .contains(query.toLowerCase());
+              }),
         )
         .toList();
     final sortColumn = columns
         .where((column) => _field(column) == _sort && column.allowSorting)
         .firstOrNull;
-    if (sortColumn != null) {
+    if (sortColumn != null && boundSource == null) {
       indexed.sort((a, b) {
         final result = txCompare(
           sortColumn.valueGetter(a.value),
@@ -148,16 +211,24 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
             : result;
       });
     }
-    final count = math.max(1, (indexed.length / widget.pageSize).ceil());
-    final page = (widget.pageIndex ?? _page).clamp(0, count - 1);
+    final count = math.max(
+      1,
+      ((boundSource?.totalCount ?? indexed.length) /
+              (boundSource?.pageSize ?? widget.pageSize))
+          .ceil(),
+    );
+    final page = (widget.pageIndex ?? boundSource?.pageIndex ?? _page).clamp(
+      0,
+      count - 1,
+    );
     if (page != (widget.pageIndex ?? _page)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && (widget.pageIndex ?? _page) != page) _pageTo(page);
       });
     }
     final rows = indexed
-        .skip(page * widget.pageSize)
-        .take(widget.pageSize)
+        .skip(boundSource == null ? page * widget.pageSize : 0)
+        .take(boundSource == null ? widget.pageSize : indexed.length)
         .map((entry) => entry.value)
         .toList();
     final keys = _keys, selectable = widget.selection != TxSelectionMode.none;
@@ -258,7 +329,7 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
                                               _descending = false;
                                             }
                                           });
-                                          _pageTo(0);
+                                          _pageTo(0, updateQuery: true);
                                           widget.onSortChanged?.call(
                                             _sort,
                                             _descending,
@@ -307,7 +378,7 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
                                               () => _filters[_field(column)] =
                                                   text,
                                             );
-                                            _pageTo(0);
+                                            _pageTo(0, updateQuery: true);
                                             widget.onFilterChanged?.call(
                                               Map.unmodifiable(_filters),
                                             );
@@ -376,7 +447,7 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
                 );
               },
             ),
-            if (widget.loading)
+            if (widget.loading || (boundSource?.loading ?? false))
               const Padding(
                 padding: EdgeInsets.all(28),
                 child: Center(child: TxLoadIndicator()),
@@ -392,7 +463,7 @@ class _TxDataGridState<T> extends State<TxDataGrid<T>> {
                 page: page,
                 pageCount: count,
                 countText:
-                    '${indexed.length} Einträge${selectable ? ' · ${keys.length} ausgewählt' : ''}',
+                    '${boundSource?.totalCount ?? indexed.length} Einträge${selectable ? ' · ${keys.length} ausgewählt' : ''}',
                 onChanged: _pageTo,
                 disabled: blocked,
               ),

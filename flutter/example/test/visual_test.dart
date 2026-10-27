@@ -55,6 +55,7 @@ void main() {
             'Scheduler',
             'Cards',
             'Chat',
+            'Erweiterungen & Daten',
           ];
           for (var index = 0; index < sections.length; index++) {
             if (width < 950) {

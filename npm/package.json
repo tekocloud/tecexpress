@@ -1,14 +1,32 @@
 {
   "name": "@tekocloud.de/tecexpress",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Independent Vue 3 UI components with light and dark themes",
   "type": "module",
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/tekocloud/tecexpress.git", "directory": "npm" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tekocloud/tecexpress.git",
+    "directory": "npm"
+  },
   "homepage": "https://github.com/tekocloud/tecexpress/tree/main/npm#readme",
-  "bugs": { "url": "https://github.com/tekocloud/tecexpress/issues" },
-  "keywords": ["vue", "vue3", "typescript", "components", "datagrid", "scheduler", "chat", "themes"],
-  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "bugs": {
+    "url": "https://github.com/tekocloud/tecexpress/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "typescript",
+    "components",
+    "datagrid",
+    "scheduler",
+    "chat",
+    "themes"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "main": "./dist/tecexpress.js",
   "module": "./dist/tecexpress.js",
   "types": "./dist/index.d.ts",

@@ -1,3 +1,5 @@
+import 'source.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -483,7 +485,8 @@ class _TxSwitchState extends State<TxSwitch> {
 class TxSelectBox<T> extends StatefulWidget {
   const TxSelectBox({
     super.key,
-    required this.items,
+    this.items = const [],
+    this.dataSource,
     this.value,
     this.onChanged,
     this.label,
@@ -494,6 +497,7 @@ class TxSelectBox<T> extends StatefulWidget {
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
   final List<TxItem<T>> items;
+  final Object? dataSource;
   final T? value;
   final ValueChanged<T?>? onChanged;
   final String? label;
@@ -503,7 +507,13 @@ class TxSelectBox<T> extends StatefulWidget {
   State<TxSelectBox<T>> createState() => _TxSelectBoxState<T>();
 }
 
-class _TxSelectBoxState<T> extends State<TxSelectBox<T>> {
+class _TxSelectBoxState<T> extends State<TxSelectBox<T>>
+    with TxSourceState<TxSelectBox<T>, TxItem<T>> {
+  @override
+  Object? get sourceInput => widget.dataSource;
+  @override
+  List<TxItem<T>> get sourceFallback => widget.items;
+
   T? _value;
   @override
   void didUpdateWidget(covariant TxSelectBox<T> oldWidget) {
@@ -514,7 +524,7 @@ class _TxSelectBoxState<T> extends State<TxSelectBox<T>> {
   @override
   Widget build(BuildContext context) {
     final selected = widget.value ?? _value;
-    final valid = widget.items.any((item) => item.value == selected)
+    final valid = sourceItems.any((item) => item.value == selected)
         ? selected
         : null;
     return InputDecorator(

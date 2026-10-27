@@ -1,3 +1,5 @@
+import 'extensions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
@@ -49,6 +51,7 @@ class _ShowcaseHomeState extends State<_ShowcaseHome> {
     'Scheduler',
     'Cards',
     'Chat',
+    'Erweiterungen & Daten',
   ];
   static const icons = [
     Icons.tune,
@@ -56,6 +59,7 @@ class _ShowcaseHomeState extends State<_ShowcaseHome> {
     Icons.calendar_month,
     Icons.dashboard_outlined,
     Icons.chat_bubble_outline,
+    Icons.extension_outlined,
   ];
   int _section = 0, _tab = 0;
   bool _checked = true,
@@ -142,7 +146,7 @@ class _ShowcaseHomeState extends State<_ShowcaseHome> {
     final wide = MediaQuery.sizeOf(context).width >= 950;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('tecexpress · Flutter 0.4.0'),
+        title: const Text('tecexpress · Flutter 0.5.0'),
         actions: [
           IconButton(
             tooltip: 'Theme wechseln',
@@ -217,6 +221,7 @@ class _ShowcaseHomeState extends State<_ShowcaseHome> {
                           2 => _scheduler(),
                           3 => _cards(),
                           4 => _chat(),
+                          5 => const ExtensionsShowcase(),
                           _ => _editors(),
                         },
                         const SizedBox(height: 24),
