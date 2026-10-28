@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -6,6 +7,92 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 void main() {
+  test('empty uploads and multipart names cannot inject headers', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    String? body;
+    final subscription = server.listen((request) async {
+      body = await utf8.decoder.bind(request).join();
+      request.response.write('empty');
+      await request.response.close();
+    });
+    final file = TxFile.fromData(Uint8List(0), name: 'a"\r\nInjected: yes.txt');
+    try {
+      final progress = <int>[];
+      final upload = txHttpUpload(
+        TxHttpUploadConfig(
+          url: Uri.parse('http://127.0.0.1:${server.port}'),
+          fields: {'a"\r\nb': 'ü'},
+        ),
+      );
+      expect(
+        await upload(
+          file,
+          TxUploadContext(
+            cancellation: TxCancellation(),
+            onProgress: (done, total) {
+              progress.add(done);
+              expect(total, 0);
+            },
+          ),
+        ),
+        'empty',
+      );
+      expect(body, contains('filename="a%22%0D%0AInjected: yes.txt"'));
+      expect(body, contains('name="a%22%0D%0Ab"'));
+      expect(body, contains('ü'));
+      expect(progress, [0]);
+    } finally {
+      await file.dispose();
+      await subscription.cancel();
+      await server.close(force: true);
+    }
+  });
+
+  test(
+    'cancellation interrupts an active request and prevents subsequent chunks',
+    () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final arrived = Completer<void>();
+      var requests = 0;
+      final subscription = server.listen((request) async {
+        requests++;
+        await request.drain<void>();
+        if (!arrived.isCompleted) arrived.complete();
+        // Deliberately keep the response open until client cancellation.
+      });
+      final token = TxCancellation();
+      final file = TxFile.fromData(
+        Uint8List.fromList([1, 2, 3]),
+        name: 'cancel.bin',
+      );
+      try {
+        final upload = txHttpUpload(
+          TxHttpUploadConfig(
+            url: Uri.parse('http://127.0.0.1:${server.port}'),
+            chunkSize: 1,
+          ),
+        );
+        final operation = upload(
+          file,
+          TxUploadContext(
+            cancellation: token,
+            onProgress: (_, _) =>
+                fail('Cancelled chunk must not report success'),
+          ),
+        );
+        final failure = expectLater(operation, throwsA(anything));
+        await arrived.future.timeout(const Duration(seconds: 5));
+        token.cancel();
+        await failure.timeout(const Duration(seconds: 5));
+        expect(requests, 1);
+      } finally {
+        await file.dispose();
+        await subscription.cancel();
+        await server.close(force: true);
+      }
+    },
+  );
+
   test('HTTP adapter sends multipart chunks and protocol metadata', () async {
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0),
         bodies = <String>[];
@@ -28,10 +115,9 @@ void main() {
         ),
       );
       final result = await adapter(
-        XFile.fromData(
+        TxFile.fromData(
           Uint8List.fromList(utf8.encode('hello')),
           name: 'hello.txt',
-          path: 'hello.txt',
         ),
         TxUploadContext(
           cancellation: TxCancellation(),
@@ -68,10 +154,9 @@ void main() {
               chunkSize: 2,
             ),
           ),
-          file = XFile.fromData(
+          file = TxFile.fromData(
             Uint8List.fromList([1, 2, 3, 4, 5]),
             name: 'hello.bin',
-            path: 'hello.bin',
           ),
           context = TxUploadContext(
             cancellation: TxCancellation(),

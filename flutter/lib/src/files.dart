@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:file_selector/file_selector.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:http/http.dart' as http;
+
+import 'file_api.dart';
+import 'file_drop.dart';
+import 'multipart.dart';
 
 import 'source.dart';
 
-export 'package:file_selector/file_selector.dart' show XFile;
+export 'file_api.dart' show TxFile, TxFileDialogs, TxFileException;
 
 class _DirectoryTree extends StatefulWidget {
   const _DirectoryTree({
@@ -95,32 +96,39 @@ class TxFileEntry {
     this.modified,
     this.bytes,
   });
+
   /// id: Eindeutige stabile ID.
   /// name: Name des Eingabefelds beziehungsweise Dateiname.
   ///
   /// id: Unique stable ID.
   /// name: Input field name or file name.
   final String id, name;
+
   /// Elternordner-ID; null bezeichnet die Wurzel.
   ///
   /// Parent directory ID; null denotes the root.
   final String? parentId;
+
   /// Kennzeichnet einen Ordner.
   ///
   /// Identifies a directory.
   final bool isDirectory;
+
   /// Dateigröße in Bytes.
   ///
   /// File size in bytes.
   final int size;
+
   /// Letzter Änderungszeitpunkt.
   ///
   /// Last modification time.
   final DateTime? modified;
+
   /// Dateiinhalt im Speicher.
   ///
   /// File contents in memory.
   final Uint8List? bytes;
+
   /// Erzeugt eine Kopie mit den angegebenen Änderungen; alle übrigen Werte bleiben erhalten.
   ///
   /// Creates a copy with the supplied changes; preserves other values.
@@ -158,6 +166,7 @@ abstract class TxFileProvider {
   ///
   /// Supported file operations; controls visible actions.
   Set<String> get capabilities;
+
   /// Liefert Einträge des angegebenen Elternordners; null liest die Wurzel.
   ///
   /// Returns entries in the parent directory; null reads the root.
@@ -165,38 +174,45 @@ abstract class TxFileProvider {
     String? parentId, {
     TxCancellation? cancellation,
   });
+
   /// Legt einen Ordner mit gültigem, im Elternordner eindeutigem Namen an.
   ///
   /// Creates a directory with a valid name unique within its parent.
   Future<TxFileEntry> createDirectory(String? parentId, String name) =>
       throw UnsupportedError('createDirectory');
+
   /// Benennt eine Datei oder einen Ordner um; ID und Elternordner bleiben erhalten.
   ///
   /// Renames a file or directory; preserves its ID and parent.
   Future<void> rename(String id, String name) =>
       throw UnsupportedError('rename');
+
   /// Kopiert einen Eintrag rekursiv in den Zielordner; neue IDs werden vergeben.
   ///
   /// Recursively copies an entry to the target directory, assigning new IDs.
   Future<void> copy(String id, String? target) =>
       throw UnsupportedError('copy');
+
   /// Verschiebt einen Eintrag in den Zielordner; Zyklen werden abgelehnt.
   ///
   /// Moves an entry to the target directory; cycles are rejected.
   Future<void> move(String id, String? target) =>
       throw UnsupportedError('move');
+
   /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
   ///
   /// Removes the record or recursively removes a file/directory tree.
   Future<void> remove(String id) => throw UnsupportedError('remove');
+
   /// Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag.
   ///
   /// Uploads a file to the specified directory and returns its new entry.
   Future<TxFileEntry> upload(
     String? parentId,
-    XFile file, {
+    TxFile file, {
     TxCancellation? cancellation,
   }) => throw UnsupportedError('upload');
+
   /// Liefert Dateiinhalt; Ordnerdownloads schlagen fehl.
   ///
   /// Returns file contents; downloading a directory fails.
@@ -214,7 +230,7 @@ abstract class TxFileProvider {
 /// ```dart
 /// final provider = TxMemoryFileProvider();
 /// final folder = await provider.createDirectory(null, 'Documents');
-/// final file = await provider.upload(folder.id, XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'));
+/// final file = await provider.upload(folder.id, TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'));
 /// await provider.rename(file.id, 'renamed.txt');
 /// await provider.copy(file.id, null);
 /// await provider.rename(file.id, 'moved.txt');
@@ -246,6 +262,7 @@ class TxMemoryFileProvider extends TxFileProvider {
   }
   final List<TxFileEntry> _entries;
   var _serial = 0;
+
   /// Unterstützte Dateiaufgaben; steuert sichtbare Aktionen.
   ///
   /// Supported file operations; controls visible actions.
@@ -402,7 +419,7 @@ class TxMemoryFileProvider extends TxFileProvider {
   @override
   Future<TxFileEntry> upload(
     String? parentId,
-    XFile file, {
+    TxFile file, {
     TxCancellation? cancellation,
   }) async {
     cancellation?.throwIfCancelled();
@@ -470,10 +487,12 @@ class TxUploadContext {
   ///
   /// Cancellation and progress reporting for one upload operation; progress is reported in bytes.
   const TxUploadContext({required this.cancellation, required this.onProgress});
+
   /// Token für kooperativen Abbruch.
   ///
   /// Cooperative cancellation token.
   final TxCancellation cancellation;
+
   /// Meldet abgeschlossene Bytes und Gesamtgröße.
   ///
   /// Reports completed bytes and total size.
@@ -491,10 +510,10 @@ class TxUploadContext {
 ///   context.onProgress(size, size);
 ///   return file.name;
 /// };
-/// print(await adapter(XFile.fromData(Uint8List(0), name: 'empty.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) {})));
+/// print(await adapter(TxFile.fromData(Uint8List(0), name: 'empty.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) {})));
 /// ```
 typedef TxUploadAdapter = Future<Object?> Function(
-  XFile file,
+  TxFile file,
   TxUploadContext context,
 );
 
@@ -519,28 +538,33 @@ class TxHttpUploadConfig {
     this.chunkSize,
     this.chunkFields,
   });
+
   /// Zieladresse des Uploadservers.
   ///
   /// Upload server destination.
   final Uri url;
+
   /// Multipart-Feldname der Datei.
   ///
   /// Multipart file field name.
   final String fieldName;
+
   /// headers: Zusätzliche HTTP-Header.
   /// fields: Zusätzliche Multipart-Textfelder.
   ///
   /// headers: Additional HTTP headers.
   /// fields: Additional multipart text fields.
   final Map<String, String> headers, fields;
+
   /// Chunkgröße in Bytes; muss positiv sein.
   ///
   /// Chunk size in bytes; must be positive.
   final int? chunkSize;
+
   /// Felder je Chunk; Index ist nullbasiert.
   ///
   /// Fields per chunk; index is zero-based.
-  final Map<String, String> Function(XFile, int, int)? chunkFields;
+  final Map<String, String> Function(TxFile, int, int)? chunkFields;
 }
 
 /// Erzeugt einen Multipart-POST-Adapter. Der Server muss Chunks zusammensetzen. Nicht erfolgreiche HTTP-Antworten und Netzwerkfehler schlagen fehl.
@@ -554,48 +578,35 @@ class TxHttpUploadConfig {
 /// ```dart
 /// // Requires your own multipart server with matching chunk assembly.
 /// final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
-/// await upload(XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print('$loaded/$total')));
+/// await upload(TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print('$loaded/$total')));
 /// ```
 TxUploadAdapter txHttpUpload(TxHttpUploadConfig config) =>
     (file, context) async {
-      final bytes = await file.readAsBytes(),
-          size = config.chunkSize ?? (bytes.isEmpty ? 1 : bytes.length);
+      final length = await file.length(),
+          size = config.chunkSize ?? (length == 0 ? 1 : length);
       if (size <= 0) throw ArgumentError('chunkSize must be positive');
-      final count = (bytes.length / size).ceil().clamp(1, 1 << 30);
+      final count = length == 0 ? 1 : (length + size - 1) ~/ size;
       Object? result;
-      final client = http.Client(),
-          unregister = context.cancellation.onCancel(client.close);
-      try {
-        for (var index = 0; index < count; index++) {
-          context.cancellation.throwIfCancelled();
-          final start = index * size,
-              end = (start + size).clamp(0, bytes.length),
-              chunk = bytes.sublist(start, end),
-              request = http.MultipartRequest('POST', config.url)
-                ..headers.addAll(config.headers)
-                ..fields.addAll({
-                  ...config.fields,
-                  ...?config.chunkFields?.call(file, index, count),
-                })
-                ..files.add(
-                  http.MultipartFile.fromBytes(
-                    config.fieldName,
-                    chunk,
-                    filename: file.name,
-                  ),
-                );
-          final response = await client.send(request);
-          result = await response.stream.bytesToString();
-          if (response.statusCode < 200 || response.statusCode >= 300) {
-            throw StateError('HTTP ${response.statusCode}');
-          }
-          context.onProgress(end, bytes.length);
-        }
-        return result;
-      } finally {
-        unregister();
-        client.close();
+      for (var index = 0; index < count; index++) {
+        context.cancellation.throwIfCancelled();
+        final start = index * size, end = (start + size).clamp(0, length);
+        result = await sendFileChunk(
+          url: config.url,
+          headers: config.headers,
+          fields: {
+            ...config.fields,
+            ...?config.chunkFields?.call(file, index, count),
+          },
+          fieldName: config.fieldName,
+          file: file,
+          start: start,
+          end: end,
+          cancellation: context.cancellation,
+        );
+        context.cancellation.throwIfCancelled();
+        context.onProgress(end, length);
       }
+      return result;
     };
 
 /// Dateiauswahl und Uploadwarteschlange mit Größen-/Typprüfung, Fortschritt und Wiederholung ab Dateianfang.
@@ -632,14 +643,17 @@ class TxFileUploader extends StatefulWidget {
     this.onError,
     this.onChanged,
   });
+
   /// Uploadfunktion für eine Datei.
   ///
   /// Upload function for one file.
   final TxUploadAdapter? adapter;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// multiple: Erlaubt mehrere Dateien.
   /// instantly: Startet gültige Dateien unmittelbar nach Auswahl.
   /// disabled: Sperrt die Interaktion.
@@ -648,37 +662,43 @@ class TxFileUploader extends StatefulWidget {
   /// instantly: Starts valid files immediately after selection.
   /// disabled: Disables interaction.
   final bool multiple, instantly, disabled;
+
   /// Maximale Dateigröße in Bytes.
   ///
   /// Maximum file size in bytes.
   final int? maxFileSize;
+
   /// Minimale Dateigröße in Bytes.
   ///
   /// Minimum file size in bytes.
   final int minFileSize;
+
   /// Erlaubte Dateiendungen ohne Punkt.
   ///
   /// Allowed file extensions without a dot.
   final List<String> extensions;
-  /// Liefert die hochgeladene XFile und das Adapterergebnis.
+
+  /// Liefert die hochgeladene TxFile und das Adapterergebnis.
   ///
-  /// Provides the uploaded XFile and adapter result.
-  final void Function(XFile, Object?)? onUploaded;
+  /// Provides the uploaded TxFile and adapter result.
+  final void Function(TxFile, Object?)? onUploaded;
+
   /// Meldet Datei und Fehler einer fehlgeschlagenen Uploadoperation.
   ///
   /// Reports the file and error of a failed upload operation.
-  final void Function(XFile, Object)? onError;
+  final void Function(TxFile, Object)? onError;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
-  final ValueChanged<List<XFile>>? onChanged;
+  final ValueChanged<List<TxFile>>? onChanged;
   @override
   State<TxFileUploader> createState() => _TxFileUploaderState();
 }
 
 class _Upload {
   _Upload(this.file);
-  final XFile file;
+  final TxFile file;
   TxCancellation? cancellation;
   String status = 'ready';
   Object? error;
@@ -687,10 +707,10 @@ class _Upload {
 }
 
 class _TxFileUploaderState extends State<TxFileUploader>
-    with TxSourceState<TxFileUploader, XFile> {
+    with TxSourceState<TxFileUploader, TxFile> {
   @override
   Object? get sourceInput => widget.dataSource;
-  final _known = <XFile>{};
+  final _known = <TxFile>{};
   @override
   void initState() {
     super.initState();
@@ -726,8 +746,28 @@ class _TxFileUploaderState extends State<TxFileUploader>
     if (incoming.isNotEmpty) await _add(incoming);
   }
 
+  final _ownedFiles = <TxFile>{};
+  Future<void> _addOwned(List<TxFile> files) async {
+    if (!mounted || widget.disabled) {
+      for (final file in files) {
+        await file.dispose();
+      }
+      return;
+    }
+    _ownedFiles.addAll(files);
+    try {
+      await _add(files);
+    } finally {
+      final used = _queue.map((e) => e.file).toSet();
+      for (final file in _ownedFiles.where((f) => !used.contains(f)).toList()) {
+        _ownedFiles.remove(file);
+        await file.dispose();
+      }
+    }
+  }
+
   final _queue = <_Upload>[];
-  Future<void> _add(List<XFile> files) async {
+  Future<void> _add(List<TxFile> files) async {
     if (widget.disabled) return;
     if (!widget.multiple) {
       for (final item in _queue) {
@@ -806,12 +846,16 @@ class _TxFileUploaderState extends State<TxFileUploader>
     for (final item in _queue) {
       item.cancellation?.cancel();
     }
+    for (final file in _ownedFiles) {
+      unawaited(file.dispose());
+    }
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => DropTarget(
-    onDragDone: (details) => _add(details.files),
+  Widget build(BuildContext context) => TxFileDropTarget(
+    enabled: !widget.disabled,
+    onDrop: _addOwned,
     child: Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -822,18 +866,11 @@ class _TxFileUploaderState extends State<TxFileUploader>
               onPressed: widget.disabled
                   ? null
                   : () async {
-                      final groups = widget.extensions.isEmpty
-                          ? <XTypeGroup>[]
-                          : [
-                              XTypeGroup(
-                                label: 'Dateien',
-                                extensions: widget.extensions,
-                              ),
-                            ];
-                      final files = widget.multiple
-                          ? await openFiles(acceptedTypeGroups: groups)
-                          : [?await openFile(acceptedTypeGroups: groups)];
-                      if (mounted) await _add(files);
+                      final files = await TxFileDialogs.pickFiles(
+                        multiple: widget.multiple,
+                        extensions: widget.extensions,
+                      );
+                      await _addOwned(files);
                     },
               icon: const Icon(Icons.upload_file),
               label: const Text('Dateien auswählen oder hier ablegen'),
@@ -917,30 +954,37 @@ class TxFileManager extends StatefulWidget {
     this.onFileOpened,
     this.onDownload,
   });
+
   /// Datei-Provider mit unterstützten Operationen.
   ///
   /// File provider with supported operations.
   final TxFileProvider provider;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+
   /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selection; update controlled state in the callback.
   final ValueChanged<List<TxFileEntry>>? onSelectionChanged;
+
   /// Meldet den aktivierten Dateieintrag.
   ///
   /// Reports the activated file entry.
   final ValueChanged<TxFileEntry>? onFileOpened;
+
   /// Liefert Dateieintrag und Bytes für eine eigene Speicherintegration.
   ///
   /// Provides a file entry and bytes for custom saving.
@@ -1058,14 +1102,11 @@ class _TxFileManagerState extends State<TxFileManager> {
                         if (widget.onDownload != null) {
                           widget.onDownload!(item, bytes);
                         } else {
-                          final target = await getSaveLocation(
-                            suggestedName: item.name,
-                          );
-                          if (target != null) {
-                            await XFile.fromData(
-                              bytes,
-                              name: item.name,
-                            ).saveTo(target.path);
+                          final file = TxFile.fromData(bytes, name: item.name);
+                          try {
+                            await TxFileDialogs.saveFile(file);
+                          } finally {
+                            await file.dispose();
                           }
                         }
                       }),

@@ -45,16 +45,22 @@ jobs:
       - run: flutter pub get
       - run: flutter pub get
         working-directory: flutter/example
-      - run: dart format --output=none --set-exit-if-changed lib test tool example/lib example/test
+      - run: dart format --output=none --set-exit-if-changed lib test tool example/lib example/test example/test_support
       - run: flutter analyze
+      - run: dart run tool/verify_dependencies.dart
       - run: flutter test --reporter expanded
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: node tool/verify_web.mjs
+      - run: node tool/verify_web.mjs --wasm
       - run: dart run tool/verify_consumer.dart
       - run: flutter test --reporter expanded
         working-directory: flutter/example
       - run: flutter pub publish --dry-run
 
   flutter-platforms:
-    name: Flutter ${{ matrix.target }}
+    name: Flutter ${{ matrix.target }} ${{ matrix.arguments }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:

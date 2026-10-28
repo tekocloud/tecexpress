@@ -1,5 +1,16 @@
 # Änderungen
 
+## 0.7.0 · 2026-10-28
+
+- Breaking: XFile durch den eigenen Typ TxFile mit expliziter Ressourcenfreigabe ersetzt.
+- Alle direkten externen Laufzeit-Abhängigkeiten entfernt; SDK-Abhängigkeiten bleiben.
+- Eingebaute System-Dateidialoge, Datei-Drops und Speichern für Android, iOS, macOS, Windows, Linux und Web.
+- Eigener Multipart-/Chunk-HTTP-Transport und deutsche/englische Datumsformatierung.
+- SDK-Abhängigkeitsprüfung, Datei-/Abbruchtests und manuelle Plattformprobe ergänzt.
+- Breaking: replace XFile with TxFile; remove direct third-party runtime dependencies;
+  add built-in platform file integration and HTTP transport. See MIGRATION-0.7.md
+  for ownership, setup, locale fallback and required device acceptance checks.
+
 ## 0.6.1 · 2026-10-28
 
 - desktop_drop auf >=0.8.0 <0.8.1 begrenzt, um die unbedingte D-Bus/FFI-Abhängigkeit späterer 0.8.x-Versionen zu vermeiden.

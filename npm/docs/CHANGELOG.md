@@ -1,5 +1,10 @@
 # Änderungen
 
+## 0.7.0 · 28.10.2026
+
+- Versionsangaben, Demoanzeige, Dokumentation und Lockdatei für den gemeinsamen Release 0.7.0 synchronisiert.
+- Release metadata, demo version labels, documentation and lockfile aligned with the coordinated 0.7.0 release.
+
 ## 0.4.0 · 23.10.2026
 
 - npm-Paket unter der Organisation `tekocloud.de` als `@tekocloud.de/tecexpress`; Importe und Theme-Pfade verwenden diesen Scope.

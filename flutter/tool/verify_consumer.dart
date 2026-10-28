@@ -41,10 +41,16 @@ dev_dependencies:
   await tests.create();
   await File('${tests.path}/public_api_test.dart').writeAsString(r'''
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 void main() {
+  test('portable file API is exported by the package', () async {
+    final file = TxFile.fromData(Uint8List.fromList([1, 2]), name: 'public.bin');
+    expect(await file.readAsBytes(), [1, 2]);
+    await file.dispose();
+  });
   testWidgets('all 37 public entries compile and native widgets render', (tester) async {
     final user = TxChatUser(id: 'me', name: 'Consumer');
     final objects = <Object>[

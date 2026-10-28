@@ -59,10 +59,12 @@ class TxChange<T> {
   ///
   /// Synchronously mutable before-event. cancel = true prevents the proposed change.
   TxChange(this.data);
+
   /// Datensätze beziehungsweise Nutzdaten des Ereignisses.
   ///
   /// Records or event payload.
   final T data;
+
   /// Synchron auf true setzen, um die Aktion abzubrechen.
   ///
   /// Set synchronously to true to cancel the action.
@@ -82,6 +84,7 @@ class TxValueChange<T> {
   ///
   /// New and previous input value.
   const TxValueChange({required this.value, required this.previousValue});
+
   /// value: Aktueller Eingabe-/Optionswert.
   /// previousValue: Wert vor der Änderung.
   ///
@@ -109,22 +112,27 @@ class TxItem<T> {
     this.group,
     this.icon,
   });
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final T value;
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String text;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Gruppierungsbeschreibungen beziehungsweise Gruppenname.
   ///
   /// Group descriptors or group name.
   final String? group;
+
   /// Symbol der Aktion.
   ///
   /// Action icon.
@@ -144,14 +152,17 @@ class TxMenuItem {
   ///
   /// Tab/menu entry with text, an icon and a disabled state.
   const TxMenuItem(this.text, {this.disabled = false, this.icon});
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String text;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Symbol der Aktion.
   ///
   /// Action icon.
@@ -198,22 +209,27 @@ class TxColumn<T> {
     this.alignment = Alignment.centerLeft,
     this.cellBuilder,
   });
+
   /// Sichtbare Feld-/Spaltenüberschrift.
   ///
   /// Visible field/column caption.
   final String caption;
+
   /// Feldname; muss im Grid eindeutig sein.
   ///
   /// Field name; must be unique within a grid.
   final String? dataField;
+
   /// Liest den darzustellenden Feldwert.
   ///
   /// Reads the field value to display.
   final Object? Function(T row) valueGetter;
+
   /// Breite; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Width; Vue numbers use pixels, Flutter uses logical pixels.
   final double width;
+
   /// allowSorting: Erlaubt Sortierung dieser Spalte.
   /// allowFiltering: Erlaubt Filtern dieser Spalte.
   /// visible: Steuert die Sichtbarkeit.
@@ -222,10 +238,12 @@ class TxColumn<T> {
   /// allowFiltering: Allows filtering this column.
   /// visible: Controls visibility.
   final bool allowSorting, allowFiltering, visible;
+
   /// Ausrichtung des Inhalts.
   ///
   /// Content alignment.
   final Alignment alignment;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
@@ -250,14 +268,17 @@ class TxCardField<T> {
     required this.valueGetter,
     this.builder,
   });
+
   /// Sichtbare Feld-/Spaltenüberschrift.
   ///
   /// Visible field/column caption.
   final String caption;
+
   /// Liest den darzustellenden Feldwert.
   ///
   /// Reads the field value to display.
   final Object? Function(T row) valueGetter;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
@@ -279,10 +300,12 @@ class TxSelection<T> {
   TxSelection({required Iterable<Object> keys, required Iterable<T> data})
     : keys = Set.unmodifiable(keys),
       data = List.unmodifiable(data);
+
   /// Stabile Schlüssel der Auswahl.
   ///
   /// Stable selection keys.
   final Set<Object> keys;
+
   /// Datensätze beziehungsweise Nutzdaten des Ereignisses.
   ///
   /// Records or event payload.
@@ -317,22 +340,26 @@ class TxAppointment {
       throw ArgumentError('Ganztagstermine benötigen lokale Tagesgrenzen.');
     }
   }
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// text: Anzuzeigender Text.
   /// description: Optionale Terminbeschreibung.
   ///
   /// text: Text to display.
   /// description: Optional appointment description.
   final String text, description;
+
   /// startDate: Termin-/Zellenbeginn.
   /// endDate: Termin-/Zellenende, bei Ganztag exklusiv.
   ///
   /// startDate: Appointment/cell start.
   /// endDate: Appointment/cell end; exclusive for all-day entries.
   final DateTime startDate, endDate;
+
   /// Ganztagstermin mit lokalen Tagesgrenzen.
   ///
   /// All-day appointment with local day boundaries.
@@ -344,6 +371,7 @@ class TxAppointment {
       date.second == 0 &&
       date.millisecond == 0 &&
       date.microsecond == 0;
+
   /// Erzeugt eine Kopie mit den angegebenen Änderungen; alle übrigen Werte bleiben erhalten.
   ///
   /// Creates a copy with the supplied changes; preserves other values.
@@ -377,6 +405,7 @@ class TxAppointmentUpdate {
   ///
   /// Old and proposed new appointment for an update.
   const TxAppointmentUpdate({required this.oldData, required this.newData});
+
   /// oldData: Vorheriger Datensatz.
   /// newData: Neuer vorgeschlagener Datensatz.
   ///
@@ -403,6 +432,7 @@ class TxSchedulerEditing {
     this.allowUpdating = true,
     this.allowDeleting = true,
   });
+
   /// Berechtigungen zum Anlegen, Ändern und Löschen von Terminen; none sperrt alle drei Aktionen.
   ///
   /// Permissions to create, update and delete appointments; none disables all three actions.
@@ -410,6 +440,7 @@ class TxSchedulerEditing {
     : allowAdding = false,
       allowUpdating = false,
       allowDeleting = false;
+
   /// allowAdding: Erlaubt neue Termine.
   /// allowUpdating: Erlaubt Terminänderungen.
   /// allowDeleting: Zeigt Aktionen zum Löschen von Listeneinträgen.
@@ -438,14 +469,17 @@ class TxChatUser {
       throw ArgumentError('Nutzer benötigen einen Namen.');
     }
   }
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// Name des Eingabefelds beziehungsweise Dateiname.
   ///
   /// Input field name or file name.
   final String name;
+
   /// Optionale Avatar-Bildadresse.
   ///
   /// Optional avatar image URL.
@@ -476,22 +510,27 @@ class TxChatMessage {
       throw ArgumentError('Nachrichten dürfen nicht leer sein.');
     }
   }
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String text;
+
   /// Zeitpunkt der Nachricht.
   ///
   /// Message timestamp.
   final DateTime timestamp;
+
   /// Autor der Nachricht.
   ///
   /// Message author.
   final TxChatUser author;
+
   /// Lokaler Nachrichtenstatus.
   ///
   /// Local message status.

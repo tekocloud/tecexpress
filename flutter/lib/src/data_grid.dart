@@ -53,18 +53,22 @@ class TxDataGrid<T> extends StatefulWidget {
     this.noDataText = 'Keine Daten vorhanden.',
     this.label = 'Datentabelle',
   }) : assert(pageSize > 0);
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object dataSource;
+
   /// Liest den stabilen Datensatzschlüssel.
   ///
   /// Reads the stable record key.
   final Object Function(T row) keyOf;
+
   /// Spalten- beziehungsweise Kartenfeldkonfigurationen.
   ///
   /// Column or card field configurations.
   final List<TxColumn<T>> columns;
+
   /// filterRow: Zeigt die Textfilterzeile.
   /// loading: Zeigt den Ladezustand.
   /// disabled: Sperrt die Interaktion.
@@ -73,46 +77,57 @@ class TxDataGrid<T> extends StatefulWidget {
   /// loading: Shows the loading state.
   /// disabled: Disables interaction.
   final bool filterRow, loading, disabled;
+
   /// Anzahl Datensätze je Seite.
   ///
   /// Records per page.
   final int pageSize;
+
   /// Nullbasierter Seitenindex.
   ///
   /// Zero-based page index.
   final int? pageIndex;
+
   /// Meldet pageIndex; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports pageIndex; update controlled state in the callback.
   final ValueChanged<int>? onPageIndexChanged;
+
   /// Auswahlmodus.
   ///
   /// Selection mode.
   final TxSelectionMode selection;
+
   /// Kontrollierte Menge ausgewählter Zeilenschlüssel.
   ///
   /// Controlled set of selected row keys.
   final Set<Object>? selectedRowKeys;
+
   /// Meldet selectedRowKeys; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selectedRowKeys; update controlled state in the callback.
   final ValueChanged<Set<Object>>? onSelectedRowKeysChanged;
+
   /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selection; update controlled state in the callback.
   final ValueChanged<TxSelection<T>>? onSelectionChanged;
+
   /// Meldet den angeklickten Datensatz.
   ///
   /// Reports the clicked record.
   final ValueChanged<T>? onRowClick;
+
   /// Meldet sort; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports sort; update controlled state in the callback.
   final void Function(String? field, bool descending)? onSortChanged;
+
   /// Meldet filter; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports filter; update controlled state in the callback.
   final ValueChanged<Map<String, String>>? onFilterChanged;
+
   /// noDataText: Text bei leerem Datenbestand.
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   ///

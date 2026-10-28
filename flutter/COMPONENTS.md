@@ -1,11 +1,11 @@
-# Vue ↔ Flutter · Komponenten und API · 0.5.0
+# Vue ↔ Flutter · Komponenten und API · 0.7.0
 
 Die vollständige Referenz aller öffentlichen Widgets, Modelle, Funktionen und
 Methoden mit einfachen Beispielen steht auf Deutsch und Englisch direkt in der
 [Paket-README](https://github.com/tekocloud/tecexpress/blob/main/flutter/README.md#de-api).
 Diese Zuordnung und `EXTENSIONS.md` ergänzen die Referenz um Framework-Unterschiede.
 
-Alle bisherigen 21 öffentlichen Vue-Komponenten beziehungsweise Konfigurationen haben weiterhin ein natives Flutter-Gegenstück. Weitere 16 Widgets und die DataSource-Infrastruktur sind in [Erweiterungen 0.5.0](EXTENSIONS.md) dokumentiert. Die Tabelle beschreibt den vorhandenen Umfang, keine vollständige DevExtreme-Kompatibilität. Sämtliche Flutter-Widgets werden aus `package:tecexpress/tecexpress.dart` importiert. Der Showcase enthält jede Tabellenzeile; `TxColumn` wird als DataGrid-Konfiguration gezeigt.
+Alle bisherigen 21 öffentlichen Vue-Komponenten beziehungsweise Konfigurationen haben weiterhin ein natives Flutter-Gegenstück. Weitere 16 Widgets und die DataSource-Infrastruktur sind in [Erweiterungen 0.7.0](EXTENSIONS.md) dokumentiert. Die Tabelle beschreibt den vorhandenen Umfang, keine vollständige DevExtreme-Kompatibilität. Sämtliche Flutter-Widgets werden aus `package:tecexpress/tecexpress.dart` importiert. Der Showcase enthält jede Tabellenzeile; `TxColumn` wird als DataGrid-Konfiguration gezeigt.
 
 | Vue / Flutter | Flutter-Funktionen und wesentliche API |
 | --- | --- |

@@ -38,14 +38,17 @@ class TxRangeSlider extends StatelessWidget {
     this.format,
     this.label = 'Bereich',
   });
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final RangeValues value;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<RangeValues>? onChanged;
+
   /// min: Untere zulässige Grenze.
   /// max: Obere zulässige Grenze.
   /// step: Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
@@ -56,20 +59,24 @@ class TxRangeSlider extends StatelessWidget {
   /// step: Step size; milliseconds for Vue date ranges.
   /// minRange: Minimum distance between range bounds.
   final double min, max, step, minRange;
+
   /// Höchstabstand zwischen den Bereichsgrenzen.
   ///
   /// Maximum distance between range bounds.
   final double? maxRange;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   ///
   /// disabled: Disables interaction.
   /// readOnly: Prevents value changes.
   final bool disabled, readOnly;
+
   /// Formatiert Bereichswerte für die Anzeige.
   ///
   /// Formats range values for display.
   final String Function(double)? format;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
@@ -283,6 +290,7 @@ class TxRangeSelector<T> extends StatelessWidget {
     seriesType: seriesType,
     disabled: disabled,
   );
+
   /// Intervallauswahl über einer einfachen Flächen-, Linien- oder Balkenserie.
   ///
   /// Interval selection over a simple area, line or bar series.
@@ -301,10 +309,12 @@ class TxRangeSelector<T> extends StatelessWidget {
     this.seriesType = 'area',
     this.disabled = false,
   });
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final RangeValues value;
+
   /// min: Untere zulässige Grenze.
   /// max: Obere zulässige Grenze.
   /// step: Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
@@ -313,32 +323,39 @@ class TxRangeSelector<T> extends StatelessWidget {
   /// max: Upper allowed bound.
   /// step: Step size; milliseconds for Vue date ranges.
   final double min, max, step;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<RangeValues>? onChanged;
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<T> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// argumentOf: Getter der numerischen oder zeitlichen X-Achse.
   /// valueOf: Getter des numerischen Serienwerts.
   ///
   /// argumentOf: Getter for the numeric or date X axis.
   /// valueOf: Getter for the numeric series value.
   final double Function(T) argumentOf, valueOf;
+
   /// Formatiert Bereichswerte für die Anzeige.
   ///
   /// Formats range values for display.
   final String Function(double)? format;
+
   /// Seriendarstellung area/line/bar.
   ///
   /// Series appearance: area/line/bar.
   final String seriesType;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.

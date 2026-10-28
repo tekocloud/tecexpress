@@ -7,7 +7,7 @@
 <a id="de"></a>
 ## Deutsch
 
-Vollständige öffentliche API von tecexpress 0.6.0 für Flutter. MIT-Lizenz, ohne Lizenzkey.
+Vollständige öffentliche API von tecexpress 0.7.0 für Flutter. MIT-Lizenz, ohne Lizenzkey.
 
 [Installation und Einstieg](#de-start) · [Daten und Zustandsverwaltung](#de-data) · [Dateien, Uploads und Karten](#de-adapters) · [API-Verzeichnis](#de-api) · [Entwicklung](#de-development)
 
@@ -18,29 +18,23 @@ Vollständige öffentliche API von tecexpress 0.6.0 für Flutter. MIT-Lizenz, oh
 flutter pub add tecexpress
 ```
 
-Benötigt Flutter 3.47.7+ und Dart 3.13.5+. Zielplattformen: Android, iOS, Web, Windows, macOS und Linux.
+Ab 0.7.0 nur Flutter-SDK-Laufzeitabhängigkeiten. Eigene Datei-API: `TxFile` und `TxFileDialogs`. Breaking Changes, Ressourcenbesitz und Plattformkonfiguration: [Migration 0.7](MIGRATION-0.7.md). Native Apps nach dem Update vollständig neu bauen.
 
-Die Beispielanwendung wird auch mit `flutter build web --wasm --release` geprüft. `desktop_drop` ist vorübergehend auf 0.8.0 festgelegt, um die unbedingte D-Bus/FFI-Abhängigkeit neuerer 0.8.x-Versionen zu vermeiden. Linux-Drag-and-drop über das File-Transfer-Portal (etwa in Flatpak) ist damit nicht verfügbar. Ein Update auf 0.9.x benötigt zuerst eine mit `cross_file` 0.4 kompatible Version von `file_selector`.
+Benötigt Flutter 3.47.7+ und Dart 3.13.5+. Zielplattformen: Android, iOS, Web, Windows, macOS und Linux.
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
-void main() => runApp(
-  MaterialApp(
-    theme: TxTheme.light(),
-    darkTheme: TxTheme.dark(),
-    themeMode: ThemeMode.system,
-    locale: const Locale('de'),
-    localizationsDelegates: TxLocalizations.delegates,
-    supportedLocales: TxLocalizations.supportedLocales,
-    home: Scaffold(
-      body: Center(
-        child: TxButton(text: 'Hello', onPressed: () {}),
-      ),
-    ),
-  ),
-);
+void main() => runApp(MaterialApp(
+  theme: TxTheme.light(),
+  darkTheme: TxTheme.dark(),
+  themeMode: ThemeMode.system,
+  locale: const Locale('de'),
+  localizationsDelegates: TxLocalizations.delegates,
+  supportedLocales: TxLocalizations.supportedLocales,
+  home: Scaffold(body: Center(child: TxButton(text: 'Hello', onPressed: () {}))),
+));
 ```
 
 Widgetbeispiele definieren jeweils `Widget example()`. Zum Ausprobieren innerhalb einer MaterialApp `Scaffold(body: example())` verwenden. Alle Widgets akzeptieren zusätzlich den optionalen Flutter-Parameter `Key? key = null`; dieser steht hier einmal gemeinsam statt in jeder Tabelle. Der lokale Zustand entsteht einmal beim Erzeugen des Widgets; in einer produktiven App gehört er in den eigenen State. Beispiele für Datenoperationen definieren eine asynchrone Funktion, die separat aufgerufen wird.
@@ -65,11 +59,7 @@ import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   final source = TxDataSource.array([1, 2], keyOf: (v) => v);
-  try {
-    await source.load();
-  } catch (error) {
-    print(error);
-  }
+  try { await source.load(); } catch (error) { print(error); }
   source.dispose();
 }
 ```
@@ -118,6 +108,9 @@ Kartenkacheln verwenden {z}/{x}/{y}. Kachelquelle, Zugangsdaten und Attribution 
 - [txHttpUpload](#de-txhttpupload)
 - [TxFileUploader](#de-txfileuploader)
 - [TxFileManager](#de-txfilemanager)
+- [TxFileException](#de-txfileexception)
+- [TxFile](#de-txfile)
+- [TxFileDialogs](#de-txfiledialogs)
 - [TxCoordinate](#de-txcoordinate)
 - [TxMapMarker](#de-txmapmarker)
 - [TxMapRoute](#de-txmaproute)
@@ -182,7 +175,6 @@ Kartenkacheln verwenden {z}/{x}/{y}. Kachelquelle, Zugangsdaten und Attribution 
 - [TxTheme](#de-txtheme)
 - [txThemeOf](#de-txthemeof)
 - [TxLocalizations](#de-txlocalizations)
-- [XFile](#de-xfile)
 
 `undefined` (Vue) beziehungsweise optionale nullable Parameter (Dart) bedeuten keinen extern vorgegebenen Wert. Boolean-Props ohne expliziten Vue-Standard sind false. Typen und Standardwerte unten stammen aus der aktuellen Implementierung; zusätzliche Fähigkeiten werden dadurch nicht zugesagt.
 
@@ -213,11 +205,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const TxCard(
-    title: 'Project',
-    subtitle: 'Active',
-    child: Text('Hello'),
-  );
+
+  return const TxCard(title: 'Project', subtitle: 'Active', child: Text('Hello'));
 }
 ```
 
@@ -262,14 +251,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxCardView<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    titleOf: (row) => '${row['name']}',
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxCardView<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, titleOf: (row) => '${row['name']}');
 }
 ```
 
@@ -321,11 +304,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var messages = <TxChatMessage>[];
   return StatefulBuilder(
-    builder: (context, setState) => TxChat(
-      user: TxChatUser(id: 'me', name: 'Alex'),
-      items: messages,
-      onItemsChanged: (v) => setState(() => messages = v),
-    ),
+    builder: (context, setState) => TxChat(user: TxChatUser(id: 'me', name: 'Alex'), items: messages, onItemsChanged: (v) => setState(() => messages = v)),
   );
 }
 ```
@@ -352,17 +331,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxRadioGroup<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxRadioGroup<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -390,17 +362,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   var keys = <int>{};
   return StatefulBuilder(
-    builder: (context, setState) => TxButtonGroup<int>(
-      items: options,
-      values: keys,
-      onChanged: (v) => setState(() => keys = v),
-    ),
+    builder: (context, setState) => TxButtonGroup<int>(items: options, values: keys, onChanged: (v) => setState(() => keys = v)),
   );
 }
 ```
@@ -427,17 +392,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxLookup<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxLookup<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -467,17 +425,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   var keys = <int>{};
   return StatefulBuilder(
-    builder: (context, setState) => TxTagBox<int>(
-      items: options,
-      values: keys,
-      onChanged: (v) => setState(() => keys = v),
-    ),
+    builder: (context, setState) => TxTagBox<int>(items: options, values: keys, onChanged: (v) => setState(() => keys = v)),
   );
 }
 ```
@@ -513,12 +464,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxList<String>(
-    items: const ['One', 'Two'],
-    keyOf: (v) => v,
-    textOf: (v) => v,
-    searchEnabled: true,
-  );
+
+  return TxList<String>(items: const ['One', 'Two'], keyOf: (v) => v, textOf: (v) => v, searchEnabled: true);
 }
 ```
 
@@ -545,10 +492,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxGallery<String>(
-    items: const ['One', 'Two'],
-    itemBuilder: (context, item) => Center(child: Text(item)),
-  );
+
+  return TxGallery<String>(items: const ['One', 'Two'], itemBuilder: (context, item) => Center(child: Text(item)));
 }
 ```
 
@@ -598,10 +543,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxFloatingActionButton(
-    items: const [TxAction(id: 'add', text: 'Add')],
-    onItemClick: (action) {},
-  );
+
+  return TxFloatingActionButton(items: const [TxAction(id: 'add', text: 'Add')], onItemClick: (action) {});
 }
 ```
 
@@ -629,11 +572,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxActionSheet(
-    title: 'Actions',
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-    onItemClick: (action) {},
-  );
+
+  return TxActionSheet(title: 'Actions', items: const [TxAction(id: 'copy', text: 'Copy')], onItemClick: (action) {});
 }
 ```
 
@@ -642,10 +582,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> open(BuildContext context) async {
-  final selected = await TxActionSheet.show(
-    context,
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-  );
+  final selected = await TxActionSheet.show(context, items: const [TxAction(id: 'copy', text: 'Copy')]);
   debugPrint('${selected?.id}');
 }
 ```
@@ -670,11 +607,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxContextMenu(
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-    onItemClick: (action) {},
-    child: const Text('Right click here'),
-  );
+
+  return TxContextMenu(items: const [TxAction(id: 'copy', text: 'Copy')], onItemClick: (action) {}, child: const Text('Right click here'));
 }
 ```
 
@@ -711,14 +645,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxDataGrid<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'])],
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxDataGrid<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'])]);
 }
 ```
 
@@ -745,8 +673,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var saved = false;
   return StatefulBuilder(
-    builder: (context, setState) =>
-        TxButton(text: 'Save', onPressed: () => setState(() => saved = true)),
+    builder: (context, setState) => TxButton(text: 'Save', onPressed: () => setState(() => saved = true)),
   );
 }
 ```
@@ -782,11 +709,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var text = '';
   return StatefulBuilder(
-    builder: (context, setState) => TxTextBox(
-      label: 'Name',
-      initialValue: 'Alex',
-      onChanged: (v) => setState(() => text = v),
-    ),
+    builder: (context, setState) => TxTextBox(label: 'Name', initialValue: 'Alex', onChanged: (v) => setState(() => text = v)),
   );
 }
 ```
@@ -821,11 +744,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var text = '';
   return StatefulBuilder(
-    builder: (context, setState) => TxTextArea(
-      label: 'Notes',
-      rows: 4,
-      onChanged: (v) => setState(() => text = v),
-    ),
+    builder: (context, setState) => TxTextArea(label: 'Notes', rows: 4, onChanged: (v) => setState(() => text = v)),
   );
 }
 ```
@@ -860,12 +779,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   num? amount = 10;
   return StatefulBuilder(
-    builder: (context, setState) => TxNumberBox(
-      value: amount,
-      min: 0,
-      max: 100,
-      onChanged: (v) => setState(() => amount = v),
-    ),
+    builder: (context, setState) => TxNumberBox(value: amount, min: 0, max: 100, onChanged: (v) => setState(() => amount = v)),
   );
 }
 ```
@@ -895,11 +809,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var enabled = true;
   return StatefulBuilder(
-    builder: (context, setState) => TxCheckBox(
-      value: enabled,
-      label: 'Active',
-      onChanged: (v) => setState(() => enabled = v),
-    ),
+    builder: (context, setState) => TxCheckBox(value: enabled, label: 'Active', onChanged: (v) => setState(() => enabled = v)),
   );
 }
 ```
@@ -929,11 +839,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var enabled = true;
   return StatefulBuilder(
-    builder: (context, setState) => TxSwitch(
-      value: enabled,
-      label: 'Active',
-      onChanged: (v) => setState(() => enabled = v),
-    ),
+    builder: (context, setState) => TxSwitch(value: enabled, label: 'Active', onChanged: (v) => setState(() => enabled = v)),
   );
 }
 ```
@@ -963,17 +869,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxSelectBox<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxSelectBox<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -1005,8 +904,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   DateTime? date = DateTime(2026, 10, 28);
   return StatefulBuilder(
-    builder: (context, setState) =>
-        TxDateBox(value: date, onChanged: (v) => setState(() => date = v)),
+    builder: (context, setState) => TxDateBox(value: date, onChanged: (v) => setState(() => date = v)),
   );
 }
 ```
@@ -1059,7 +957,7 @@ list ist erforderlich. Vue bietet optionale Methoden; Dart-Implementierungen dek
 | `Future<void> copy(String id, String? target)` | Kopiert einen Eintrag rekursiv in den Zielordner; neue IDs werden vergeben. |
 | `Future<void> move(String id, String? target)` | Verschiebt einen Eintrag in den Zielordner; Zyklen werden abgelehnt. |
 | `Future<void> remove(String id)` | Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand. |
-| `Future<TxFileEntry> upload(String? parentId, XFile file, {TxCancellation? cancellation})` | Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag. |
+| `Future<TxFileEntry> upload(String? parentId, TxFile file, {TxCancellation? cancellation})` | Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag. |
 | `Future<Uint8List> download(String id)` | Liefert Dateiinhalt; Ordnerdownloads schlagen fehl. |
 
 ```dart
@@ -1094,21 +992,17 @@ Alle Dateioperationen sind asynchron. Ordner-IDs und Datei-IDs sind Strings, nul
 | `Future<void> move(String id, String? target)` | Verschiebt einen Eintrag in den Zielordner; Zyklen werden abgelehnt. |
 | `Future<void> copy(String id, String? target)` | Kopiert einen Eintrag rekursiv in den Zielordner; neue IDs werden vergeben. |
 | `Future<void> remove(String id)` | Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand. |
-| `Future<TxFileEntry> upload(String? parentId, XFile file, {TxCancellation? cancellation})` | Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag. |
+| `Future<TxFileEntry> upload(String? parentId, TxFile file, {TxCancellation? cancellation})` | Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag. |
 | `Future<Uint8List> download(String id)` | Liefert Dateiinhalt; Ordnerdownloads schlagen fehl. |
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   final provider = TxMemoryFileProvider();
   final folder = await provider.createDirectory(null, 'Documents');
-  final file = await provider.upload(
-    folder.id,
-    XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'),
-  );
+  final file = await provider.upload(folder.id, TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'));
   await provider.rename(file.id, 'renamed.txt');
   await provider.copy(file.id, null);
   await provider.rename(file.id, 'moved.txt');
@@ -1155,10 +1049,7 @@ Abbruch und Fortschrittsmeldung einer einzelnen Uploadoperation; Fortschritt wir
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final context = TxUploadContext(
-    cancellation: TxCancellation(),
-    onProgress: (loaded, total) => print(loaded),
-  );
+  final context = TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print(loaded));
   context.onProgress(10, 20);
 }
 ```
@@ -1169,12 +1060,11 @@ Future<void> example() async {
 Asynchroner Callback für den Upload einer Datei; Ergebnis geht an den Erfolgs-Callback, Fehler an die Fehlerbehandlung.
 
 ```dart
-typedef TxUploadAdapter = Future<Object?> Function(XFile file, TxUploadContext context);
+typedef TxUploadAdapter = Future<Object?> Function(TxFile file, TxUploadContext context);
 ```
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
@@ -1184,15 +1074,7 @@ Future<void> example() async {
     context.onProgress(size, size);
     return file.name;
   };
-  print(
-    await adapter(
-      XFile.fromData(Uint8List(0), name: 'empty.txt'),
-      TxUploadContext(
-        cancellation: TxCancellation(),
-        onProgress: (loaded, total) {},
-      ),
-    ),
-  );
+  print(await adapter(TxFile.fromData(Uint8List(0), name: 'empty.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) {})));
 }
 ```
 
@@ -1210,17 +1092,13 @@ Multipart-HTTP-Konfiguration mit Zieladresse, Feldern, Headern und optionalen Ch
 | headers | `Map<String, String>` | `const {}` | Zusätzliche HTTP-Header. |
 | fields | `Map<String, String>` | `const {}` | Zusätzliche Multipart-Textfelder. |
 | chunkSize | `int?` | `null` | Chunkgröße in Bytes; muss positiv sein. |
-| chunkFields | `Map<String, String> Function(XFile, int, int)?` | `null` | Felder je Chunk; Index ist nullbasiert. |
+| chunkFields | `Map<String, String> Function(TxFile, int, int)?` | `null` | Felder je Chunk; Index ist nullbasiert. |
 
 ```dart
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final config = TxHttpUploadConfig(
-    url: Uri.parse('https://example.com/api/upload'),
-    fieldName: 'file',
-    chunkSize: 1024 * 1024,
-  );
+  final config = TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload'), fieldName: 'file', chunkSize: 1024 * 1024);
   final adapter = txHttpUpload(config);
   print(adapter);
 }
@@ -1239,21 +1117,12 @@ TxUploadAdapter txHttpUpload(TxHttpUploadConfig config)
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   // Requires your own multipart server with matching chunk assembly.
-  final upload = txHttpUpload(
-    TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')),
-  );
-  await upload(
-    XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'),
-    TxUploadContext(
-      cancellation: TxCancellation(),
-      onProgress: (loaded, total) => print('$loaded/$total'),
-    ),
-  );
+  final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
+  await upload(TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print('$loaded/$total')));
 }
 ```
 
@@ -1274,9 +1143,9 @@ Dateiauswahl und Uploadwarteschlange mit Größen-/Typprüfung, Fortschritt und 
 | extensions | `List<String>` | `const []` | Erlaubte Dateiendungen ohne Punkt. |
 | instantly | `bool` | `false` | Startet gültige Dateien unmittelbar nach Auswahl. |
 | disabled | `bool` | `false` | Sperrt die Interaktion. |
-| onUploaded | `void Function(XFile, Object?)?` | `null` | Liefert die hochgeladene XFile und das Adapterergebnis. |
-| onError | `void Function(XFile, Object)?` | `null` | Meldet Datei und Fehler einer fehlgeschlagenen Uploadoperation. |
-| onChanged | `ValueChanged<List<XFile>>?` | `null` | Callback für changed; Argumente und Rückgabetyp siehe Signatur. |
+| onUploaded | `void Function(TxFile, Object?)?` | `null` | Liefert die hochgeladene TxFile und das Adapterergebnis. |
+| onError | `void Function(TxFile, Object)?` | `null` | Meldet Datei und Fehler einer fehlgeschlagenen Uploadoperation. |
+| onChanged | `ValueChanged<List<TxFile>>?` | `null` | Callback für changed; Argumente und Rückgabetyp siehe Signatur. |
 
 ```dart
 import 'package:flutter/material.dart';
@@ -1284,9 +1153,7 @@ import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
   // Replace with your server's multipart endpoint.
-  final upload = txHttpUpload(
-    TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')),
-  );
+  final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
   return TxFileUploader(adapter: upload, extensions: const ['txt']);
 }
 ```
@@ -1313,10 +1180,96 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final provider = TxMemoryFileProvider([
-    const TxFileEntry(id: '1', name: 'Documents', isDirectory: true),
-  ]);
+  final provider = TxMemoryFileProvider([const TxFileEntry(id: '1', name: 'Documents', isDirectory: true)]);
   return TxFileManager(provider: provider);
+}
+```
+
+<a id="de-txfileexception"></a>
+### TxFileException
+
+Fehler einer Dateioperation mit optionaler ursprünglicher Ursache.
+
+`TxFileException`
+
+| Parameter | Typ | Standard | Bedeutung |
+| --- | --- | --- | --- |
+| message | `String` | `erforderlich` | Meldungstext. |
+| cause | `Object?` | `null` | Ursprünglicher Plattformfehler, falls vorhanden. |
+
+| Mitglied / Typ / Rückgabe | Bedeutung |
+| --- | --- |
+| `String toString()` | Liefert eine lesbare Fehlerbeschreibung. |
+
+```dart
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  const error = TxFileException('Cannot read file');
+  print(error.message);
+}
+```
+
+<a id="de-txfile"></a>
+### TxFile
+
+Eigener portabler Dateityp mit Bereichslesen und expliziter Ressourcenfreigabe. Keine Fremdpaketabhängigkeit.
+
+`TxFile.fromData`
+
+| Parameter | Typ | Standard | Bedeutung |
+| --- | --- | --- | --- |
+| bytes | `Uint8List` | `erforderlich` | Dateiinhalt im Speicher. |
+| name | `String` | `erforderlich` | Name des Eingabefelds beziehungsweise Dateiname. |
+| mimeType | `String?` | `null` | Optionaler MIME-Typ. |
+
+`TxFile.fromPath`
+
+| Parameter | Typ | Standard | Bedeutung |
+| --- | --- | --- | --- |
+| path | `String` | `erforderlich` | Nativer Dateipfad; im Browser nicht verfügbar. |
+| name | `String?` | `null` | Name des Eingabefelds beziehungsweise Dateiname. |
+| mimeType | `String?` | `null` | Optionaler MIME-Typ. |
+
+| Mitglied / Typ / Rückgabe | Bedeutung |
+| --- | --- |
+| `String get name` | Name des Eingabefelds beziehungsweise Dateiname. |
+| `String? get mimeType` | Optionaler MIME-Typ. |
+| `String? get path` | Nativer Dateipfad; im Browser nicht verfügbar. |
+| `Future<int> length()` | Liefert die Dateigröße in Bytes. |
+| `Future<Uint8List> readAsBytes()` | Liest den gesamten Inhalt; für große Dateien openRead verwenden. |
+| `Stream<List<int>> openRead([int start = 0, int? end])` | Liest start inklusive bis end exklusiv; Standard: gesamte Datei. |
+| `Future<void> dispose()` | Beendet Abfragen und Listener; danach die Instanz nicht mehr verwenden. |
+
+```dart
+import 'dart:typed_data';
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  final file = TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt');
+  print(await file.readAsBytes());
+  await file.dispose();
+}
+```
+
+<a id="de-txfiledialogs"></a>
+### TxFileDialogs
+
+Eingebaute System-Dateidialoge für Dateiauswahl und Speichern; Abbruch liefert eine leere Liste oder false.
+
+| Mitglied / Typ / Rückgabe | Bedeutung |
+| --- | --- |
+| `static Future<List<TxFile>> pickFiles({bool multiple = false, List<String> extensions = const []})` | Öffnet den Dateidialog. Ergebnisdateien nach Gebrauch mit dispose freigeben. |
+| `static Future<bool> saveFile(TxFile file, {String? suggestedName})` | Speichert eine Datei; false bei Dialogabbruch. Im Web bedeutet true, dass der Download ausgelöst wurde. |
+
+```dart
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  final files = await TxFileDialogs.pickFiles(extensions: ['txt']);
+  for (final file in files) {
+    try { await TxFileDialogs.saveFile(file); } finally { await file.dispose(); }
+  }
 }
 ```
 
@@ -1383,10 +1336,7 @@ Darzustellende Routenlinie aus Koordinaten; berechnet keine Route.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  const route = TxMapRoute(
-    id: 'walk',
-    points: [TxCoordinate(52.52, 13.405), TxCoordinate(52.53, 13.41)],
-  );
+  const route = TxMapRoute(id: 'walk', points: [TxCoordinate(52.52, 13.405), TxCoordinate(52.53, 13.41)]);
   print(route.points.length);
 }
 ```
@@ -1410,7 +1360,6 @@ Future<void> example() async {
     final points = await adapter.geocode('Berlin');
     if (points.length >= 2) print(await adapter.route(points));
   }
-
   print(locate);
 }
 ```
@@ -1484,9 +1433,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const TxMap(
-    markers: [TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin')],
-  );
+
+  return const TxMap(markers: [TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin')]);
 }
 ```
 
@@ -1692,20 +1640,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxDataGrid<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    columns: [
-      TxColumn(
-        caption: 'Name',
-        valueGetter: (row) => row['name'],
-        cellBuilder: (context, row, value) => Text('$value'),
-      ),
-    ],
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxDataGrid<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'], cellBuilder: (context, row, value) => Text('$value'))]);
 }
 ```
 
@@ -1776,12 +1712,7 @@ Unveränderlicher Termin mit validiertem Schlüssel, Titel und Ende nach Beginn.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final meeting = TxAppointment(
-    id: 1,
-    text: 'Meeting',
-    startDate: DateTime(2026, 10, 28, 9),
-    endDate: DateTime(2026, 10, 28, 10),
-  );
+  final meeting = TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10));
   print(meeting.copyWith(text: 'Updated').text);
 }
 ```
@@ -1802,16 +1733,8 @@ Alter und vorgeschlagener neuer Termin einer Aktualisierung.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final old = TxAppointment(
-    id: 1,
-    text: 'Meeting',
-    startDate: DateTime(2026, 10, 28, 9),
-    endDate: DateTime(2026, 10, 28, 10),
-  );
-  final update = TxAppointmentUpdate(
-    oldData: old,
-    newData: old.copyWith(text: 'Updated'),
-  );
+  final old = TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10));
+  final update = TxAppointmentUpdate(oldData: old, newData: old.copyWith(text: 'Updated'));
   print(update.newData.text);
 }
 ```
@@ -1880,12 +1803,7 @@ Unveränderliche Nachricht mit Autor, Zeitstempel und nicht leerem Text.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final message = TxChatMessage(
-    id: 1,
-    text: 'Hello',
-    timestamp: DateTime.now(),
-    author: TxChatUser(id: 'me', name: 'Alex'),
-  );
+  final message = TxChatMessage(id: 1, text: 'Hello', timestamp: DateTime.now(), author: TxChatUser(id: 'me', name: 'Alex'));
   print(message.text);
 }
 ```
@@ -1924,9 +1842,7 @@ void txValidateKeys<T>(List<T> items, Object Function(T) keyOf)
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  txValidateKeys<Map<String, Object>>([
-    {'id': 1},
-  ], (row) => row['id']!);
+  txValidateKeys<Map<String, Object>>([{'id': 1}], (row) => row['id']!);
 }
 ```
 
@@ -1956,10 +1872,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxTabs(
-    items: const [TxMenuItem('Home'), TxMenuItem('Settings')],
-    builder: (context, index) => Text('Page $index'),
-  );
+
+  return TxTabs(items: const [TxMenuItem('Home'), TxMenuItem('Settings')], builder: (context, index) => Text('Page $index'));
 }
 ```
 
@@ -1981,10 +1895,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxToolbar(
-    children: [TxButton(text: 'Save', onPressed: () {})],
-    after: const [Text('Ready')],
-  );
+
+  return TxToolbar(children: [TxButton(text: 'Save', onPressed: () {})], after: const [Text('Ready')]);
 }
 ```
 
@@ -2010,10 +1922,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var saved = false;
   return StatefulBuilder(
-    builder: (context, setState) => TxMenu(
-      items: const [TxMenuItem('Home')],
-      onItemClick: (item, index) => setState(() => saved = true),
-    ),
+    builder: (context, setState) => TxMenu(items: const [TxMenuItem('Home')], onItemClick: (item, index) => setState(() => saved = true)),
   );
 }
 ```
@@ -2056,17 +1965,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var visible = false;
   return StatefulBuilder(
-    builder: (context, setState) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TxButton(text: 'Open', onPressed: () => setState(() => visible = true)),
-        TxPopup(
-          visible: visible,
-          onVisibleChanged: (v) => setState(() => visible = v),
-          child: const Text('Hello'),
-        ),
-      ],
-    ),
+    builder: (context, setState) => Column(mainAxisSize: MainAxisSize.min, children: [TxButton(text: 'Open', onPressed: () => setState(() => visible = true)), TxPopup(visible: visible, onVisibleChanged: (v) => setState(() => visible = v), child: const Text('Hello'))]),
   );
 }
 ```
@@ -2076,19 +1975,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> open(BuildContext context) async {
-  final result = await TxPopup.show<bool>(
-    context,
-    title: 'Confirm',
-    child: const Text('Continue?'),
-    actions: [
-      Builder(
-        builder: (dialogContext) => TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('OK'),
-        ),
-      ),
-    ],
-  );
+  final result = await TxPopup.show<bool>(context, title: 'Confirm', child: const Text('Continue?'), actions: [Builder(builder: (dialogContext) => TextButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('OK')))]);
   debugPrint('$result');
 }
 ```
@@ -2117,6 +2004,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
+
   return const TxTooltip(text: 'More information', child: Text('Help'));
 }
 ```
@@ -2164,20 +2052,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var visible = false;
   return StatefulBuilder(
-    builder: (context, setState) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TxButton(
-          text: 'Notify',
-          onPressed: () => setState(() => visible = true),
-        ),
-        TxToast(
-          visible: visible,
-          message: 'Saved',
-          onVisibleChanged: (v) => setState(() => visible = v),
-        ),
-      ],
-    ),
+    builder: (context, setState) => Column(mainAxisSize: MainAxisSize.min, children: [TxButton(text: 'Notify', onPressed: () => setState(() => visible = true)), TxToast(visible: visible, message: 'Saved', onVisibleChanged: (v) => setState(() => visible = v))]),
   );
 }
 ```
@@ -2208,6 +2083,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
+
   return const TxLoadIndicator(label: 'Loading');
 }
 ```
@@ -2240,10 +2116,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var range = const RangeValues(20, 80);
   return StatefulBuilder(
-    builder: (context, setState) => TxRangeSlider(
-      value: range,
-      onChanged: (v) => setState(() => range = v),
-    ),
+    builder: (context, setState) => TxRangeSlider(value: range, onChanged: (v) => setState(() => range = v)),
   );
 }
 ```
@@ -2294,15 +2167,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var range = const RangeValues(20, 80);
   return StatefulBuilder(
-    builder: (context, setState) => TxRangeSelector<double>(
-      value: range,
-      min: 0,
-      max: 100,
-      items: const [20, 80],
-      argumentOf: (v) => v,
-      valueOf: (v) => v / 2,
-      onChanged: (v) => setState(() => range = v),
-    ),
+    builder: (context, setState) => TxRangeSelector<double>(value: range, min: 0, max: 100, items: const [20, 80], argumentOf: (v) => v, valueOf: (v) => v / 2, onChanged: (v) => setState(() => range = v)),
   );
 }
 ```
@@ -2311,18 +2176,7 @@ Widget example() {
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
-Widget dateRange() => TxRangeSelector<DateTime>.date(
-  value: DateTimeRange(
-    start: DateTime(2026, 10, 1),
-    end: DateTime(2026, 10, 10),
-  ),
-  min: DateTime(2026, 10, 1),
-  max: DateTime(2026, 11, 1),
-  items: [DateTime(2026, 10, 5)],
-  argumentOf: (date) => date,
-  valueOf: (date) => 1,
-  onChanged: (value) => debugPrint('$value'),
-);
+Widget dateRange() => TxRangeSelector<DateTime>.date(value: DateTimeRange(start: DateTime(2026, 10, 1), end: DateTime(2026, 10, 10)), min: DateTime(2026, 10, 1), max: DateTime(2026, 11, 1), items: [DateTime(2026, 10, 5)], argumentOf: (date) => date, valueOf: (date) => 1, onChanged: (value) => debugPrint('$value'));
 ```
 
 <a id="de-txscheduler"></a>
@@ -2366,19 +2220,9 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  var appointments = [
-    TxAppointment(
-      id: 1,
-      text: 'Meeting',
-      startDate: DateTime(2026, 10, 28, 9),
-      endDate: DateTime(2026, 10, 28, 10),
-    ),
-  ];
+  var appointments = [TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10))];
   return StatefulBuilder(
-    builder: (context, setState) => TxScheduler(
-      dataSource: appointments,
-      onDataSourceChanged: (v) => setState(() => appointments = v),
-    ),
+    builder: (context, setState) => TxScheduler(dataSource: appointments, onDataSourceChanged: (v) => setState(() => appointments = v)),
   );
 }
 ```
@@ -2407,10 +2251,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxTabPanel(
-    items: const [TxMenuItem('Home')],
-    builder: (context, index) => Text('Page $index'),
-  );
+
+  return TxTabPanel(items: const [TxMenuItem('Home')], builder: (context, index) => Text('Page $index'));
 }
 ```
 
@@ -2435,10 +2277,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const SizedBox(
-    height: 160,
-    child: TxLoadPanel(visible: true, child: Center(child: Text('Content'))),
-  );
+
+  return const SizedBox(height: 160, child: TxLoadPanel(visible: true, child: Center(child: Text('Content'))));
 }
 ```
 
@@ -2461,15 +2301,10 @@ import 'package:tecexpress/tecexpress.dart';
 Future<void> example() async {
   // Obtain the handle inside a widget callback, below MaterialApp.
   void showMessage(BuildContext context) {
-    final handle = txNotify(
-      context,
-      message: 'Working',
-      displayTime: Duration.zero,
-    );
+    final handle = txNotify(context, message: 'Working', displayTime: Duration.zero);
     handle.update(message: 'Done', type: TxToastType.success);
     handle.close();
   }
-
   print(showMessage);
 }
 ```
@@ -2495,7 +2330,6 @@ Future<void> example() async {
     handle.update(message: 'Updated');
     handle.close();
   }
-
   print(showMessage);
 }
 ```
@@ -2617,16 +2451,9 @@ Standardoperator ist Gleichheit. Textoperatoren ignorieren Groß-/Kleinschreibun
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final adult = TxFilter<int>(
-    (v) => v,
-    18,
-    operator: TxFilterOperator.greaterOrEqual,
-  );
+  final adult = TxFilter<int>((v) => v, 18, operator: TxFilterOperator.greaterOrEqual);
   print(adult.matches(20));
-  print(
-    TxFilter.and([adult, TxFilter.not(TxFilter<int>((v) => v, 30))])
-        .matches(20),
-  );
+  print(TxFilter.and([adult, TxFilter.not(TxFilter<int>((v) => v, 30))]).matches(20));
   print(TxFilter.or([adult]).matches(20));
 }
 ```
@@ -2794,9 +2621,7 @@ TxLoadResult<T> txQuery<T>(List<T> input, TxLoadOptions<T> options)
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  print(
-    txQuery([2, 1], TxLoadOptions<int>(sort: [TxSort((v) => v)], take: 1)).data,
-  );
+  print(txQuery([2, 1], TxLoadOptions<int>(sort: [TxSort((v) => v)], take: 1)).data);
 }
 ```
 
@@ -2831,9 +2656,7 @@ Vue: data = [], key = "id". Dart: data ist erforderlich; ohne keyOf sind nur Abf
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final store = TxArrayStore<Map<String, Object>>([
-    {'id': 1},
-  ], keyOf: (row) => row['id']!);
+  final store = TxArrayStore<Map<String, Object>>([{'id': 1}], keyOf: (row) => row['id']!);
   print(store.load(const TxLoadOptions()));
   print(store.byKey(1));
   store.insert({'id': 2});
@@ -2875,10 +2698,7 @@ load ist erforderlich; byKey/insert/update/remove sind optional. load erhält Tx
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final store = TxCustomStore<int>(
-    load: (options) async => txQuery([1, 2], options),
-    byKey: (key) => key == 1 ? 1 : null,
-  );
+  final store = TxCustomStore<int>(load: (options) async => txQuery([1, 2], options), byKey: (key) => key == 1 ? 1 : null);
   print(await store.load(const TxLoadOptions()));
 }
 ```
@@ -2912,11 +2732,7 @@ Konfiguration für Store, Schlüssel, Abfrage, Paging und lokale oder entfernte 
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final config = TxDataSourceConfig<int>(
-    store: TxArrayStore([1, 2], keyOf: (v) => v),
-    keyOf: (v) => v,
-    pageSize: 10,
-  );
+  final config = TxDataSourceConfig<int>(store: TxArrayStore([1, 2], keyOf: (v) => v), keyOf: (v) => v, pageSize: 10);
   final source = TxDataSource(config);
   await source.load();
   source.dispose();
@@ -3017,21 +2833,14 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final source = TxDataSource.array(<Map<String, Object>>[
-    {'id': 1, 'name': 'One'},
-  ], keyOf: (row) => row['id']!);
+  final source = TxDataSource.array(<Map<String, Object>>[{'id': 1, 'name': 'One'}], keyOf: (row) => row['id']!);
   void listener() => debugPrint('${source.loading}: ${source.error}');
   source.addListener(listener);
   await source.load();
-  await source.configure(
-    searchExpr: [(row) => row['name']],
-    searchValue: 'One',
-  );
+  await source.configure(searchExpr: [(row) => row['name']], searchValue: 'One');
   await source.insert({'id': 2, 'name': 'Two'});
   await source.update(2, (row) => {...row, 'name': 'Updated'});
-  await source.push([
-    TxPush.update(2, (row) => {...row, 'name': 'Changed'}),
-  ]);
+  await source.push([TxPush.update(2, (row) => {...row, 'name': 'Changed'})]);
   print(await source.byKey(1));
   print(source.containsKey(1));
   await source.remove(2);
@@ -3093,10 +2902,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxDataSourceBuilder<String>(
-    dataSource: const ['One'],
-    builder: (context, items, source) => Text(items.join(', ')),
-  );
+
+  return TxDataSourceBuilder<String>(dataSource: const ['One'], builder: (context, items, source) => Text(items.join(', ')));
 }
 ```
 
@@ -3200,61 +3007,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  print(
-    MaterialApp(
-      localizationsDelegates: TxLocalizations.delegates,
-      supportedLocales: TxLocalizations.supportedLocales,
-    ),
-  );
-}
-```
-
-<a id="de-xfile"></a>
-### XFile
-
-Reexportierter plattformübergreifender Dateityp aus file_selector. Lesefehler werden als asynchrone Fehler weitergegeben. Dateipfade und Speichern sind plattformabhängig; für portable Verarbeitung die Lesemethoden verwenden.
-
-```dart
-XFile(String path, {String? mimeType, String? name, int? length, Uint8List? bytes, DateTime? lastModified, overrides})
-XFile.fromData(Uint8List bytes, {String? mimeType, String? name, int? length, DateTime? lastModified, String? path, overrides})
-```
-
-Metadatenparameter sind optional und standardmäßig null; overrides ist ausschließlich für Tests bestimmt. fromData erzeugt eine Datei aus Speicherbytes.
-
-| Mitglied | Bedeutung |
-| --- | --- |
-| `String path` | Plattformabhängiger Pfad beziehungsweise Blob-URL. |
-| `String name` | Anzeigename; nicht als Pfad behandeln. |
-| `String? mimeType` | Angegebener MIME-Typ, falls vorhanden. |
-| `Future<int> length()` | Dateigröße in Bytes. |
-| `Future<Uint8List> readAsBytes()` | Liest alle Bytes. |
-| `Future<String> readAsString({Encoding encoding = utf8})` | Liest Text; standardmäßig UTF-8. |
-| `Stream<Uint8List> openRead([int? start, int? end])` | Liest einen Bytebereich; Stream vollständig konsumieren oder abbrechen. |
-| `Future<DateTime> lastModified()` | Liest den Änderungszeitpunkt. |
-| `Future<void> saveTo(String path)` | Speichert an einem Zielpfad; im Web gelten Browser-Downloadregeln. |
-
-```dart
-import 'dart:typed_data';
-
-import 'package:tecexpress/tecexpress.dart';
-
-Future<void> example() async {
-  final file = XFile.fromData(
-    Uint8List.fromList([72, 105]),
-    name: 'hello.txt',
-    mimeType: 'text/plain',
-  );
-  print(file.name);
-  print(file.path);
-  print(file.mimeType);
-  print(await file.length());
-  print(await file.readAsBytes());
-  print(await file.readAsString());
-  print(await file.lastModified());
-  await for (final bytes in file.openRead()) {
-    print(bytes.length);
-  }
-  // Platform-dependent: await file.saveTo('/your/output/hello.txt');
+  print(MaterialApp(localizationsDelegates: TxLocalizations.delegates, supportedLocales: TxLocalizations.supportedLocales));
 }
 ```
 
@@ -3277,7 +3030,7 @@ Die Befehle im jeweiligen Paketordner ausführen. Ein Dry-run veröffentlicht ni
 <a id="en"></a>
 ## English
 
-Complete public API for tecexpress 0.6.0 for Flutter. MIT licensed, no license key.
+Complete public API for tecexpress 0.7.0 for Flutter. MIT licensed, no license key.
 
 [Installation and getting started](#en-start) · [Data and state](#en-data) · [Files, uploads and maps](#en-adapters) · [API index](#en-api) · [Development](#en-development)
 
@@ -3288,29 +3041,23 @@ Complete public API for tecexpress 0.6.0 for Flutter. MIT licensed, no license k
 flutter pub add tecexpress
 ```
 
-Requires Flutter 3.47.7+ and Dart 3.13.5+. Targets Android, iOS, web, Windows, macOS and Linux.
+Since 0.7.0 only Flutter SDK runtime dependencies. Built-in file API: `TxFile` and `TxFileDialogs`. See [migration 0.7](MIGRATION-0.7.md) for breaking changes, ownership and platform setup. Fully rebuild native apps after upgrading.
 
-The example application is also checked with `flutter build web --wasm --release`. `desktop_drop` is temporarily pinned to 0.8.0 to avoid the unconditional D-Bus/FFI dependency in later 0.8.x versions. Linux drag-and-drop through the file-transfer portal (for example in Flatpak) is unavailable with this version. Updating to 0.9.x first requires a `file_selector` version compatible with `cross_file` 0.4.
+Requires Flutter 3.47.7+ and Dart 3.13.5+. Targets Android, iOS, web, Windows, macOS and Linux.
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
-void main() => runApp(
-  MaterialApp(
-    theme: TxTheme.light(),
-    darkTheme: TxTheme.dark(),
-    themeMode: ThemeMode.system,
-    locale: const Locale('de'),
-    localizationsDelegates: TxLocalizations.delegates,
-    supportedLocales: TxLocalizations.supportedLocales,
-    home: Scaffold(
-      body: Center(
-        child: TxButton(text: 'Hello', onPressed: () {}),
-      ),
-    ),
-  ),
-);
+void main() => runApp(MaterialApp(
+  theme: TxTheme.light(),
+  darkTheme: TxTheme.dark(),
+  themeMode: ThemeMode.system,
+  locale: const Locale('de'),
+  localizationsDelegates: TxLocalizations.delegates,
+  supportedLocales: TxLocalizations.supportedLocales,
+  home: Scaffold(body: Center(child: TxButton(text: 'Hello', onPressed: () {}))),
+));
 ```
 
 Widget examples each define `Widget example()`. Try them inside a MaterialApp using `Scaffold(body: example())`. All widgets also accept the optional Flutter parameter `Key? key = null`; it is documented once here instead of in every table. Local state is created once when constructing the widget; in a production app keep it in your own State. Data operation examples define an async function to call separately.
@@ -3335,11 +3082,7 @@ import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   final source = TxDataSource.array([1, 2], keyOf: (v) => v);
-  try {
-    await source.load();
-  } catch (error) {
-    print(error);
-  }
+  try { await source.load(); } catch (error) { print(error); }
   source.dispose();
 }
 ```
@@ -3388,6 +3131,9 @@ Map tiles use {z}/{x}/{y}. Configure tile sources, credentials and attribution y
 - [txHttpUpload](#en-txhttpupload)
 - [TxFileUploader](#en-txfileuploader)
 - [TxFileManager](#en-txfilemanager)
+- [TxFileException](#en-txfileexception)
+- [TxFile](#en-txfile)
+- [TxFileDialogs](#en-txfiledialogs)
 - [TxCoordinate](#en-txcoordinate)
 - [TxMapMarker](#en-txmapmarker)
 - [TxMapRoute](#en-txmaproute)
@@ -3452,7 +3198,6 @@ Map tiles use {z}/{x}/{y}. Configure tile sources, credentials and attribution y
 - [TxTheme](#en-txtheme)
 - [txThemeOf](#en-txthemeof)
 - [TxLocalizations](#en-txlocalizations)
-- [XFile](#en-xfile)
 
 `undefined` (Vue) or optional nullable parameters (Dart) mean no externally supplied value. Boolean Vue props without an explicit default are false. Types and defaults below come from the current implementation; they do not promise additional capabilities.
 
@@ -3483,11 +3228,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const TxCard(
-    title: 'Project',
-    subtitle: 'Active',
-    child: Text('Hello'),
-  );
+
+  return const TxCard(title: 'Project', subtitle: 'Active', child: Text('Hello'));
 }
 ```
 
@@ -3532,14 +3274,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxCardView<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    titleOf: (row) => '${row['name']}',
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxCardView<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, titleOf: (row) => '${row['name']}');
 }
 ```
 
@@ -3591,11 +3327,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var messages = <TxChatMessage>[];
   return StatefulBuilder(
-    builder: (context, setState) => TxChat(
-      user: TxChatUser(id: 'me', name: 'Alex'),
-      items: messages,
-      onItemsChanged: (v) => setState(() => messages = v),
-    ),
+    builder: (context, setState) => TxChat(user: TxChatUser(id: 'me', name: 'Alex'), items: messages, onItemsChanged: (v) => setState(() => messages = v)),
   );
 }
 ```
@@ -3622,17 +3354,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxRadioGroup<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxRadioGroup<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -3660,17 +3385,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   var keys = <int>{};
   return StatefulBuilder(
-    builder: (context, setState) => TxButtonGroup<int>(
-      items: options,
-      values: keys,
-      onChanged: (v) => setState(() => keys = v),
-    ),
+    builder: (context, setState) => TxButtonGroup<int>(items: options, values: keys, onChanged: (v) => setState(() => keys = v)),
   );
 }
 ```
@@ -3697,17 +3415,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxLookup<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxLookup<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -3737,17 +3448,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   var keys = <int>{};
   return StatefulBuilder(
-    builder: (context, setState) => TxTagBox<int>(
-      items: options,
-      values: keys,
-      onChanged: (v) => setState(() => keys = v),
-    ),
+    builder: (context, setState) => TxTagBox<int>(items: options, values: keys, onChanged: (v) => setState(() => keys = v)),
   );
 }
 ```
@@ -3783,12 +3487,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxList<String>(
-    items: const ['One', 'Two'],
-    keyOf: (v) => v,
-    textOf: (v) => v,
-    searchEnabled: true,
-  );
+
+  return TxList<String>(items: const ['One', 'Two'], keyOf: (v) => v, textOf: (v) => v, searchEnabled: true);
 }
 ```
 
@@ -3815,10 +3515,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxGallery<String>(
-    items: const ['One', 'Two'],
-    itemBuilder: (context, item) => Center(child: Text(item)),
-  );
+
+  return TxGallery<String>(items: const ['One', 'Two'], itemBuilder: (context, item) => Center(child: Text(item)));
 }
 ```
 
@@ -3868,10 +3566,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxFloatingActionButton(
-    items: const [TxAction(id: 'add', text: 'Add')],
-    onItemClick: (action) {},
-  );
+
+  return TxFloatingActionButton(items: const [TxAction(id: 'add', text: 'Add')], onItemClick: (action) {});
 }
 ```
 
@@ -3899,11 +3595,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxActionSheet(
-    title: 'Actions',
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-    onItemClick: (action) {},
-  );
+
+  return TxActionSheet(title: 'Actions', items: const [TxAction(id: 'copy', text: 'Copy')], onItemClick: (action) {});
 }
 ```
 
@@ -3912,10 +3605,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> open(BuildContext context) async {
-  final selected = await TxActionSheet.show(
-    context,
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-  );
+  final selected = await TxActionSheet.show(context, items: const [TxAction(id: 'copy', text: 'Copy')]);
   debugPrint('${selected?.id}');
 }
 ```
@@ -3940,11 +3630,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxContextMenu(
-    items: const [TxAction(id: 'copy', text: 'Copy')],
-    onItemClick: (action) {},
-    child: const Text('Right click here'),
-  );
+
+  return TxContextMenu(items: const [TxAction(id: 'copy', text: 'Copy')], onItemClick: (action) {}, child: const Text('Right click here'));
 }
 ```
 
@@ -3981,14 +3668,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxDataGrid<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'])],
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxDataGrid<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'])]);
 }
 ```
 
@@ -4015,8 +3696,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var saved = false;
   return StatefulBuilder(
-    builder: (context, setState) =>
-        TxButton(text: 'Save', onPressed: () => setState(() => saved = true)),
+    builder: (context, setState) => TxButton(text: 'Save', onPressed: () => setState(() => saved = true)),
   );
 }
 ```
@@ -4052,11 +3732,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var text = '';
   return StatefulBuilder(
-    builder: (context, setState) => TxTextBox(
-      label: 'Name',
-      initialValue: 'Alex',
-      onChanged: (v) => setState(() => text = v),
-    ),
+    builder: (context, setState) => TxTextBox(label: 'Name', initialValue: 'Alex', onChanged: (v) => setState(() => text = v)),
   );
 }
 ```
@@ -4091,11 +3767,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var text = '';
   return StatefulBuilder(
-    builder: (context, setState) => TxTextArea(
-      label: 'Notes',
-      rows: 4,
-      onChanged: (v) => setState(() => text = v),
-    ),
+    builder: (context, setState) => TxTextArea(label: 'Notes', rows: 4, onChanged: (v) => setState(() => text = v)),
   );
 }
 ```
@@ -4130,12 +3802,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   num? amount = 10;
   return StatefulBuilder(
-    builder: (context, setState) => TxNumberBox(
-      value: amount,
-      min: 0,
-      max: 100,
-      onChanged: (v) => setState(() => amount = v),
-    ),
+    builder: (context, setState) => TxNumberBox(value: amount, min: 0, max: 100, onChanged: (v) => setState(() => amount = v)),
   );
 }
 ```
@@ -4165,11 +3832,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var enabled = true;
   return StatefulBuilder(
-    builder: (context, setState) => TxCheckBox(
-      value: enabled,
-      label: 'Active',
-      onChanged: (v) => setState(() => enabled = v),
-    ),
+    builder: (context, setState) => TxCheckBox(value: enabled, label: 'Active', onChanged: (v) => setState(() => enabled = v)),
   );
 }
 ```
@@ -4199,11 +3862,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var enabled = true;
   return StatefulBuilder(
-    builder: (context, setState) => TxSwitch(
-      value: enabled,
-      label: 'Active',
-      onChanged: (v) => setState(() => enabled = v),
-    ),
+    builder: (context, setState) => TxSwitch(value: enabled, label: 'Active', onChanged: (v) => setState(() => enabled = v)),
   );
 }
 ```
@@ -4233,17 +3892,10 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  const options = [
-    TxItem(value: 1, text: 'One'),
-    TxItem(value: 2, text: 'Two'),
-  ];
+  const options = [TxItem(value: 1, text: 'One'), TxItem(value: 2, text: 'Two')];
   int? choice = 1;
   return StatefulBuilder(
-    builder: (context, setState) => TxSelectBox<int>(
-      items: options,
-      value: choice,
-      onChanged: (v) => setState(() => choice = v),
-    ),
+    builder: (context, setState) => TxSelectBox<int>(items: options, value: choice, onChanged: (v) => setState(() => choice = v)),
   );
 }
 ```
@@ -4275,8 +3927,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   DateTime? date = DateTime(2026, 10, 28);
   return StatefulBuilder(
-    builder: (context, setState) =>
-        TxDateBox(value: date, onChanged: (v) => setState(() => date = v)),
+    builder: (context, setState) => TxDateBox(value: date, onChanged: (v) => setState(() => date = v)),
   );
 }
 ```
@@ -4329,7 +3980,7 @@ list is required. Vue offers optional methods; Dart implementations declare capa
 | `Future<void> copy(String id, String? target)` | Recursively copies an entry to the target directory, assigning new IDs. |
 | `Future<void> move(String id, String? target)` | Moves an entry to the target directory; cycles are rejected. |
 | `Future<void> remove(String id)` | Removes the record or recursively removes a file/directory tree. |
-| `Future<TxFileEntry> upload(String? parentId, XFile file, {TxCancellation? cancellation})` | Uploads a file to the specified directory and returns its new entry. |
+| `Future<TxFileEntry> upload(String? parentId, TxFile file, {TxCancellation? cancellation})` | Uploads a file to the specified directory and returns its new entry. |
 | `Future<Uint8List> download(String id)` | Returns file contents; downloading a directory fails. |
 
 ```dart
@@ -4364,21 +4015,17 @@ All file operations are asynchronous. Directory and file IDs are strings; null a
 | `Future<void> move(String id, String? target)` | Moves an entry to the target directory; cycles are rejected. |
 | `Future<void> copy(String id, String? target)` | Recursively copies an entry to the target directory, assigning new IDs. |
 | `Future<void> remove(String id)` | Removes the record or recursively removes a file/directory tree. |
-| `Future<TxFileEntry> upload(String? parentId, XFile file, {TxCancellation? cancellation})` | Uploads a file to the specified directory and returns its new entry. |
+| `Future<TxFileEntry> upload(String? parentId, TxFile file, {TxCancellation? cancellation})` | Uploads a file to the specified directory and returns its new entry. |
 | `Future<Uint8List> download(String id)` | Returns file contents; downloading a directory fails. |
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   final provider = TxMemoryFileProvider();
   final folder = await provider.createDirectory(null, 'Documents');
-  final file = await provider.upload(
-    folder.id,
-    XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'),
-  );
+  final file = await provider.upload(folder.id, TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'));
   await provider.rename(file.id, 'renamed.txt');
   await provider.copy(file.id, null);
   await provider.rename(file.id, 'moved.txt');
@@ -4425,10 +4072,7 @@ Cancellation and progress reporting for one upload operation; progress is report
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final context = TxUploadContext(
-    cancellation: TxCancellation(),
-    onProgress: (loaded, total) => print(loaded),
-  );
+  final context = TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print(loaded));
   context.onProgress(10, 20);
 }
 ```
@@ -4439,12 +4083,11 @@ Future<void> example() async {
 Asynchronous callback uploading one file; its result reaches the success callback and errors reach error handling.
 
 ```dart
-typedef TxUploadAdapter = Future<Object?> Function(XFile file, TxUploadContext context);
+typedef TxUploadAdapter = Future<Object?> Function(TxFile file, TxUploadContext context);
 ```
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
@@ -4454,15 +4097,7 @@ Future<void> example() async {
     context.onProgress(size, size);
     return file.name;
   };
-  print(
-    await adapter(
-      XFile.fromData(Uint8List(0), name: 'empty.txt'),
-      TxUploadContext(
-        cancellation: TxCancellation(),
-        onProgress: (loaded, total) {},
-      ),
-    ),
-  );
+  print(await adapter(TxFile.fromData(Uint8List(0), name: 'empty.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) {})));
 }
 ```
 
@@ -4480,17 +4115,13 @@ Multipart HTTP configuration with a destination, fields, headers and optional ch
 | headers | `Map<String, String>` | `const {}` | Additional HTTP headers. |
 | fields | `Map<String, String>` | `const {}` | Additional multipart text fields. |
 | chunkSize | `int?` | `null` | Chunk size in bytes; must be positive. |
-| chunkFields | `Map<String, String> Function(XFile, int, int)?` | `null` | Fields per chunk; index is zero-based. |
+| chunkFields | `Map<String, String> Function(TxFile, int, int)?` | `null` | Fields per chunk; index is zero-based. |
 
 ```dart
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final config = TxHttpUploadConfig(
-    url: Uri.parse('https://example.com/api/upload'),
-    fieldName: 'file',
-    chunkSize: 1024 * 1024,
-  );
+  final config = TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload'), fieldName: 'file', chunkSize: 1024 * 1024);
   final adapter = txHttpUpload(config);
   print(adapter);
 }
@@ -4509,21 +4140,12 @@ TxUploadAdapter txHttpUpload(TxHttpUploadConfig config)
 
 ```dart
 import 'dart:typed_data';
-
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
   // Requires your own multipart server with matching chunk assembly.
-  final upload = txHttpUpload(
-    TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')),
-  );
-  await upload(
-    XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'),
-    TxUploadContext(
-      cancellation: TxCancellation(),
-      onProgress: (loaded, total) => print('$loaded/$total'),
-    ),
-  );
+  final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
+  await upload(TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print('$loaded/$total')));
 }
 ```
 
@@ -4544,9 +4166,9 @@ File picker and upload queue with size/type checks, progress and retry from the 
 | extensions | `List<String>` | `const []` | Allowed file extensions without a dot. |
 | instantly | `bool` | `false` | Starts valid files immediately after selection. |
 | disabled | `bool` | `false` | Disables interaction. |
-| onUploaded | `void Function(XFile, Object?)?` | `null` | Provides the uploaded XFile and adapter result. |
-| onError | `void Function(XFile, Object)?` | `null` | Reports the file and error of a failed upload operation. |
-| onChanged | `ValueChanged<List<XFile>>?` | `null` | Callback for changed; see the signature for arguments and return type. |
+| onUploaded | `void Function(TxFile, Object?)?` | `null` | Provides the uploaded TxFile and adapter result. |
+| onError | `void Function(TxFile, Object)?` | `null` | Reports the file and error of a failed upload operation. |
+| onChanged | `ValueChanged<List<TxFile>>?` | `null` | Callback for changed; see the signature for arguments and return type. |
 
 ```dart
 import 'package:flutter/material.dart';
@@ -4554,9 +4176,7 @@ import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
   // Replace with your server's multipart endpoint.
-  final upload = txHttpUpload(
-    TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')),
-  );
+  final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
   return TxFileUploader(adapter: upload, extensions: const ['txt']);
 }
 ```
@@ -4583,10 +4203,96 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final provider = TxMemoryFileProvider([
-    const TxFileEntry(id: '1', name: 'Documents', isDirectory: true),
-  ]);
+  final provider = TxMemoryFileProvider([const TxFileEntry(id: '1', name: 'Documents', isDirectory: true)]);
   return TxFileManager(provider: provider);
+}
+```
+
+<a id="en-txfileexception"></a>
+### TxFileException
+
+File operation error with an optional original cause.
+
+`TxFileException`
+
+| Parameter | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| message | `String` | `required` | Notification text. |
+| cause | `Object?` | `null` | Original platform error, if any. |
+
+| Member / type / return | Meaning |
+| --- | --- |
+| `String toString()` | Returns a readable error description. |
+
+```dart
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  const error = TxFileException('Cannot read file');
+  print(error.message);
+}
+```
+
+<a id="en-txfile"></a>
+### TxFile
+
+Built-in portable file type with range reads and explicit resource disposal. No third-party package dependency.
+
+`TxFile.fromData`
+
+| Parameter | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| bytes | `Uint8List` | `required` | File contents in memory. |
+| name | `String` | `required` | Input field name or file name. |
+| mimeType | `String?` | `null` | Optional MIME type. |
+
+`TxFile.fromPath`
+
+| Parameter | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| path | `String` | `required` | Native filesystem path; unavailable in browsers. |
+| name | `String?` | `null` | Input field name or file name. |
+| mimeType | `String?` | `null` | Optional MIME type. |
+
+| Member / type / return | Meaning |
+| --- | --- |
+| `String get name` | Input field name or file name. |
+| `String? get mimeType` | Optional MIME type. |
+| `String? get path` | Native filesystem path; unavailable in browsers. |
+| `Future<int> length()` | Returns the file size in bytes. |
+| `Future<Uint8List> readAsBytes()` | Reads all contents; prefer openRead for large files. |
+| `Stream<List<int>> openRead([int start = 0, int? end])` | Reads from inclusive start to exclusive end; defaults to the entire file. |
+| `Future<void> dispose()` | Stops queries and listeners; do not use the instance afterward. |
+
+```dart
+import 'dart:typed_data';
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  final file = TxFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt');
+  print(await file.readAsBytes());
+  await file.dispose();
+}
+```
+
+<a id="en-txfiledialogs"></a>
+### TxFileDialogs
+
+Built-in system file dialogs for picking and saving files; cancellation returns an empty list or false.
+
+| Member / type / return | Meaning |
+| --- | --- |
+| `static Future<List<TxFile>> pickFiles({bool multiple = false, List<String> extensions = const []})` | Opens the file picker. Dispose result files after use. |
+| `static Future<bool> saveFile(TxFile file, {String? suggestedName})` | Saves a file; false on dialog cancellation. On the web true means a download was initiated. |
+
+```dart
+import 'package:tecexpress/tecexpress.dart';
+
+Future<void> example() async {
+  final files = await TxFileDialogs.pickFiles(extensions: ['txt']);
+  for (final file in files) {
+    try { await TxFileDialogs.saveFile(file); } finally { await file.dispose(); }
+  }
 }
 ```
 
@@ -4653,10 +4359,7 @@ Route line to draw from coordinates; it does not calculate a route.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  const route = TxMapRoute(
-    id: 'walk',
-    points: [TxCoordinate(52.52, 13.405), TxCoordinate(52.53, 13.41)],
-  );
+  const route = TxMapRoute(id: 'walk', points: [TxCoordinate(52.52, 13.405), TxCoordinate(52.53, 13.41)]);
   print(route.points.length);
 }
 ```
@@ -4680,7 +4383,6 @@ Future<void> example() async {
     final points = await adapter.geocode('Berlin');
     if (points.length >= 2) print(await adapter.route(points));
   }
-
   print(locate);
 }
 ```
@@ -4754,9 +4456,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const TxMap(
-    markers: [TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin')],
-  );
+
+  return const TxMap(markers: [TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin')]);
 }
 ```
 
@@ -4962,20 +4663,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  final rows = <Map<String, Object>>[
-    {'id': 1, 'name': 'Alex'},
-  ];
-  return TxDataGrid<Map<String, Object>>(
-    dataSource: rows,
-    keyOf: (row) => row['id']!,
-    columns: [
-      TxColumn(
-        caption: 'Name',
-        valueGetter: (row) => row['name'],
-        cellBuilder: (context, row, value) => Text('$value'),
-      ),
-    ],
-  );
+  final rows = <Map<String, Object>>[{'id': 1, 'name': 'Alex'}];
+  return TxDataGrid<Map<String, Object>>(dataSource: rows, keyOf: (row) => row['id']!, columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'], cellBuilder: (context, row, value) => Text('$value'))]);
 }
 ```
 
@@ -5046,12 +4735,7 @@ Immutable appointment with a validated key, title and end after start. All-day b
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final meeting = TxAppointment(
-    id: 1,
-    text: 'Meeting',
-    startDate: DateTime(2026, 10, 28, 9),
-    endDate: DateTime(2026, 10, 28, 10),
-  );
+  final meeting = TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10));
   print(meeting.copyWith(text: 'Updated').text);
 }
 ```
@@ -5072,16 +4756,8 @@ Old and proposed new appointment for an update.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final old = TxAppointment(
-    id: 1,
-    text: 'Meeting',
-    startDate: DateTime(2026, 10, 28, 9),
-    endDate: DateTime(2026, 10, 28, 10),
-  );
-  final update = TxAppointmentUpdate(
-    oldData: old,
-    newData: old.copyWith(text: 'Updated'),
-  );
+  final old = TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10));
+  final update = TxAppointmentUpdate(oldData: old, newData: old.copyWith(text: 'Updated'));
   print(update.newData.text);
 }
 ```
@@ -5150,12 +4826,7 @@ Immutable message with an author, timestamp and non-empty text.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final message = TxChatMessage(
-    id: 1,
-    text: 'Hello',
-    timestamp: DateTime.now(),
-    author: TxChatUser(id: 'me', name: 'Alex'),
-  );
+  final message = TxChatMessage(id: 1, text: 'Hello', timestamp: DateTime.now(), author: TxChatUser(id: 'me', name: 'Alex'));
   print(message.text);
 }
 ```
@@ -5194,9 +4865,7 @@ void txValidateKeys<T>(List<T> items, Object Function(T) keyOf)
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  txValidateKeys<Map<String, Object>>([
-    {'id': 1},
-  ], (row) => row['id']!);
+  txValidateKeys<Map<String, Object>>([{'id': 1}], (row) => row['id']!);
 }
 ```
 
@@ -5226,10 +4895,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxTabs(
-    items: const [TxMenuItem('Home'), TxMenuItem('Settings')],
-    builder: (context, index) => Text('Page $index'),
-  );
+
+  return TxTabs(items: const [TxMenuItem('Home'), TxMenuItem('Settings')], builder: (context, index) => Text('Page $index'));
 }
 ```
 
@@ -5251,10 +4918,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxToolbar(
-    children: [TxButton(text: 'Save', onPressed: () {})],
-    after: const [Text('Ready')],
-  );
+
+  return TxToolbar(children: [TxButton(text: 'Save', onPressed: () {})], after: const [Text('Ready')]);
 }
 ```
 
@@ -5280,10 +4945,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var saved = false;
   return StatefulBuilder(
-    builder: (context, setState) => TxMenu(
-      items: const [TxMenuItem('Home')],
-      onItemClick: (item, index) => setState(() => saved = true),
-    ),
+    builder: (context, setState) => TxMenu(items: const [TxMenuItem('Home')], onItemClick: (item, index) => setState(() => saved = true)),
   );
 }
 ```
@@ -5326,17 +4988,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var visible = false;
   return StatefulBuilder(
-    builder: (context, setState) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TxButton(text: 'Open', onPressed: () => setState(() => visible = true)),
-        TxPopup(
-          visible: visible,
-          onVisibleChanged: (v) => setState(() => visible = v),
-          child: const Text('Hello'),
-        ),
-      ],
-    ),
+    builder: (context, setState) => Column(mainAxisSize: MainAxisSize.min, children: [TxButton(text: 'Open', onPressed: () => setState(() => visible = true)), TxPopup(visible: visible, onVisibleChanged: (v) => setState(() => visible = v), child: const Text('Hello'))]),
   );
 }
 ```
@@ -5346,19 +4998,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> open(BuildContext context) async {
-  final result = await TxPopup.show<bool>(
-    context,
-    title: 'Confirm',
-    child: const Text('Continue?'),
-    actions: [
-      Builder(
-        builder: (dialogContext) => TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('OK'),
-        ),
-      ),
-    ],
-  );
+  final result = await TxPopup.show<bool>(context, title: 'Confirm', child: const Text('Continue?'), actions: [Builder(builder: (dialogContext) => TextButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('OK')))]);
   debugPrint('$result');
 }
 ```
@@ -5387,6 +5027,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
+
   return const TxTooltip(text: 'More information', child: Text('Help'));
 }
 ```
@@ -5434,20 +5075,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var visible = false;
   return StatefulBuilder(
-    builder: (context, setState) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TxButton(
-          text: 'Notify',
-          onPressed: () => setState(() => visible = true),
-        ),
-        TxToast(
-          visible: visible,
-          message: 'Saved',
-          onVisibleChanged: (v) => setState(() => visible = v),
-        ),
-      ],
-    ),
+    builder: (context, setState) => Column(mainAxisSize: MainAxisSize.min, children: [TxButton(text: 'Notify', onPressed: () => setState(() => visible = true)), TxToast(visible: visible, message: 'Saved', onVisibleChanged: (v) => setState(() => visible = v))]),
   );
 }
 ```
@@ -5478,6 +5106,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
+
   return const TxLoadIndicator(label: 'Loading');
 }
 ```
@@ -5510,10 +5139,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var range = const RangeValues(20, 80);
   return StatefulBuilder(
-    builder: (context, setState) => TxRangeSlider(
-      value: range,
-      onChanged: (v) => setState(() => range = v),
-    ),
+    builder: (context, setState) => TxRangeSlider(value: range, onChanged: (v) => setState(() => range = v)),
   );
 }
 ```
@@ -5564,15 +5190,7 @@ import 'package:tecexpress/tecexpress.dart';
 Widget example() {
   var range = const RangeValues(20, 80);
   return StatefulBuilder(
-    builder: (context, setState) => TxRangeSelector<double>(
-      value: range,
-      min: 0,
-      max: 100,
-      items: const [20, 80],
-      argumentOf: (v) => v,
-      valueOf: (v) => v / 2,
-      onChanged: (v) => setState(() => range = v),
-    ),
+    builder: (context, setState) => TxRangeSelector<double>(value: range, min: 0, max: 100, items: const [20, 80], argumentOf: (v) => v, valueOf: (v) => v / 2, onChanged: (v) => setState(() => range = v)),
   );
 }
 ```
@@ -5581,18 +5199,7 @@ Widget example() {
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
-Widget dateRange() => TxRangeSelector<DateTime>.date(
-  value: DateTimeRange(
-    start: DateTime(2026, 10, 1),
-    end: DateTime(2026, 10, 10),
-  ),
-  min: DateTime(2026, 10, 1),
-  max: DateTime(2026, 11, 1),
-  items: [DateTime(2026, 10, 5)],
-  argumentOf: (date) => date,
-  valueOf: (date) => 1,
-  onChanged: (value) => debugPrint('$value'),
-);
+Widget dateRange() => TxRangeSelector<DateTime>.date(value: DateTimeRange(start: DateTime(2026, 10, 1), end: DateTime(2026, 10, 10)), min: DateTime(2026, 10, 1), max: DateTime(2026, 11, 1), items: [DateTime(2026, 10, 5)], argumentOf: (date) => date, valueOf: (date) => 1, onChanged: (value) => debugPrint('$value'));
 ```
 
 <a id="en-txscheduler"></a>
@@ -5636,19 +5243,9 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  var appointments = [
-    TxAppointment(
-      id: 1,
-      text: 'Meeting',
-      startDate: DateTime(2026, 10, 28, 9),
-      endDate: DateTime(2026, 10, 28, 10),
-    ),
-  ];
+  var appointments = [TxAppointment(id: 1, text: 'Meeting', startDate: DateTime(2026, 10, 28, 9), endDate: DateTime(2026, 10, 28, 10))];
   return StatefulBuilder(
-    builder: (context, setState) => TxScheduler(
-      dataSource: appointments,
-      onDataSourceChanged: (v) => setState(() => appointments = v),
-    ),
+    builder: (context, setState) => TxScheduler(dataSource: appointments, onDataSourceChanged: (v) => setState(() => appointments = v)),
   );
 }
 ```
@@ -5677,10 +5274,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxTabPanel(
-    items: const [TxMenuItem('Home')],
-    builder: (context, index) => Text('Page $index'),
-  );
+
+  return TxTabPanel(items: const [TxMenuItem('Home')], builder: (context, index) => Text('Page $index'));
 }
 ```
 
@@ -5705,10 +5300,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return const SizedBox(
-    height: 160,
-    child: TxLoadPanel(visible: true, child: Center(child: Text('Content'))),
-  );
+
+  return const SizedBox(height: 160, child: TxLoadPanel(visible: true, child: Center(child: Text('Content'))));
 }
 ```
 
@@ -5731,15 +5324,10 @@ import 'package:tecexpress/tecexpress.dart';
 Future<void> example() async {
   // Obtain the handle inside a widget callback, below MaterialApp.
   void showMessage(BuildContext context) {
-    final handle = txNotify(
-      context,
-      message: 'Working',
-      displayTime: Duration.zero,
-    );
+    final handle = txNotify(context, message: 'Working', displayTime: Duration.zero);
     handle.update(message: 'Done', type: TxToastType.success);
     handle.close();
   }
-
   print(showMessage);
 }
 ```
@@ -5765,7 +5353,6 @@ Future<void> example() async {
     handle.update(message: 'Updated');
     handle.close();
   }
-
   print(showMessage);
 }
 ```
@@ -5887,16 +5474,9 @@ The default operator is equality. Text operators ignore case. Empty AND is true;
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final adult = TxFilter<int>(
-    (v) => v,
-    18,
-    operator: TxFilterOperator.greaterOrEqual,
-  );
+  final adult = TxFilter<int>((v) => v, 18, operator: TxFilterOperator.greaterOrEqual);
   print(adult.matches(20));
-  print(
-    TxFilter.and([adult, TxFilter.not(TxFilter<int>((v) => v, 30))])
-        .matches(20),
-  );
+  print(TxFilter.and([adult, TxFilter.not(TxFilter<int>((v) => v, 30))]).matches(20));
   print(TxFilter.or([adult]).matches(20));
 }
 ```
@@ -6064,9 +5644,7 @@ TxLoadResult<T> txQuery<T>(List<T> input, TxLoadOptions<T> options)
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  print(
-    txQuery([2, 1], TxLoadOptions<int>(sort: [TxSort((v) => v)], take: 1)).data,
-  );
+  print(txQuery([2, 1], TxLoadOptions<int>(sort: [TxSort((v) => v)], take: 1)).data);
 }
 ```
 
@@ -6101,9 +5679,7 @@ Vue: data = [], key = "id". Dart: data is required; without keyOf only queries a
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final store = TxArrayStore<Map<String, Object>>([
-    {'id': 1},
-  ], keyOf: (row) => row['id']!);
+  final store = TxArrayStore<Map<String, Object>>([{'id': 1}], keyOf: (row) => row['id']!);
   print(store.load(const TxLoadOptions()));
   print(store.byKey(1));
   store.insert({'id': 2});
@@ -6145,10 +5721,7 @@ load is required; byKey/insert/update/remove are optional. load receives TxLoadO
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final store = TxCustomStore<int>(
-    load: (options) async => txQuery([1, 2], options),
-    byKey: (key) => key == 1 ? 1 : null,
-  );
+  final store = TxCustomStore<int>(load: (options) async => txQuery([1, 2], options), byKey: (key) => key == 1 ? 1 : null);
   print(await store.load(const TxLoadOptions()));
 }
 ```
@@ -6182,11 +5755,7 @@ Configuration for the store, keys, query, paging and local or remote processing.
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final config = TxDataSourceConfig<int>(
-    store: TxArrayStore([1, 2], keyOf: (v) => v),
-    keyOf: (v) => v,
-    pageSize: 10,
-  );
+  final config = TxDataSourceConfig<int>(store: TxArrayStore([1, 2], keyOf: (v) => v), keyOf: (v) => v, pageSize: 10);
   final source = TxDataSource(config);
   await source.load();
   source.dispose();
@@ -6287,21 +5856,14 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  final source = TxDataSource.array(<Map<String, Object>>[
-    {'id': 1, 'name': 'One'},
-  ], keyOf: (row) => row['id']!);
+  final source = TxDataSource.array(<Map<String, Object>>[{'id': 1, 'name': 'One'}], keyOf: (row) => row['id']!);
   void listener() => debugPrint('${source.loading}: ${source.error}');
   source.addListener(listener);
   await source.load();
-  await source.configure(
-    searchExpr: [(row) => row['name']],
-    searchValue: 'One',
-  );
+  await source.configure(searchExpr: [(row) => row['name']], searchValue: 'One');
   await source.insert({'id': 2, 'name': 'Two'});
   await source.update(2, (row) => {...row, 'name': 'Updated'});
-  await source.push([
-    TxPush.update(2, (row) => {...row, 'name': 'Changed'}),
-  ]);
+  await source.push([TxPush.update(2, (row) => {...row, 'name': 'Changed'})]);
   print(await source.byKey(1));
   print(source.containsKey(1));
   await source.remove(2);
@@ -6363,10 +5925,8 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Widget example() {
-  return TxDataSourceBuilder<String>(
-    dataSource: const ['One'],
-    builder: (context, items, source) => Text(items.join(', ')),
-  );
+
+  return TxDataSourceBuilder<String>(dataSource: const ['One'], builder: (context, items, source) => Text(items.join(', ')));
 }
 ```
 
@@ -6470,61 +6030,7 @@ import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
 
 Future<void> example() async {
-  print(
-    MaterialApp(
-      localizationsDelegates: TxLocalizations.delegates,
-      supportedLocales: TxLocalizations.supportedLocales,
-    ),
-  );
-}
-```
-
-<a id="en-xfile"></a>
-### XFile
-
-Cross-platform file type re-exported from file_selector. Read failures propagate asynchronously. File paths and saving are platform-dependent; use read methods for portable processing.
-
-```dart
-XFile(String path, {String? mimeType, String? name, int? length, Uint8List? bytes, DateTime? lastModified, overrides})
-XFile.fromData(Uint8List bytes, {String? mimeType, String? name, int? length, DateTime? lastModified, String? path, overrides})
-```
-
-Metadata parameters are optional and default to null; overrides is intended only for tests. fromData creates a file from memory bytes.
-
-| Member | Meaning |
-| --- | --- |
-| `String path` | Platform-dependent path or Blob URL. |
-| `String name` | Display name; do not treat it as a path. |
-| `String? mimeType` | Supplied MIME type, if any. |
-| `Future<int> length()` | File size in bytes. |
-| `Future<Uint8List> readAsBytes()` | Reads all bytes. |
-| `Future<String> readAsString({Encoding encoding = utf8})` | Reads text; defaults to UTF-8. |
-| `Stream<Uint8List> openRead([int? start, int? end])` | Reads a byte range; consume the stream fully or cancel it. |
-| `Future<DateTime> lastModified()` | Reads the modification time. |
-| `Future<void> saveTo(String path)` | Saves to a destination path; browser download rules apply on the web. |
-
-```dart
-import 'dart:typed_data';
-
-import 'package:tecexpress/tecexpress.dart';
-
-Future<void> example() async {
-  final file = XFile.fromData(
-    Uint8List.fromList([72, 105]),
-    name: 'hello.txt',
-    mimeType: 'text/plain',
-  );
-  print(file.name);
-  print(file.path);
-  print(file.mimeType);
-  print(await file.length());
-  print(await file.readAsBytes());
-  print(await file.readAsString());
-  print(await file.lastModified());
-  await for (final bytes in file.openRead()) {
-    print(bytes.length);
-  }
-  // Platform-dependent: await file.saveTo('/your/output/hello.txt');
+  print(MaterialApp(localizationsDelegates: TxLocalizations.delegates, supportedLocales: TxLocalizations.supportedLocales));
 }
 ```
 

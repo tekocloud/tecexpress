@@ -53,6 +53,7 @@ class TxPopup extends StatefulWidget {
     this.onShowing,
     this.onHiding,
   });
+
   /// visible: Steuert die Sichtbarkeit.
   /// showCloseButton: Zeigt die Schließen-Aktion.
   /// hideOnOutsideClick: Erlaubt Schließen über den Außenbereich.
@@ -61,18 +62,22 @@ class TxPopup extends StatefulWidget {
   /// showCloseButton: Shows a close action.
   /// hideOnOutsideClick: Allows closing by clicking outside.
   final bool visible, showCloseButton, hideOnOutsideClick;
+
   /// Titel der Ansicht.
   ///
   /// View title.
   final String title;
+
   /// Breite; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Width; Vue numbers use pixels, Flutter uses logical pixels.
   final double width;
+
   /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double? height;
+
   /// fullScreen: Füllt den Bildschirm.
   /// dragEnabled: Erlaubt das Verschieben des Dialogs.
   /// resizeEnabled: Erlaubt Größenänderungen des Dialogs.
@@ -81,28 +86,34 @@ class TxPopup extends StatefulWidget {
   /// dragEnabled: Allows dragging the dialog.
   /// resizeEnabled: Allows resizing the dialog.
   final bool fullScreen, dragEnabled, resizeEnabled;
+
   /// Ausrichtung des Inhalts.
   ///
   /// Content alignment.
   final Alignment alignment;
+
   /// onShowing: Vor Anzeige: TxChange&lt;bool&gt;; cancel synchron setzen, um abzubrechen.
   /// onHiding: Vor benutzerinitiiertem Schließen: TxChange&lt;bool&gt;; synchron abbrechbar.
   ///
   /// onShowing: Before showing: TxChange&lt;bool&gt;; set cancel synchronously to abort.
   /// onHiding: Before user-initiated closing: TxChange&lt;bool&gt;; synchronously cancellable.
   final ValueChanged<TxChange<bool>>? onShowing, onHiding;
+
   /// Inhalt beziehungsweise Zielwidget.
   ///
   /// Content or target widget.
   final Widget child;
+
   /// Aktionen des Dialogs beziehungsweise der Karte.
   ///
   /// Dialog or card actions.
   final List<Widget> actions;
+
   /// Meldet visible; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports visible; update controlled state in the callback.
   final ValueChanged<bool>? onVisibleChanged;
+
   /// onShown: Nach Anzeige, ohne Payload.
   /// onHidden: Nach Verbergen, ohne Payload.
   ///
@@ -391,36 +402,44 @@ class TxTooltip extends StatefulWidget {
     this.visible,
     this.content,
   });
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String text;
+
   /// Inhalt beziehungsweise Zielwidget.
   ///
   /// Content or target widget.
   final Widget child;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// waitDuration: Wartezeit vor dem Tooltip.
   /// showDuration: Dauer des Tooltips nach Aktivierung.
   ///
   /// waitDuration: Delay before the tooltip.
   /// showDuration: Tooltip duration after activation.
   final Duration waitDuration, showDuration;
+
   /// Bevorzugt die Position unter dem Ziel.
   ///
   /// Prefers placement below the target.
   final bool preferBelow;
+
   /// Native Tooltip-Aktivierungsart.
   ///
   /// Native tooltip trigger mode.
   final TooltipTriggerMode triggerMode;
+
   /// Steuert die Sichtbarkeit.
   ///
   /// Controls visibility.
   final bool? visible;
+
   /// Eigener Inhalt beziehungsweise Dateiinhalt als Blob.
   ///
   /// Custom content or file contents as a Blob.
@@ -526,22 +545,27 @@ class TxToast extends StatefulWidget {
     this.type = TxToastType.info,
     this.displayTime = const Duration(milliseconds: 3500),
   });
+
   /// Steuert die Sichtbarkeit.
   ///
   /// Controls visibility.
   final bool visible;
+
   /// Meldungstext.
   ///
   /// Notification text.
   final String message;
+
   /// Darstellungs-/Eingabetyp; zulässige Werte siehe Signatur.
   ///
   /// Appearance/input type; see the signature for allowed values.
   final TxToastType type;
+
   /// Anzeigedauer; 0 beziehungsweise Duration.zero bleibt offen.
   ///
   /// Display duration; 0 or Duration.zero stays open.
   final Duration displayTime;
+
   /// Meldet visible; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports visible; update controlled state in the callback.
@@ -664,10 +688,12 @@ class TxLoadIndicator extends StatelessWidget {
     this.visible = true,
     this.label = 'Wird geladen …',
   });
+
   /// Steuert die Sichtbarkeit.
   ///
   /// Controls visibility.
   final bool visible;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.

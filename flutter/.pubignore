@@ -15,6 +15,7 @@ example/macos/Pods/
 *.iml
 .idea/
 example/test/
+example/test_support/
 example/android/local.properties
 example/android/key.properties
 example/android/gradlew

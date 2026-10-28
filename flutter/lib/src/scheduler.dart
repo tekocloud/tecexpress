@@ -4,7 +4,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+
+import 'date_format.dart';
 
 import 'calendar.dart';
 import 'editors.dart';
@@ -74,34 +75,42 @@ class TxScheduler extends StatefulWidget {
     this.onAppointmentUpdated,
     this.onAppointmentDeleted,
   });
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Meldet dataSource; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports dataSource; update controlled state in the callback.
   final ValueChanged<List<TxAppointment>>? onDataSourceChanged;
+
   /// Aktueller Kalendertag; für Navigation kontrollierten Wert aktualisieren.
   ///
   /// Current calendar date; update a controlled value for navigation.
   final DateTime? currentDate;
+
   /// Meldet currentDate; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports currentDate; update controlled state in the callback.
   final ValueChanged<DateTime>? onCurrentDateChanged;
+
   /// Aktuelle Kalenderansicht.
   ///
   /// Current calendar view.
   final TxSchedulerView? currentView;
+
   /// Meldet currentView; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports currentView; update controlled state in the callback.
   final ValueChanged<TxSchedulerView>? onCurrentViewChanged;
+
   /// Angebotene Kalenderansichten.
   ///
   /// Available calendar views.
   final List<TxSchedulerView> views;
+
   /// firstDayOfWeek: Erster Wochentag; 1 = Montag.
   /// startDayHour: Erste sichtbare Tagesstunde.
   /// endDayHour: Letzte sichtbare Tagesstunde.
@@ -112,10 +121,12 @@ class TxScheduler extends StatefulWidget {
   /// endDayHour: Last visible hour of the day.
   /// cellDuration: Calendar cell duration in minutes.
   final int firstDayOfWeek, startDayHour, endDayHour, cellDuration;
+
   /// Berechtigungen zum Anlegen, Ändern und Löschen.
   ///
   /// Permissions to create, update and delete.
   final TxSchedulerEditing editing;
+
   /// readOnly: Verhindert Änderungen des Werts.
   /// disabled: Sperrt die Interaktion.
   /// loading: Zeigt den Ladezustand.
@@ -124,12 +135,14 @@ class TxScheduler extends StatefulWidget {
   /// disabled: Disables interaction.
   /// loading: Shows the loading state.
   final bool readOnly, disabled, loading;
+
   /// locale: Locale für Datums-/Zeitformatierung.
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// locale: Locale for date/time formatting.
   /// label: Label or accessible name.
   final String locale, label;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
@@ -139,6 +152,7 @@ class TxScheduler extends StatefulWidget {
     TxSchedulerView view,
   )?
   appointmentBuilder;
+
   /// onAppointmentClick: Meldet den aktivierten TxAppointment.
   /// onAppointmentAdded: Meldet den lokal angelegten TxAppointment.
   /// onAppointmentDeleted: Meldet den lokal gelöschten TxAppointment.
@@ -149,14 +163,17 @@ class TxScheduler extends StatefulWidget {
   final ValueChanged<TxAppointment>? onAppointmentClick,
       onAppointmentAdded,
       onAppointmentDeleted;
+
   /// Meldet TxAppointmentUpdate mit altem und neuem Termin.
   ///
   /// Reports TxAppointmentUpdate containing old and new appointments.
   final ValueChanged<TxAppointmentUpdate>? onAppointmentUpdated;
+
   /// Meldet Zellenbeginn, Zellenende und Ganztagskennzeichen als drei Argumente.
   ///
   /// Reports cell start, cell end and the all-day flag as three arguments.
   final void Function(DateTime start, DateTime end, bool allDay)? onCellClick;
+
   /// onAppointmentAdding: Vor Anlegen: TxChange&lt;TxAppointment&gt;; cancel synchron setzen, um abzubrechen.
   /// onAppointmentDeleting: Vor Löschen: TxChange&lt;TxAppointment&gt;; cancel synchron setzen, um abzubrechen.
   ///
@@ -164,6 +181,7 @@ class TxScheduler extends StatefulWidget {
   /// onAppointmentDeleting: Before deletion: TxChange&lt;TxAppointment&gt;; set cancel synchronously to abort.
   final ValueChanged<TxChange<TxAppointment>>? onAppointmentAdding,
       onAppointmentDeleting;
+
   /// Vor Ändern: TxChange&lt;TxAppointmentUpdate&gt; mit altem und neuem Termin; synchron abbrechbar.
   ///
   /// Before updating: TxChange&lt;TxAppointmentUpdate&gt; with old and new appointments; synchronously cancellable.
@@ -197,7 +215,7 @@ class _TxSchedulerState extends State<TxScheduler>
   bool get _canAdd =>
       !_blocked && !widget.readOnly && widget.editing.allowAdding;
   String _format(DateTime value, String pattern) =>
-      DateFormat(pattern, widget.locale).format(value.toLocal());
+      txFormatDate(value.toLocal(), pattern, widget.locale);
   String _viewName(TxSchedulerView value) => switch (value) {
     TxSchedulerView.day => 'Tag',
     TxSchedulerView.week => 'Woche',

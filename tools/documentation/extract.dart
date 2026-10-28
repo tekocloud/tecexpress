@@ -21,7 +21,7 @@ String signature(AstNode node) {
 void main(List<String> args) {
   final result = <Object>[];
   for (final file in Directory('flutter/lib/src').listSync().whereType<File>().where((f) => f.path.endsWith('.dart'))) {
-    if (file.path.endsWith('calendar.dart') || file.path.endsWith('data.dart')) continue;
+    if (['calendar.dart', 'data.dart', 'date_format.dart', 'file_drop.dart', 'multipart.dart'].any(file.path.endsWith)) continue;
     final source = file.readAsStringSync();
     final unit = parseString(content: source).unit;
     for (final node in unit.declarations) {
@@ -34,6 +34,7 @@ void main(List<String> args) {
         _ => '',
       };
       if (name.isEmpty || name.startsWith('_')) continue;
+      if (['configureFileDrops', 'updateFileDropTargets', 'browserFileUploadBody'].contains(name)) continue;
       final members = switch (node) {
         ClassDeclaration n => n.members,
         MixinDeclaration n => n.members,

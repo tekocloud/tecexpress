@@ -2,7 +2,6 @@ import 'source.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 import 'models.dart';
 import 'theme.dart';
@@ -36,26 +35,32 @@ class TxButton extends StatelessWidget {
     this.type = TxButtonType.normal,
     this.icon,
   });
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String? text;
+
   /// Inhalt beziehungsweise Zielwidget.
   ///
   /// Content or target widget.
   final Widget? child;
+
   /// Callback für pressed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for pressed; see the signature for arguments and return type.
   final VoidCallback? onPressed;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Darstellungs-/Eingabetyp; zulässige Werte siehe Signatur.
   ///
   /// Appearance/input type; see the signature for allowed values.
   final TxButtonType type;
+
   /// Symbol der Aktion.
   ///
   /// Action icon.
@@ -155,10 +160,12 @@ class TxTextBox extends StatelessWidget {
     this.keyboardType,
     this.focusNode,
   }) : assert(controller == null || initialValue == null);
+
   /// Externer Textcontroller; Entsorgung bleibt Aufgabe der Anwendung.
   ///
   /// External text controller; the application disposes it.
   final TextEditingController? controller;
+
   /// initialValue: Startwert im unkontrollierten Modus.
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   /// placeholder: Hinweis bei leerer Eingabe.
@@ -167,14 +174,17 @@ class TxTextBox extends StatelessWidget {
   /// label: Label or accessible name.
   /// placeholder: Hint for an empty input.
   final String? initialValue, label, placeholder;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<String>? onChanged;
+
   /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<String>>? onValueChanged;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   /// required: Kennzeichnet die erforderliche Eingabe.
@@ -187,14 +197,17 @@ class TxTextBox extends StatelessWidget {
   /// isValid: Controls error presentation; does not perform validation.
   /// obscureText: Obscures text input.
   final bool disabled, readOnly, required, isValid, obscureText;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
   final String validationMessage;
+
   /// Gewünschte Bildschirmtastatur.
   ///
   /// Requested on-screen keyboard type.
   final TextInputType? keyboardType;
+
   /// Externer Fokuscontroller.
   ///
   /// External focus controller.
@@ -258,10 +271,12 @@ class TxTextArea extends StatelessWidget {
     this.focusNode,
   }) : assert(controller == null || initialValue == null),
        assert(rows > 0);
+
   /// Externer Textcontroller; Entsorgung bleibt Aufgabe der Anwendung.
   ///
   /// External text controller; the application disposes it.
   final TextEditingController? controller;
+
   /// initialValue: Startwert im unkontrollierten Modus.
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   /// placeholder: Hinweis bei leerer Eingabe.
@@ -270,18 +285,22 @@ class TxTextArea extends StatelessWidget {
   /// label: Label or accessible name.
   /// placeholder: Hint for an empty input.
   final String? initialValue, label, placeholder;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<String>? onChanged;
+
   /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<String>>? onValueChanged;
+
   /// Sichtbare Textzeilen.
   ///
   /// Visible text rows.
   final int rows;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   /// required: Kennzeichnet die erforderliche Eingabe.
@@ -292,10 +311,12 @@ class TxTextArea extends StatelessWidget {
   /// required: Marks a required input.
   /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, required, isValid;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
   final String validationMessage;
+
   /// Externer Fokuscontroller.
   ///
   /// External focus controller.
@@ -450,6 +471,7 @@ class TxNumberBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+
   /// value: Aktueller Eingabe-/Optionswert.
   /// initialValue: Startwert im unkontrollierten Modus.
   /// min: Untere zulässige Grenze.
@@ -460,24 +482,29 @@ class TxNumberBox extends StatefulWidget {
   /// min: Lower allowed bound.
   /// max: Upper allowed bound.
   final num? value, initialValue, min, max;
+
   /// Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
   ///
   /// Step size; milliseconds for Vue date ranges.
   final num step;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<num?>? onChanged;
+
   /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<num?>>? onValueChanged;
+
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   /// placeholder: Hinweis bei leerer Eingabe.
   ///
   /// label: Label or accessible name.
   /// placeholder: Hint for an empty input.
   final String? label, placeholder;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
@@ -486,6 +513,7 @@ class TxNumberBox extends StatefulWidget {
   /// readOnly: Prevents value changes.
   /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, isValid;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
@@ -627,10 +655,12 @@ class TxCheckBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final bool? value;
+
   /// initialValue: Startwert im unkontrollierten Modus.
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
@@ -641,14 +671,17 @@ class TxCheckBox extends StatefulWidget {
   /// readOnly: Prevents value changes.
   /// isValid: Controls error presentation; does not perform validation.
   final bool initialValue, disabled, readOnly, isValid;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
   final String? label;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
   final String validationMessage;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
@@ -719,10 +752,12 @@ class TxSwitch extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final bool? value;
+
   /// initialValue: Startwert im unkontrollierten Modus.
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
@@ -733,14 +768,17 @@ class TxSwitch extends StatefulWidget {
   /// readOnly: Prevents value changes.
   /// isValid: Controls error presentation; does not perform validation.
   final bool initialValue, disabled, readOnly, isValid;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
   final String validationMessage;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
   final String? label;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
@@ -815,32 +853,39 @@ class TxSelectBox<T> extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final T? value;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T?>? onChanged;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
   final String? label;
+
   /// placeholder: Hinweis bei leerer Eingabe.
   /// validationMessage: Fehlermeldung bei isValid = false.
   ///
   /// placeholder: Hint for an empty input.
   /// validationMessage: Error message when isValid is false.
   final String placeholder, validationMessage;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
@@ -944,6 +989,7 @@ class TxDateBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+
   /// value: Aktueller Eingabe-/Optionswert.
   /// initialValue: Startwert im unkontrollierten Modus.
   /// min: Untere zulässige Grenze.
@@ -954,14 +1000,17 @@ class TxDateBox extends StatefulWidget {
   /// min: Lower allowed bound.
   /// max: Upper allowed bound.
   final DateTime? value, initialValue, min, max;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<DateTime?>? onChanged;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
   final String? label;
+
   /// disabled: Sperrt die Interaktion.
   /// readOnly: Verhindert Änderungen des Werts.
   /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
@@ -970,6 +1019,7 @@ class TxDateBox extends StatefulWidget {
   /// readOnly: Prevents value changes.
   /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, isValid;
+
   /// Fehlermeldung bei isValid = false.
   ///
   /// Error message when isValid is false.
@@ -1031,9 +1081,7 @@ class _TxDateBoxState extends State<TxDateBox> {
           child: Text(
             value == null
                 ? 'Datum wählen'
-                : DateFormat.yMd(
-                    Localizations.localeOf(context).toLanguageTag(),
-                  ).format(value),
+                : MaterialLocalizations.of(context).formatCompactDate(value),
           ),
         ),
       ),

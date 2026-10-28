@@ -94,6 +94,13 @@ comments. It typechecks complete Vue/TypeScript examples against the installed
 package and prepares a temporary Flutter consumer with complete snippets and
 seven widget smoke tests. HTTP examples are analyzed but not sent to a server.
 
+Die optionale Prüfung `--comments-only` kontrolliert zusätzlich, dass bestehender
+Dart-Laufzeitcode unverändert bleibt. Bei API-/Implementierungsänderungen diesen
+Schalter nicht verwenden. Optional `--flutter-only --comments-only` kombinieren.
+
+The optional `--comments-only` check also verifies unchanged Dart runtime code.
+Do not enable it for API or implementation changes.
+
 Abschließend in den jeweiligen Paketordnern ausführen / finally run in each package:
 
 - npm: `npm run typecheck`, `npm pack --dry-run`

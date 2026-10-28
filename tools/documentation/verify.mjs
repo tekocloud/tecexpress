@@ -8,14 +8,14 @@ import { spawnSync } from 'node:child_process';
 
 const npmConsumer = process.argv.includes('--flutter-only') ? null : path.resolve(process.argv[2]);
 const dartApi = JSON.parse(fs.readFileSync(path.join(os.tmpdir(), 'tecexpress-dart-api.json'), 'utf8'));
-for (const file of fs.readdirSync('flutter/lib/src').filter(f => f.endsWith('.dart'))) {
+if (process.argv.includes('--comments-only')) for (const file of fs.readdirSync('flutter/lib/src').filter(f => f.endsWith('.dart'))) {
   const name = `flutter/lib/src/${file}`;
   const baseline = spawnSync('git', ['show', `HEAD:${name}`], { encoding: 'utf8' });
   assert.equal(baseline.status, 0, name);
   const runtime = source => source.split(/\r?\n/).filter(line => !line.trimStart().startsWith('///') && line.trim()).join('\n');
   assert.equal(runtime(fs.readFileSync(name, 'utf8')), runtime(baseline.stdout), `Runtime changed: ${name}`);
 }
-console.log('Dart source changes contain documentation comments only.');
+if (process.argv.includes('--comments-only')) console.log('Dart source changes contain documentation comments only.');
 function blocks(readme, language) {
   return [...new Set([...readme.matchAll(new RegExp('```' + language + '\\r?\\n([\\s\\S]*?)\\r?\\n```', 'g'))].map(match => match[1]).filter(value => value.includes('import ')))];
 }

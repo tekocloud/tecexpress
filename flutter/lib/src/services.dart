@@ -38,34 +38,42 @@ class TxTabPanel extends StatelessWidget {
     this.swipeEnabled = false,
     this.animationEnabled = true,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxMenuItem> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Nullbasierter aktiver Eintrag.
   ///
   /// Zero-based active entry.
   final int? selectedIndex;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<int>? onChanged;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, int) builder;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Ausrichtung der Reiter.
   ///
   /// Tab orientation.
   final Axis orientation;
+
   /// swipeEnabled: Erlaubt Reiterwechsel durch Wischen.
   /// animationEnabled: Aktiviert Inhaltsübergänge.
   ///
@@ -114,26 +122,32 @@ class TxLoadPanel extends StatefulWidget {
     this.shading = true,
     this.child,
   });
+
   /// Steuert die Sichtbarkeit.
   ///
   /// Controls visibility.
   final bool? visible;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final TxDataSource<dynamic>? dataSource;
+
   /// Meldungstext.
   ///
   /// Notification text.
   final String message;
+
   /// Wartezeit vor Anzeige des Ladeoverlays.
   ///
   /// Delay before showing the loading overlay.
   final Duration delay;
+
   /// Zeigt eine abgedunkelte Hintergrundfläche.
   ///
   /// Shows a shaded background.
   final bool shading;
+
   /// Inhalt beziehungsweise Zielwidget.
   ///
   /// Content or target widget.
@@ -249,10 +263,12 @@ class TxNotifyHandle {
   ///
   /// Handle for closing or updating an existing notification.
   TxNotifyHandle(this.close, this.update);
+
   /// Schließt die zugehörige Benachrichtigung.
   ///
   /// Closes the associated notification.
   final VoidCallback close;
+
   /// Aktualisiert eine Meldung beziehungsweise einen Datensatz.
   ///
   /// Updates a notification or record.

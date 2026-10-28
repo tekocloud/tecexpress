@@ -45,6 +45,7 @@ class TxCard extends StatelessWidget {
     this.loading = false,
     this.semanticLabel,
   });
+
   /// title: Titel der Ansicht.
   /// subtitle: Zusätzlicher Untertitel.
   /// imageUrl: Bildadresse der Karte.
@@ -55,10 +56,12 @@ class TxCard extends StatelessWidget {
   /// imageUrl: Card image URL.
   /// semanticLabel: Accessible card name.
   final String? title, subtitle, imageUrl, semanticLabel;
+
   /// Alternativtext des Bildes.
   ///
   /// Image alternative text.
   final String imageAlt;
+
   /// header: Eigener Kopfbereich.
   /// media: Eigener Medienbereich.
   /// child: Inhalt beziehungsweise Zielwidget.
@@ -69,14 +72,17 @@ class TxCard extends StatelessWidget {
   /// child: Content or target widget.
   /// footer: Custom footer.
   final Widget? header, media, child, footer;
+
   /// Aktionen des Dialogs beziehungsweise der Karte.
   ///
   /// Dialog or card actions.
   final List<Widget> actions;
+
   /// Darstellungsvariante der Karte.
   ///
   /// Card appearance variant.
   final TxCardVariant variant;
+
   /// Zeigt den Ladezustand.
   ///
   /// Shows the loading state.
@@ -220,18 +226,22 @@ class TxCardView<T> extends StatefulWidget {
     this.contentBuilder,
     this.footerBuilder,
   }) : assert(pageSize > 0);
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object dataSource;
+
   /// Liest den stabilen Datensatzschlüssel.
   ///
   /// Reads the stable record key.
   final Object Function(T row) keyOf;
+
   /// Getter des Kartentitels.
   ///
   /// Card title getter.
   final String Function(T row) titleOf;
+
   /// subtitleOf: Getter des Kartenuntertitels.
   /// imageOf: Getter der Kartenbildadresse.
   /// imageAltOf: Getter des Bildalternativtexts.
@@ -242,10 +252,12 @@ class TxCardView<T> extends StatefulWidget {
   /// imageAltOf: Image alternative text getter.
   /// searchTextOf: Searchable card text getter.
   final String? Function(T row)? subtitleOf, imageOf, imageAltOf, searchTextOf;
+
   /// Spalten- beziehungsweise Kartenfeldkonfigurationen.
   ///
   /// Column or card field configurations.
   final List<TxCardField<T>> columns;
+
   /// searchEnabled: Aktiviert die Suche.
   /// loading: Zeigt den Ladezustand.
   /// disabled: Sperrt die Interaktion.
@@ -254,53 +266,65 @@ class TxCardView<T> extends StatefulWidget {
   /// loading: Shows the loading state.
   /// disabled: Disables interaction.
   final bool searchEnabled, loading, disabled;
+
   /// Anzahl Datensätze je Seite.
   ///
   /// Records per page.
   final int pageSize;
+
   /// Nullbasierter Seitenindex.
   ///
   /// Zero-based page index.
   final int? pageIndex;
+
   /// Meldet pageIndex; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports pageIndex; update controlled state in the callback.
   final ValueChanged<int>? onPageIndexChanged;
+
   /// Auswahlmodus.
   ///
   /// Selection mode.
   final TxSelectionMode selection;
+
   /// Kontrollierte Menge ausgewählter Kartenschlüssel.
   ///
   /// Controlled set of selected card keys.
   final Set<Object>? selectedCardKeys;
+
   /// Meldet selectedCardKeys; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selectedCardKeys; update controlled state in the callback.
   final ValueChanged<Set<Object>>? onSelectedCardKeysChanged;
+
   /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selection; update controlled state in the callback.
   final ValueChanged<TxSelection<T>>? onSelectionChanged;
+
   /// Meldet den über die Details-Aktion aktivierten Datensatz.
   ///
   /// Reports the record activated through the details action.
   final ValueChanged<T>? onCardClick;
+
   /// Meldet search; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports search; update controlled state in the callback.
   final ValueChanged<String>? onSearchChanged;
+
   /// noDataText: Text bei leerem Datenbestand.
   /// label: Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// noDataText: Text for an empty collection.
   /// label: Label or accessible name.
   final String noDataText, label;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext context, T row, bool selected)?
   itemBuilder;
+
   /// mediaBuilder: Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   /// contentBuilder: Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   /// footerBuilder: Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.

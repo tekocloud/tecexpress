@@ -78,8 +78,8 @@ function describe(name, lang) {
   missing.add(name); return name;
 }
 function fieldDescription(name, lang) {
-  if (fields[name]) return text(fields[name], lang);
-  if (methods[name]) return text(methods[name], lang);
+  if (Object.hasOwn(fields, name)) return text(fields[name], lang);
+  if (Object.hasOwn(methods, name)) return text(methods[name], lang);
   if (name.startsWith('can')) return text([`Ob der Store ${name.slice(3)} unterstützt.`, `Whether the store supports ${name.slice(3)}.`], lang);
   if (name.endsWith('Builder') || name === 'builder') return text(['Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.', 'Builds custom content; callback arguments and return type are given in the signature.'], lang);
   if (name.startsWith('on')) {
@@ -218,21 +218,6 @@ function dartSections(lang) {
     }
     if (dartExtras[api.name]) out += code(`import 'package:flutter/material.dart';\nimport 'package:tecexpress/tecexpress.dart';\n\n${dartExtras[api.name]}`, 'dart');
   }
-  out += `\n<a id="${lang}-xfile"></a>\n### XFile\n\n${label(lang, 'Reexportierter plattformübergreifender Dateityp aus file_selector. Lesefehler werden als asynchrone Fehler weitergegeben. Dateipfade und Speichern sind plattformabhängig; für portable Verarbeitung die Lesemethoden verwenden.', 'Cross-platform file type re-exported from file_selector. Read failures propagate asynchronously. File paths and saving are platform-dependent; use read methods for portable processing.')}\n`;
-  out += code('XFile(String path, {String? mimeType, String? name, int? length, Uint8List? bytes, DateTime? lastModified, overrides})\nXFile.fromData(Uint8List bytes, {String? mimeType, String? name, int? length, DateTime? lastModified, String? path, overrides})', 'dart');
-  out += label(lang, '\nMetadatenparameter sind optional und standardmäßig null; overrides ist ausschließlich für Tests bestimmt. fromData erzeugt eine Datei aus Speicherbytes.\n', '\nMetadata parameters are optional and default to null; overrides is intended only for tests. fromData creates a file from memory bytes.\n');
-  out += table([label(lang, 'Mitglied', 'Member'), label(lang, 'Bedeutung', 'Meaning')], [
-    ['`String path`', label(lang, 'Plattformabhängiger Pfad beziehungsweise Blob-URL.', 'Platform-dependent path or Blob URL.')],
-    ['`String name`', label(lang, 'Anzeigename; nicht als Pfad behandeln.', 'Display name; do not treat it as a path.')],
-    ['`String? mimeType`', label(lang, 'Angegebener MIME-Typ, falls vorhanden.', 'Supplied MIME type, if any.')],
-    ['`Future<int> length()`', label(lang, 'Dateigröße in Bytes.', 'File size in bytes.')],
-    ['`Future<Uint8List> readAsBytes()`', label(lang, 'Liest alle Bytes.', 'Reads all bytes.')],
-    ['`Future<String> readAsString({Encoding encoding = utf8})`', label(lang, 'Liest Text; standardmäßig UTF-8.', 'Reads text; defaults to UTF-8.')],
-    ['`Stream<Uint8List> openRead([int? start, int? end])`', label(lang, 'Liest einen Bytebereich; Stream vollständig konsumieren oder abbrechen.', 'Reads a byte range; consume the stream fully or cancel it.')],
-    ['`Future<DateTime> lastModified()`', label(lang, 'Liest den Änderungszeitpunkt.', 'Reads the modification time.')],
-    ['`Future<void> saveTo(String path)`', label(lang, 'Speichert an einem Zielpfad; im Web gelten Browser-Downloadregeln.', 'Saves to a destination path; browser download rules apply on the web.')],
-  ]);
-  out += code("import 'dart:typed_data';\nimport 'package:tecexpress/tecexpress.dart';\n\nFuture<void> example() async {\n  final file = XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt', mimeType: 'text/plain');\n  print(file.name);\n  print(file.path);\n  print(file.mimeType);\n  print(await file.length());\n  print(await file.readAsBytes());\n  print(await file.readAsString());\n  print(await file.lastModified());\n  await for (final bytes in file.openRead()) { print(bytes.length); }\n  // Platform-dependent: await file.saveTo('/your/output/hello.txt');\n}\n", 'dart');
   return out;
 }
 
@@ -257,6 +242,7 @@ function intro(platform, lang) {
     out += label(lang, '\nVerfügbare Tokens: ', '\nAvailable tokens: ') + tokens.map(t => `\`${t}\``).join(', ') + '.\n';
   } else {
     out += code('flutter pub add tecexpress', 'sh');
+    out += label(lang, '\nAb 0.7.0 nur Flutter-SDK-Laufzeitabhängigkeiten. Eigene Datei-API: `TxFile` und `TxFileDialogs`. Breaking Changes, Ressourcenbesitz und Plattformkonfiguration: [Migration 0.7](MIGRATION-0.7.md). Native Apps nach dem Update vollständig neu bauen.\n', '\nSince 0.7.0 only Flutter SDK runtime dependencies. Built-in file API: `TxFile` and `TxFileDialogs`. See [migration 0.7](MIGRATION-0.7.md) for breaking changes, ownership and platform setup. Fully rebuild native apps after upgrading.\n');
     out += label(lang, '\nBenötigt Flutter 3.47.7+ und Dart 3.13.5+. Zielplattformen: Android, iOS, Web, Windows, macOS und Linux.\n', '\nRequires Flutter 3.47.7+ and Dart 3.13.5+. Targets Android, iOS, web, Windows, macOS and Linux.\n');
     out += code("import 'package:flutter/material.dart';\nimport 'package:tecexpress/tecexpress.dart';\n\nvoid main() => runApp(MaterialApp(\n  theme: TxTheme.light(),\n  darkTheme: TxTheme.dark(),\n  themeMode: ThemeMode.system,\n  locale: const Locale('de'),\n  localizationsDelegates: TxLocalizations.delegates,\n  supportedLocales: TxLocalizations.supportedLocales,\n  home: Scaffold(body: Center(child: TxButton(text: 'Hello', onPressed: () {}))),\n));", 'dart');
     out += label(lang, '\nWidgetbeispiele definieren jeweils `Widget example()`. Zum Ausprobieren innerhalb einer MaterialApp `Scaffold(body: example())` verwenden. Alle Widgets akzeptieren zusätzlich den optionalen Flutter-Parameter `Key? key = null`; dieser steht hier einmal gemeinsam statt in jeder Tabelle. Der lokale Zustand entsteht einmal beim Erzeugen des Widgets; in einer produktiven App gehört er in den eigenen State. Beispiele für Datenoperationen definieren eine asynchrone Funktion, die separat aufgerufen wird.\n', '\nWidget examples each define `Widget example()`. Try them inside a MaterialApp using `Scaffold(body: example())`. All widgets also accept the optional Flutter parameter `Key? key = null`; it is documented once here instead of in every table. Local state is created once when constructing the widget; in a production app keep it in your own State. Data operation examples define an async function to call separately.\n');
@@ -272,7 +258,7 @@ function intro(platform, lang) {
     `Der MemoryFileProvider speichert nur im Arbeitsspeicher. Ungültige Namen, doppelte IDs/Namen, ungültige Eltern und zyklische Verschiebungen werden abgelehnt. Dateioperationen sind asynchron. ${isVue ? 'Optionale Provider-Methoden bestimmen sichtbare Aktionen; txFileStore unterstützt Laden, Löschen und Umbenennen, sofern angeboten.' : 'Die capabilities-Menge bestimmt sichtbare Aktionen. txFileStore unterstützt Laden und optional Löschen; Umbenennen wird nicht als Store-Update angeboten.'}\n\nHTTP-Uploads benötigen einen eigenen Multipart-POST-Endpunkt. fieldName ist standardmäßig file. Bei chunkSize muss der Server das durch chunkFields vereinbarte Protokoll zusammensetzen. Wiederholung beginnt von vorn. ${isVue ? 'XHR meldet Fortschritt während der Übertragung; withCredentials ist standardmäßig false.' : 'Der HTTP-Adapter liest die Datei in den Speicher und meldet Fortschritt nach abgeschlossenen Chunks. Dateiauswahl/Drop und Speicherdialoge hängen von OS und Plugins ab; onDownload ermöglicht eigene Speicherung.'}\n\nKartenkacheln verwenden {z}/{x}/{y}. Kachelquelle, Zugangsdaten und Attribution müssen selbst konfiguriert werden. GeoAdapter wird von der Anwendung aufgerufen; seine Ergebnisse werden als Marker/Routen gebunden. Ohne Quelle erfolgt kein impliziter externer Kartenaufruf.`,
     `MemoryFileProvider stores only in memory. Invalid names, duplicate IDs/names, invalid parents and cyclic moves are rejected. File operations are asynchronous. ${isVue ? 'Optional provider methods determine visible actions; txFileStore supports loading, removal and renaming when offered.' : 'The capabilities set determines visible actions. txFileStore supports loading and optional removal; renaming is not offered as a store update.'}\n\nHTTP uploads require your own multipart POST endpoint. fieldName defaults to file. With chunkSize, the server must assemble the protocol agreed through chunkFields. Retrying starts from the beginning. ${isVue ? 'XHR reports progress during transmission; withCredentials defaults to false.' : 'The HTTP adapter reads the file into memory and reports progress after completed chunks. File pickers/drop and save dialogs depend on OS and plugins; onDownload enables custom saving.'}\n\nMap tiles use {z}/{x}/{y}. Configure tile sources, credentials and attribution yourself. The application calls GeoAdapter and binds its results as markers/routes. Without a source, no implicit external map request is made.`) + '\n';
   out += `\n<a id="${id}-api"></a>\n### ${label(lang, 'API-Verzeichnis', 'API index')}\n\n`;
-  const names = isVue ? symbols.map(s => s.name) : [...dartApi.map(a => a.name), 'XFile'];
+  const names = isVue ? symbols.map(s => s.name) : dartApi.map(a => a.name);
   out += names.map(name => `- [${name}](#${anchor(lang, name)})`).join('\n') + '\n';
   out += label(lang, '\n`undefined` (Vue) beziehungsweise optionale nullable Parameter (Dart) bedeuten keinen extern vorgegebenen Wert. Boolean-Props ohne expliziten Vue-Standard sind false. Typen und Standardwerte unten stammen aus der aktuellen Implementierung; zusätzliche Fähigkeiten werden dadurch nicht zugesagt.\n', '\n`undefined` (Vue) or optional nullable parameters (Dart) mean no externally supplied value. Boolean Vue props without an explicit default are false. Types and defaults below come from the current implementation; they do not promise additional capabilities.\n');
   return out;

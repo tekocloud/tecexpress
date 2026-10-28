@@ -17,6 +17,7 @@ class TxCoordinate {
   ///
   /// Geographic latitude and longitude in degrees.
   const TxCoordinate(this.lat, this.lng);
+
   /// lat: Geografische Breite in Grad.
   /// lng: Geografische Länge in Grad.
   ///
@@ -44,14 +45,17 @@ class TxMapMarker extends TxCoordinate {
     this.text,
     this.color,
   });
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String? text;
+
   /// Darstellungsfarbe.
   ///
   /// Display color.
@@ -76,18 +80,22 @@ class TxMapRoute {
     this.color = Colors.blue,
     this.width = 3,
   });
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// Koordinaten der Routenlinie in Reihenfolge.
   ///
   /// Route line coordinates in order.
   final List<TxCoordinate> points;
+
   /// Darstellungsfarbe.
   ///
   /// Display color.
   final Color color;
+
   /// Breite; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Width; Vue numbers use pixels, Flutter uses logical pixels.
@@ -114,6 +122,7 @@ abstract class TxGeoAdapter {
     String query, {
     TxCancellation? cancellation,
   });
+
   /// Fragt den eigenen Routingdienst nach einer Route durch die Wegpunkte.
   ///
   /// Queries a custom routing service for a route through waypoints.
@@ -200,10 +209,12 @@ class TxMap extends StatefulWidget {
     this.height = 360,
     this.disabled = false,
   });
+
   /// Geografischer Kartenmittelpunkt.
   ///
   /// Geographic map center.
   final TxCoordinate center;
+
   /// zoom: Kartenzoomstufe.
   /// minZoom: Kleinste Zoomstufe.
   /// maxZoom: Größte Zoomstufe.
@@ -212,42 +223,51 @@ class TxMap extends StatefulWidget {
   /// minZoom: Minimum zoom level.
   /// maxZoom: Maximum zoom level.
   final int zoom, minZoom, maxZoom;
+
   /// tileUrl: Kachel-URL mit Platzhaltern {z}/{x}/{y}.
   /// attribution: Quellen-/Lizenzhinweis des Kartenanbieters.
   ///
   /// tileUrl: Tile URL with {z}/{x}/{y} placeholders.
   /// attribution: Map provider attribution/license text.
   final String? tileUrl, attribution;
+
   /// Darzustellende Kartenmarker.
   ///
   /// Map markers to display.
   final List<TxMapMarker> markers;
+
   /// Darzustellende Routenlinien.
   ///
   /// Route lines to display.
   final List<TxMapRoute> routes;
+
   /// dataSource: Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   /// routeDataSource: Separate Datenquelle für Routenlinien.
   ///
   /// dataSource: List, configuration or DataSource instance; takes precedence over items.
   /// routeDataSource: Separate data source for route lines.
   final Object? dataSource, routeDataSource;
+
   /// Meldet center; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports center; update controlled state in the callback.
   final ValueChanged<TxCoordinate>? onCenterChanged;
+
   /// Meldet zoom; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports zoom; update controlled state in the callback.
   final ValueChanged<int>? onZoomChanged;
+
   /// Aktivierter TxMapMarker.
   ///
   /// Activated TxMapMarker.
   final ValueChanged<TxMapMarker>? onMarkerClick;
+
   /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.

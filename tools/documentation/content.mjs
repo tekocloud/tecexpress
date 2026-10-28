@@ -1,6 +1,9 @@
 // Human-written explanations and minimal examples shared by both language editions.
 // API signatures/defaults are read from the actual package sources by generate.mjs.
 export const descriptions = {
+  TxFile: ['Eigener portabler Dateityp mit Bereichslesen und expliziter Ressourcenfreigabe. Keine Fremdpaketabhängigkeit.', 'Built-in portable file type with range reads and explicit resource disposal. No third-party package dependency.'],
+  TxFileDialogs: ['Eingebaute System-Dateidialoge für Dateiauswahl und Speichern; Abbruch liefert eine leere Liste oder false.', 'Built-in system file dialogs for picking and saving files; cancellation returns an empty list or false.'],
+  TxFileException: ['Fehler einer Dateioperation mit optionaler ursprünglicher Ursache.', 'File operation error with an optional original cause.'],
   TxButton: ['Schaltfläche mit Text, Symbol und Klickaktion.', 'Button with text, an icon and a click action.'],
   TxTextBox: ['Einzeilige Texteingabe; Änderungen über das Modell oder den Callback übernehmen.', 'Single-line text input; accept edits through its model or callback.'],
   TxTextArea: ['Mehrzeilige Texteingabe mit konfigurierbarer Zeilenzahl.', 'Multiline text input with a configurable row count.'],
@@ -113,6 +116,12 @@ export const descriptions = {
 
 // Descriptions for shared option names; specific signatures supply exact types/defaults.
 export const fields = {
+  cause: ['Ursprünglicher Plattformfehler, falls vorhanden.', 'Original platform error, if any.'],
+  file: ['Eigene TxFile-Datei; der Aufrufer bleibt für ihre Freigabe verantwortlich.', 'A TxFile; the caller remains responsible for releasing it.'],
+  suggestedName: ['Vorgeschlagener Dateiname; standardmäßig file.name.', 'Suggested filename; defaults to file.name.'],
+  bytes: ['Dateiinhalt als Bytes; fromData kopiert die Bytes.', 'File contents as bytes; fromData copies the bytes.'],
+  mimeType: ['Optionaler MIME-Typ.', 'Optional MIME type.'],
+  path: ['Nativer Dateipfad; im Browser nicht verfügbar.', 'Native filesystem path; unavailable in browsers.'],
   onItemClick: ['Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.', 'Reports the activated entry; arguments follow the callback signature.'],
   onRowClick: ['Meldet den angeklickten Datensatz.', 'Reports the clicked record.'],
   onCardClick: ['Meldet den über die Details-Aktion aktivierten Datensatz.', 'Reports the record activated through the details action.'],
@@ -130,7 +139,7 @@ export const fields = {
   onCellClick: ['Meldet Zellenbeginn, Zellenende und Ganztagskennzeichen als drei Argumente.', 'Reports cell start, cell end and the all-day flag as three arguments.'],
   onShowing: ['Vor Anzeige: TxChange<bool>; cancel synchron setzen, um abzubrechen.', 'Before showing: TxChange<bool>; set cancel synchronously to abort.'],
   onHiding: ['Vor benutzerinitiiertem Schließen: TxChange<bool>; synchron abbrechbar.', 'Before user-initiated closing: TxChange<bool>; synchronously cancellable.'],
-  onUploaded: ['Liefert die hochgeladene XFile und das Adapterergebnis.', 'Provides the uploaded XFile and adapter result.'],
+  onUploaded: ['Liefert die hochgeladene TxFile und das Adapterergebnis.', 'Provides the uploaded TxFile and adapter result.'],
   onFileOpened: ['Meldet den aktivierten Dateieintrag.', 'Reports the activated file entry.'],
   onDelete: ['Meldet den zu löschenden Listeneintrag; die Anwendung aktualisiert ihre Liste.', 'Reports the list entry to delete; the application updates its list.'],
   onReorder: ['Meldet Quell- und Zielindex; die Anwendung aktualisiert ihre Liste.', 'Reports source and target indices; the application updates its list.'],
@@ -411,6 +420,12 @@ export const fields = {
 };
 
 export const methods = {
+  toString: ['Liefert eine lesbare Fehlerbeschreibung.', 'Returns a readable error description.'],
+  pickFiles: ['Öffnet den Dateidialog. Ergebnisdateien nach Gebrauch mit dispose freigeben.', 'Opens the file picker. Dispose result files after use.'],
+  saveFile: ['Speichert eine Datei; false bei Dialogabbruch. Im Web bedeutet true, dass der Download ausgelöst wurde.', 'Saves a file; false on dialog cancellation. On the web true means a download was initiated.'],
+  readAsBytes: ['Liest den gesamten Inhalt; für große Dateien openRead verwenden.', 'Reads all contents; prefer openRead for large files.'],
+  openRead: ['Liest start inklusive bis end exklusiv; Standard: gesamte Datei.', 'Reads from inclusive start to exclusive end; defaults to the entire file.'],
+  length: ['Liefert die Dateigröße in Bytes.', 'Returns the file size in bytes.'],
   load: ['Lädt mit den angegebenen Optionen; bei DataSource ohne Argumente mit aktuellem Abfragezustand. Fehler werden weitergegeben.', 'Loads using the supplied options; DataSource uses current query state without arguments. Errors propagate.'],
   reload: ['Lädt den aktuellen Abfragezustand erneut und liefert die sichtbaren Datensätze.', 'Reloads the current query and returns visible records.'],
   configure: ['Ändert Abfrageoptionen und lädt neu. Suche, Filter und Seitengröße setzen die Seite zurück, sofern nicht ausdrücklich angegeben.', 'Changes query options and reloads. Search, filter and page size reset the page unless explicitly supplied.'],

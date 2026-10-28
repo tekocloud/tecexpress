@@ -43,30 +43,37 @@ class TxRadioGroup<T> extends StatelessWidget {
     this.disabled = false,
     this.label = 'Auswahl',
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final T? value;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T>? onChanged;
+
   /// Anordnung der Einträge.
   ///
   /// Entry layout direction.
   final Axis direction;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
@@ -142,34 +149,42 @@ class TxButtonGroup<T> extends StatelessWidget {
     this.disabled = false,
     this.direction = Axis.horizontal,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Aktuell ausgewählte Werte.
   ///
   /// Currently selected values.
   final Set<T> values;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<Set<T>>? onChanged;
+
   /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
   ///
   /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxItem<T>>? onItemClick;
+
   /// Auswahlmodus.
   ///
   /// Selection mode.
   final TxSelectionMode selection;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Anordnung der Einträge.
   ///
   /// Entry layout direction.
@@ -244,28 +259,34 @@ class TxLookup<T> extends StatelessWidget {
     this.label = 'Auswählen',
     this.searchEnabled = true,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final T? value;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T?>? onChanged;
+
   /// disabled: Sperrt die Interaktion.
   /// searchEnabled: Aktiviert die Suche.
   ///
   /// disabled: Disables interaction.
   /// searchEnabled: Enables searching.
   final bool disabled, searchEnabled;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
@@ -322,22 +343,27 @@ class TxTagBox<T> extends StatelessWidget {
     this.onCustomItemCreating,
     this.showSelectionControls = true,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Aktuell ausgewählte Werte.
   ///
   /// Currently selected values.
   final Set<T> values;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<Set<T>>? onChanged;
+
   /// disabled: Sperrt die Interaktion.
   /// applyOnConfirm: Übernimmt die Auswahl erst bei Bestätigung.
   /// showSelectionControls: Zeigt Mehrfachauswahl-/Alle-Steuerelemente.
@@ -346,14 +372,17 @@ class TxTagBox<T> extends StatelessWidget {
   /// applyOnConfirm: Applies selection only on confirmation.
   /// showSelectionControls: Shows multiple/select-all controls.
   final bool disabled, applyOnConfirm, showSelectionControls;
+
   /// Maximal sichtbare Tags vor der Zusammenfassung.
   ///
   /// Maximum visible tags before summarizing.
   final int maxDisplayedTags;
+
   /// Beschriftung beziehungsweise zugänglicher Name.
   ///
   /// Label or accessible name.
   final String label;
+
   /// Erzeugt synchron oder asynchron einen TxItem aus dem eingegebenen Text.
   ///
   /// Creates a TxItem synchronously or asynchronously from entered text.
@@ -713,62 +742,76 @@ class TxList<T> extends StatefulWidget {
     this.itemExtent,
     this.disabled = false,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<T> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Getter des sichtbaren Listentexts.
   ///
   /// Visible list text getter.
   final String Function(T) textOf;
+
   /// Liest den stabilen Datensatzschlüssel.
   ///
   /// Reads the stable record key.
   final Object Function(T) keyOf;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, T)? itemBuilder;
+
   /// Getter für die Gruppierung der Liste.
   ///
   /// List grouping getter.
   final String? Function(T)? groupOf;
+
   /// Ausgewählte Eintragsschlüssel.
   ///
   /// Selected entry keys.
   final Set<Object> selectedKeys;
+
   /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
   ///
   /// Reports selection; update controlled state in the callback.
   final ValueChanged<Set<Object>>? onSelectionChanged;
+
   /// onItemClick: Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
   /// onDelete: Meldet den zu löschenden Listeneintrag; die Anwendung aktualisiert ihre Liste.
   ///
   /// onItemClick: Reports the activated entry; arguments follow the callback signature.
   /// onDelete: Reports the list entry to delete; the application updates its list.
   final ValueChanged<T>? onItemClick, onDelete;
+
   /// Meldet Quell- und Zielindex; die Anwendung aktualisiert ihre Liste.
   ///
   /// Reports source and target indices; the application updates its list.
   final void Function(int, int)? onReorder;
+
   /// Auswahlmodus.
   ///
   /// Selection mode.
   final TxSelectionMode selection;
+
   /// searchEnabled: Aktiviert die Suche.
   /// disabled: Sperrt die Interaktion.
   ///
   /// searchEnabled: Enables searching.
   /// disabled: Disables interaction.
   final bool searchEnabled, disabled;
+
   /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+
   /// Feste Flutter-Listenzeilenhöhe, wenn angegeben.
   ///
   /// Fixed Flutter list row height when specified.
@@ -948,34 +991,42 @@ class TxGallery<T> extends StatefulWidget {
     this.slideshowDelay = Duration.zero,
     this.height = 240,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<T> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, T) itemBuilder;
+
   /// Nullbasierter aktiver Eintrag.
   ///
   /// Zero-based active entry.
   final int selectedIndex;
+
   /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
   ///
   /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<int>? onChanged;
+
   /// Erlaubt Umlauf vom letzten zum ersten Galerieeintrag.
   ///
   /// Allows wrapping from the last gallery entry to the first.
   final bool loop;
+
   /// Intervall der automatischen Navigation; 0 schaltet sie aus.
   ///
   /// Automatic navigation interval; 0 disables it.
   final Duration slideshowDelay;
+
   /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
   ///
   /// Height; Vue numbers use pixels, Flutter uses logical pixels.
@@ -1104,18 +1155,22 @@ class TxAction {
     this.items = const [],
     this.separator = false,
   });
+
   /// Eindeutige stabile ID.
   ///
   /// Unique stable ID.
   final Object id;
+
   /// Anzuzeigender Text.
   ///
   /// Text to display.
   final String text;
+
   /// Symbol der Aktion.
   ///
   /// Action icon.
   final IconData? icon;
+
   /// disabled: Sperrt die Interaktion.
   /// destructive: Kennzeichnet eine destruktive Aktion.
   /// separator: Kennzeichnet einen Menütrenner.
@@ -1124,6 +1179,7 @@ class TxAction {
   /// destructive: Marks a destructive action.
   /// separator: Marks a menu separator.
   final bool disabled, destructive, separator;
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
@@ -1157,22 +1213,27 @@ class TxFloatingActionButton extends StatefulWidget {
     this.disabled = false,
     this.icon = Icons.add,
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
   ///
   /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.
   final bool disabled;
+
   /// Symbol der Aktion.
   ///
   /// Action icon.
@@ -1256,26 +1317,32 @@ class TxActionSheet extends StatelessWidget {
     this.onItemClick,
     this.cancelText = 'Abbrechen',
   });
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Titel der Ansicht.
   ///
   /// View title.
   final String? title;
+
   /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
   ///
   /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+
   /// Beschriftung der Abbrechen-Aktion.
   ///
   /// Cancel action label.
   final String cancelText;
+
   /// Öffnet die native Overlay-Alternative; den Rückgabevertrag der jeweiligen Signatur beachten.
   ///
   /// Opens the native overlay alternative; follow the return contract in the signature.
@@ -1359,22 +1426,27 @@ class TxContextMenu extends StatelessWidget {
     this.onItemClick,
     this.disabled = false,
   });
+
   /// Inhalt beziehungsweise Zielwidget.
   ///
   /// Content or target widget.
   final Widget child;
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+
   /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
   ///
   /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+
   /// Sperrt die Interaktion.
   ///
   /// Disables interaction.

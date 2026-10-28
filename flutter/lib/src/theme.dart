@@ -73,6 +73,7 @@ class TxThemeData extends ThemeExtension<TxThemeData> {
       danger,
       success,
       focus;
+
   /// radius: Eckenradius in logischen Pixeln.
   /// spacing: Grundabstand in logischen Pixeln.
   /// controlHeight: Grundhöhe von Eingaben in logischen Pixeln.
@@ -100,6 +101,7 @@ class TxThemeData extends ThemeExtension<TxThemeData> {
     success: Color(0xff137553),
     focus: Color(0xff315dd6),
   );
+
   /// Dunkle Standardtokens beziehungsweise dunkles Material-Theme.
   ///
   /// Default dark tokens or dark Material theme.
@@ -203,6 +205,7 @@ abstract final class TxTheme {
   /// Default light tokens or light Material theme.
   static ThemeData light({TxThemeData tokens = TxThemeData.light}) =>
       _build(Brightness.light, tokens);
+
   /// Dunkle Standardtokens beziehungsweise dunkles Material-Theme.
   ///
   /// Default dark tokens or dark Material theme.
@@ -285,6 +288,7 @@ abstract final class TxLocalizations {
   ///
   /// Assign to MaterialApp.localizationsDelegates.
   static const delegates = GlobalMaterialLocalizations.delegates;
+
   /// In MaterialApp.supportedLocales einbinden.
   ///
   /// Assign to MaterialApp.supportedLocales.

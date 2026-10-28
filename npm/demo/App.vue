@@ -66,7 +66,7 @@ function notify(message: string) { lastAction.value = message; toast.value = tru
     </aside>
 
     <div class="demo-workspace">
-      <header class="topbar"><span>Workspace <span class="breadcrumb">/</span> Komponenten</span><div class="topbar-actions"><span class="release">● &nbsp;v0.5.0</span><TxButton :text="theme === 'light' ? '☾ Dark' : '☀ Light'" aria-label="Theme wechseln" @click="theme = theme === 'light' ? 'dark' : 'light'" /></div></header>
+      <header class="topbar"><span>Workspace <span class="breadcrumb">/</span> Komponenten</span><div class="topbar-actions"><span class="release">● &nbsp;v0.7.0</span><TxButton :text="theme === 'light' ? '☾ Dark' : '☀ Light'" aria-label="Theme wechseln" @click="theme = theme === 'light' ? 'dark' : 'light'" /></div></header>
       <main>
         <section id="overview" class="intro"><div><div class="eyebrow">TECEXPRESS / VUE COMPONENT LIBRARY</div><h1>Gute Oberflächen.<br><span>Von Grund auf.</span></h1><p>Eine klare Basis für deine nächste Anwendung. Reaktive Vue-Komponenten, durchdachte Details und zwei Themes, die zusammengehören.</p><div class="intro-badges"><span>Vue 3 + TypeScript</span><span>Light & Dark</span><span>Ohne Lizenzkey</span></div></div><div class="intro-code"><div class="code-dots"><i></i><i></i><i></i><span>deine-anwendung.vue</span></div><pre><span class="code-purple">import</span> { TxButton }<br>  <span class="code-purple">from</span> <span class="code-green">'@tekocloud.de/tecexpress'</span><br><br>&lt;<span class="code-blue">TxButton</span><br>  text=<span class="code-green">"Los geht’s"</span><br>  type=<span class="code-green">"default"</span><br>/&gt;</pre><div class="code-footer"><span class="online-dot"></span> Bereit für dein Projekt</div></div></section>
 
@@ -116,7 +116,7 @@ function notify(message: string) { lastAction.value = message; toast.value = tru
 
         <section id="states" class="demo-section"><div class="section-heading"><div><div class="eyebrow">07 / ZUSTÄNDE & FEEDBACK</div><h2>Auch die Details sind dabei.</h2></div></div><div class="panel sample-panel state-grid"><TxTextBox label="Deaktiviert" value="Nicht bearbeitbar" disabled/><TxTextBox label="Nur lesen" value="TX-2026-001" read-only/><TxTextBox label="Fehlerzustand" value="ungueltig" :is-valid="false" validation-message="Bitte eine gültige E-Mail eingeben."/><div class="feedback-actions"><TxButton text="Dialog öffnen" @click="popup = true"/><TxButton text="Toast anzeigen" @click="notify('Alles erledigt. Deine Änderungen sind gespeichert.')"/></div></div><p class="action-log" role="status">Letzte Aktion: {{ lastAction }}</p></section>
         <Extensions/>
-        <footer class="page-footer"><span>tecexpress <strong>·</strong> Ein Anfang mit System.</span><span>Vue 3 / MIT / v0.5.0</span></footer>
+        <footer class="page-footer"><span>tecexpress <strong>·</strong> Ein Anfang mit System.</span><span>Vue 3 / MIT / v0.7.0</span></footer>
       </main>
     </div>
     <TxPopup v-model:visible="popup" title="Neuen Auftrag vorbereiten" hide-on-outside-click><p>Die Komponenten sind bereit für deinen Workflow. Diese Demo speichert keine Aufträge.</p><TxTextBox label="Kundenname" v-model="name"/><template #footer><TxButton text="Abbrechen" @click="popup = false"/><TxButton text="Bestätigen" type="default" @click="popup = false; notify('Auftrag vorbereitet.')"/></template></TxPopup>

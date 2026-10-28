@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 /// print(keyOf(1));
 /// ```
 typedef TxKeyOf<T> = Object Function(T item);
+
 /// Typisierter Getter zum Lesen von Abfragewerten.
 ///
 /// Typed getter for reading query values.
@@ -34,10 +35,12 @@ class TxSort<T> {
   ///
   /// Sort or group descriptor with a selector and descending direction.
   const TxSort(this.selector, {this.desc = false});
+
   /// Feldpfad oder Getter des Abfragewerts.
   ///
   /// Field path or getter for a query value.
   final TxGetter<T> selector;
+
   /// Absteigende Sortierung.
   ///
   /// Descending sort order.
@@ -87,6 +90,7 @@ class TxFilter<T> {
     this.operator = TxFilterOperator.equal,
   }) : children = null,
        junction = null;
+
   /// Vergleichs-/Textfilter und verschachtelte UND-, ODER- und NICHT-Verknüpfungen.
   ///
   /// Comparison/text filter and nested AND, OR and NOT expressions.
@@ -96,6 +100,7 @@ class TxFilter<T> {
       operator = TxFilterOperator.equal,
       children = filters,
       junction = 'and';
+
   /// Vergleichs-/Textfilter und verschachtelte UND-, ODER- und NICHT-Verknüpfungen.
   ///
   /// Comparison/text filter and nested AND, OR and NOT expressions.
@@ -105,6 +110,7 @@ class TxFilter<T> {
       operator = TxFilterOperator.equal,
       children = filters,
       junction = 'or';
+
   /// Vergleichs-/Textfilter und verschachtelte UND-, ODER- und NICHT-Verknüpfungen.
   ///
   /// Comparison/text filter and nested AND, OR and NOT expressions.
@@ -114,26 +120,32 @@ class TxFilter<T> {
       operator = TxFilterOperator.equal,
       children = [filter],
       junction = 'not';
+
   /// Feldpfad oder Getter des Abfragewerts.
   ///
   /// Field path or getter for a query value.
   final TxGetter<T>? selector;
+
   /// Aktueller Eingabe-/Optionswert.
   ///
   /// Current input/option value.
   final Object? value;
+
   /// Vergleichs-/Textoperator.
   ///
   /// Comparison/text operator.
   final TxFilterOperator operator;
+
   /// Unterfilter beziehungsweise enthaltene Widgets.
   ///
   /// Child filters or contained widgets.
   final List<TxFilter<T>>? children;
+
   /// Verknüpfung and/or/not eines zusammengesetzten Filters.
   ///
   /// and/or/not junction of a compound filter.
   final String? junction;
+
   /// Prüft synchron einen Datensatz gegen diesen Filter.
   ///
   /// Synchronously tests a record against this filter.
@@ -195,6 +207,7 @@ class TxCancellation {
   /// Whether cancellation has been requested.
   bool isCancelled = false;
   final _listeners = <VoidCallback>[];
+
   /// Synchron auf true setzen, um die Aktion abzubrechen.
   ///
   /// Set synchronously to true to cancel the action.
@@ -256,42 +269,51 @@ class TxLoadOptions<T> {
     this.requireGroupCount = false,
     this.cancellation,
   });
+
   /// sort: Sortierbeschreibungen in Prioritätsreihenfolge.
   /// group: Gruppierungsbeschreibungen beziehungsweise Gruppenname.
   ///
   /// sort: Sort descriptors in priority order.
   /// group: Group descriptors or group name.
   final List<TxSort<T>> sort, group;
+
   /// Filterausdruck.
   ///
   /// Filter expression.
   final TxFilter<T>? filter;
+
   /// Felder beziehungsweise Getter der Suche.
   ///
   /// Search fields or getters.
   final List<TxGetter<T>> searchExpr;
+
   /// Suchtext, lokal ohne Beachtung der Groß-/Kleinschreibung.
   ///
   /// Search text; local search ignores case.
   final String searchValue;
+
   /// Anzahl zu überspringender Ergebnisse.
   ///
   /// Number of results to skip.
   final int skip;
+
   /// Maximale Anzahl zurückzugebender Ergebnisse.
   ///
   /// Maximum number of results to return.
   final int? take;
+
   /// Projektion vor dem abschließenden Mapping.
   ///
   /// Projection before final mapping.
   final T Function(T)? select;
+
   /// requireTotalCount: Fordert die Gesamtanzahl vor Paging an.
   /// requireGroupCount: Fordert die Anzahl oberster Gruppen an.
   ///
   /// requireTotalCount: Requests the total count before paging.
   /// requireGroupCount: Requests the number of top-level groups.
   final bool requireTotalCount, requireGroupCount;
+
   /// Token für kooperativen Abbruch.
   ///
   /// Cooperative cancellation token.
@@ -316,18 +338,22 @@ class TxGroup<T> {
     required this.count,
     this.groups = const [],
   });
+
   /// Stabiler Schlüssel beziehungsweise Selector; nicht mit Widget-Key verwechseln.
   ///
   /// Stable key or selector; distinct from a widget key.
   final Object? key;
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   final List<T> items;
+
   /// Anzahl Datensätze der Gruppe.
   ///
   /// Record count in the group.
   final int count;
+
   /// Gruppenhierarchie des Ergebnisses.
   ///
   /// Result group hierarchy.
@@ -352,16 +378,19 @@ class TxLoadResult<T> {
     this.groups = const [],
     this.groupCount,
   });
+
   /// Datensätze beziehungsweise Nutzdaten des Ereignisses.
   ///
   /// Records or event payload.
   final List<T> data;
+
   /// totalCount: Gesamtanzahl gefilterter Datensätze vor Paging.
   /// groupCount: Anzahl oberster Gruppen vor Paging.
   ///
   /// totalCount: Total filtered record count before paging.
   /// groupCount: Top-level group count before paging.
   final int? totalCount, groupCount;
+
   /// Gruppenhierarchie des Ergebnisses.
   ///
   /// Result group hierarchy.
@@ -381,35 +410,43 @@ abstract class TxStore<T> {
   ///
   /// Loads using the supplied options; DataSource uses current query state without arguments. Errors propagate.
   FutureOr<TxLoadResult<T>> load(TxLoadOptions<T> options);
+
   /// Ob der Store Insert unterstützt.
   ///
   /// Whether the store supports Insert.
   bool get canInsert => false;
+
   /// Ob der Store Update unterstützt.
   ///
   /// Whether the store supports Update.
   bool get canUpdate => false;
+
   /// Ob der Store Remove unterstützt.
   ///
   /// Whether the store supports Remove.
   bool get canRemove => false;
+
   /// Ob der Store ByKey unterstützt.
   ///
   /// Whether the store supports ByKey.
   bool get canByKey => false;
+
   /// Liest einen Datensatz anhand seines Schlüssels; fehlende Schlüssel ergeben undefined (Vue) beziehungsweise null (Dart).
   ///
   /// Reads a record by key; missing keys return undefined (Vue) or null (Dart).
   FutureOr<T?> byKey(Object key) => throw UnsupportedError('byKey');
+
   /// Fügt einen Datensatz mit eindeutigem Schlüssel ein und liefert ihn zurück.
   ///
   /// Inserts a record with a unique key and returns it.
   FutureOr<T> insert(T item) => throw UnsupportedError('insert');
+
   /// Aktualisiert eine Meldung beziehungsweise einen Datensatz.
   ///
   /// Updates a notification or record.
   FutureOr<T> update(Object key, T Function(T) change) =>
       throw UnsupportedError('update');
+
   /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
   ///
   /// Removes the record or recursively removes a file/directory tree.
@@ -514,34 +551,41 @@ class TxArrayStore<T> extends TxStore<T> {
     }
   }
   final List<T> _data;
+
   /// Liest den stabilen Datensatzschlüssel.
   ///
   /// Reads the stable record key.
   final TxKeyOf<T>? keyOf;
+
   /// Datensätze beziehungsweise Nutzdaten des Ereignisses.
   ///
   /// Records or event payload.
   List<T> get data => List.unmodifiable(_data);
+
   /// Ob der Store ByKey unterstützt.
   ///
   /// Whether the store supports ByKey.
   @override
   bool get canByKey => keyOf != null;
+
   /// Ob der Store Insert unterstützt.
   ///
   /// Whether the store supports Insert.
   @override
   bool get canInsert => keyOf != null;
+
   /// Ob der Store Update unterstützt.
   ///
   /// Whether the store supports Update.
   @override
   bool get canUpdate => keyOf != null;
+
   /// Ob der Store Remove unterstützt.
   ///
   /// Whether the store supports Remove.
   @override
   bool get canRemove => keyOf != null;
+
   /// Lädt mit den angegebenen Optionen; bei DataSource ohne Argumente mit aktuellem Abfragezustand. Fehler werden weitergegeben.
   ///
   /// Loads using the supplied options; DataSource uses current query state without arguments. Errors propagate.
@@ -625,49 +669,58 @@ class TxCustomStore<T> extends TxStore<T> {
   final FutureOr<T> Function(T)? _insert;
   final FutureOr<T> Function(Object, T Function(T))? _update;
   final FutureOr<void> Function(Object)? _remove;
+
   /// Ob der Store ByKey unterstützt.
   ///
   /// Whether the store supports ByKey.
   @override
   bool get canByKey => _byKey != null;
+
   /// Ob der Store Insert unterstützt.
   ///
   /// Whether the store supports Insert.
   @override
   bool get canInsert => _insert != null;
+
   /// Ob der Store Update unterstützt.
   ///
   /// Whether the store supports Update.
   @override
   bool get canUpdate => _update != null;
+
   /// Ob der Store Remove unterstützt.
   ///
   /// Whether the store supports Remove.
   @override
   bool get canRemove => _remove != null;
+
   /// Lädt mit den angegebenen Optionen; bei DataSource ohne Argumente mit aktuellem Abfragezustand. Fehler werden weitergegeben.
   ///
   /// Loads using the supplied options; DataSource uses current query state without arguments. Errors propagate.
   @override
   FutureOr<TxLoadResult<T>> load(TxLoadOptions<T> options) => _load(options);
+
   /// Liest einen Datensatz anhand seines Schlüssels; fehlende Schlüssel ergeben undefined (Vue) beziehungsweise null (Dart).
   ///
   /// Reads a record by key; missing keys return undefined (Vue) or null (Dart).
   @override
   FutureOr<T?> byKey(Object key) =>
       _byKey == null ? super.byKey(key) : _byKey(key);
+
   /// Fügt einen Datensatz mit eindeutigem Schlüssel ein und liefert ihn zurück.
   ///
   /// Inserts a record with a unique key and returns it.
   @override
   FutureOr<T> insert(T item) =>
       _insert == null ? super.insert(item) : _insert(item);
+
   /// Aktualisiert eine Meldung beziehungsweise einen Datensatz.
   ///
   /// Updates a notification or record.
   @override
   FutureOr<T> update(Object key, T Function(T) change) =>
       _update == null ? super.update(key, change) : _update(key, change);
+
   /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
   ///
   /// Removes the record or recursively removes a file/directory tree.
@@ -707,52 +760,63 @@ class TxDataSourceConfig<T> {
     this.requireTotalCount = true,
     this.requireGroupCount = false,
   });
+
   /// Datenbestand oder eigener Store-Vertrag.
   ///
   /// Data collection or custom store contract.
   final TxStore<T> store;
+
   /// Liest den stabilen Datensatzschlüssel.
   ///
   /// Reads the stable record key.
   final TxKeyOf<T>? keyOf;
+
   /// sort: Sortierbeschreibungen in Prioritätsreihenfolge.
   /// group: Gruppierungsbeschreibungen beziehungsweise Gruppenname.
   ///
   /// sort: Sort descriptors in priority order.
   /// group: Group descriptors or group name.
   final List<TxSort<T>> sort, group;
+
   /// Filterausdruck.
   ///
   /// Filter expression.
   final TxFilter<T>? filter;
+
   /// Felder beziehungsweise Getter der Suche.
   ///
   /// Search fields or getters.
   final List<TxGetter<T>> searchExpr;
+
   /// Suchtext, lokal ohne Beachtung der Groß-/Kleinschreibung.
   ///
   /// Search text; local search ignores case.
   final String searchValue;
+
   /// pageSize: Anzahl Datensätze je Seite.
   /// pageIndex: Nullbasierter Seitenindex.
   ///
   /// pageSize: Records per page.
   /// pageIndex: Zero-based page index.
   final int pageSize, pageIndex;
+
   /// Aktiviert Paging; false lädt den gesamten Bestand.
   ///
   /// Enables paging; false loads the whole collection.
   final bool paginate;
+
   /// Store verarbeitet Abfragen selbst; automatisch für CustomStores aktiviert.
   ///
   /// Store handles queries itself; automatically enabled for custom stores.
   final bool? remoteOperations;
+
   /// select: Projektion vor dem abschließenden Mapping.
   /// map: Transformation jedes geladenen sichtbaren Datensatzes.
   ///
   /// select: Projection before final mapping.
   /// map: Transformation of each loaded visible record.
   final T Function(T)? select, map;
+
   /// requireTotalCount: Fordert die Gesamtanzahl vor Paging an.
   /// requireGroupCount: Fordert die Anzahl oberster Gruppen an.
   ///
@@ -775,12 +839,14 @@ class TxPush<T> {
   ///
   /// Insert, update or remove operation for push. Multiple operations run sequentially without a transaction.
   const TxPush.insert(T this.data) : type = 'insert', key = null, change = null;
+
   /// Einfüge-, Änderungs- oder Löschoperation für push. Mehrere Operationen laufen nacheinander, ohne Transaktion.
   ///
   /// Insert, update or remove operation for push. Multiple operations run sequentially without a transaction.
   const TxPush.update(Object this.key, T Function(T) this.change)
     : type = 'update',
       data = null;
+
   /// Einfüge-, Änderungs- oder Löschoperation für push. Mehrere Operationen laufen nacheinander, ohne Transaktion.
   ///
   /// Insert, update or remove operation for push. Multiple operations run sequentially without a transaction.
@@ -788,18 +854,22 @@ class TxPush<T> {
     : type = 'remove',
       data = null,
       change = null;
+
   /// Darstellungs-/Eingabetyp; zulässige Werte siehe Signatur.
   ///
   /// Appearance/input type; see the signature for allowed values.
   final String type;
+
   /// Stabiler Schlüssel beziehungsweise Selector; nicht mit Widget-Key verwechseln.
   ///
   /// Stable key or selector; distinct from a widget key.
   final Object? key;
+
   /// Datensätze beziehungsweise Nutzdaten des Ereignisses.
   ///
   /// Records or event payload.
   final T? data;
+
   /// Transformation des bestehenden Datensatzes.
   ///
   /// Transformation of the existing record.
@@ -845,6 +915,7 @@ class TxDataSource<T> extends ChangeNotifier {
       pageIndex = config.pageIndex {
     if (pageSize < 1 || pageIndex < 0) throw ArgumentError('Invalid paging');
   }
+
   /// Beobachtbare Datenquelle mit Abfragezustand und asynchronem Laden. Schreiboperationen laden anschließend neu; der Eigentümer entsorgt die Instanz.
   ///
   /// Observable data source with query state and asynchronous loading. Writes reload the data; its owner disposes the instance.
@@ -859,32 +930,39 @@ class TxDataSource<T> extends ChangeNotifier {
       paginate: paginate,
     ),
   );
+
   /// Konfiguration der Instanz.
   ///
   /// Instance configuration.
   final TxDataSourceConfig<T> config;
+
   /// Datenbestand oder eigener Store-Vertrag.
   ///
   /// Data collection or custom store contract.
   TxStore<T> get store => config.store;
   List<T> _items = [];
+
   /// Einträge; bei Datenbindung durch dataSource ersetzt.
   ///
   /// Entries; replaced by dataSource when bound.
   List<T> get items => List.unmodifiable(_items);
+
   /// Gruppenhierarchie des Ergebnisses.
   ///
   /// Result group hierarchy.
   List<TxGroup<T>> groups = [];
+
   /// Gesamtanzahl gefilterter Datensätze vor Paging.
   ///
   /// Total filtered record count before paging.
   int totalCount = 0;
+
   /// Änderungszähler nach erfolgreichem Laden.
   ///
   /// Revision counter after a successful load.
   int revision = 0;
   final _removedKeys = <Object>{};
+
   /// Liefert false für bekannte Löschungen, beim ArrayStore einen Wahrheitswert, sonst undefined/null.
   ///
   /// Returns false for known removals, a boolean for an array store, otherwise undefined/null.
@@ -893,38 +971,46 @@ class TxDataSource<T> extends ChangeNotifier {
       : store is TxArrayStore<T> && (store as TxArrayStore<T>).keyOf != null
       ? (store as TxArrayStore<T>).byKey(key) != null
       : null;
+
   /// Anzahl oberster Gruppen vor Paging.
   ///
   /// Top-level group count before paging.
   int? groupCount;
+
   /// loading: Zeigt den Ladezustand.
   /// loaded: Mindestens ein Ladevorgang war erfolgreich.
   ///
   /// loading: Shows the loading state.
   /// loaded: At least one load completed successfully.
   bool loading = false, loaded = false, _disposed = false;
+
   /// Letzter Lade-/Schreibfehler.
   ///
   /// Most recent load/write error.
   Object? error;
+
   /// sort: Sortierbeschreibungen in Prioritätsreihenfolge.
   /// group: Gruppierungsbeschreibungen beziehungsweise Gruppenname.
   ///
   /// sort: Sort descriptors in priority order.
   /// group: Group descriptors or group name.
   List<TxSort<T>> sort, group;
+
   /// Filterausdruck.
   ///
   /// Filter expression.
   TxFilter<T>? filter;
+
   /// Felder beziehungsweise Getter der Suche.
   ///
   /// Search fields or getters.
   List<TxGetter<T>> searchExpr;
+
   /// Suchtext, lokal ohne Beachtung der Groß-/Kleinschreibung.
   ///
   /// Search text; local search ignores case.
   String searchValue;
+
   /// pageSize: Anzahl Datensätze je Seite.
   /// pageIndex: Nullbasierter Seitenindex.
   ///
@@ -933,6 +1019,7 @@ class TxDataSource<T> extends ChangeNotifier {
   int pageSize, pageIndex;
   int _generation = 0;
   TxCancellation? _cancellation;
+
   /// Lädt mit den angegebenen Optionen; bei DataSource ohne Argumente mit aktuellem Abfragezustand. Fehler werden weitergegeben.
   ///
   /// Loads using the supplied options; DataSource uses current query state without arguments. Errors propagate.
@@ -995,6 +1082,7 @@ class TxDataSource<T> extends ChangeNotifier {
   ///
   /// Reloads the current query and returns visible records.
   Future<List<T>> reload() => load();
+
   /// Ändert Abfrageoptionen und lädt neu. Suche, Filter und Seitengröße setzen die Seite zurück, sofern nicht ausdrücklich angegeben.
   ///
   /// Changes query options and reloads. Search, filter and page size reset the page unless explicitly supplied.
@@ -1063,11 +1151,13 @@ class TxDataSource<T> extends ChangeNotifier {
     if (config.keyOf != null) _removedKeys.remove(config.keyOf!(result));
     return result;
   });
+
   /// Aktualisiert eine Meldung beziehungsweise einen Datensatz.
   ///
   /// Updates a notification or record.
   Future<T> update(Object key, T Function(T) change) =>
       _write(() => store.update(key, change));
+
   /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
   ///
   /// Removes the record or recursively removes a file/directory tree.
@@ -1075,6 +1165,7 @@ class TxDataSource<T> extends ChangeNotifier {
     await store.remove(key);
     _removedKeys.add(key);
   });
+
   /// Führt Store-Schreiboperationen nacheinander aus und lädt einmal neu; keine Transaktion, Teilerfolg bei Fehler möglich.
   ///
   /// Runs store writes sequentially and reloads once; not a transaction, partial success is possible on error.
@@ -1129,20 +1220,24 @@ mixin TxSourceState<W extends StatefulWidget, T> on State<W> {
   ///
   /// List/configuration/instance binding implemented by a custom State.
   Object? get sourceInput;
+
   /// Ersatzliste ohne gebundene Source.
   ///
   /// Fallback list without a bound source.
   List<T> get sourceFallback => <T>[];
+
   /// Aktuell gebundene Source; fremde Instanzen bleiben im Besitz des Aufrufers.
   ///
   /// Currently bound source; borrowed instances remain owned by the caller.
   TxDataSource<T>? boundSource;
   Object? _input;
   bool _owned = false;
+
   /// Hook nach Änderungen einer gebundenen Source; für eigene States überschreiben.
   ///
   /// Hook after a bound source changes; override in custom states.
   void sourceChanged() {}
+
   /// Aktuell sichtbare Datensätze der Bindung.
   ///
   /// Currently visible bound records.
@@ -1233,10 +1328,12 @@ class TxDataSourceBuilder<T> extends StatefulWidget {
     required this.dataSource,
     required this.builder,
   });
+
   /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
   ///
   /// List, configuration or DataSource instance; takes precedence over items.
   final Object dataSource;
+
   /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
   ///
   /// Builds custom content; callback arguments and return type are given in the signature.
