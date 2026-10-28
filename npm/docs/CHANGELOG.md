@@ -1,5 +1,11 @@
 # Änderungen
 
+## 0.7.1 · 28.10.2026
+
+- Release-Metadaten für den gemeinsamen Patchrelease mit den Flutter-Plattformkorrekturen synchronisiert.
+- Release metadata aligned with the Flutter platform-packaging patch release.
+
+
 ## 0.7.0 · 28.10.2026
 
 - Versionsangaben, Demoanzeige, Dokumentation und Lockdatei für den gemeinsamen Release 0.7.0 synchronisiert.

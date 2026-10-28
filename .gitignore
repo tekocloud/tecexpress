@@ -12,3 +12,7 @@ coverage/
 flutter/doc/api/
 *.iml
 .idea/
+.build/
+.swiftpm/
+flutter/ios/FlutterFramework/
+flutter/macos/FlutterFramework/

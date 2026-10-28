@@ -1,4 +1,4 @@
-# Erweiterungen und Funktionsmatrix · 0.7.0
+# Erweiterungen und Funktionsmatrix · 0.7.1
 
 Die [Paket-README](https://github.com/tekocloud/tecexpress/blob/main/flutter/README.md#de-api)
 enthält die vollständige öffentliche API mit deutschen und englischen Erklärungen

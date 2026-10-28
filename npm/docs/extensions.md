@@ -1,4 +1,4 @@
-# Erweiterungen · 0.7.0
+# Erweiterungen · 0.7.1
 
 Alle Exporte sind eigenständige Implementierungen. Die [DevExtreme-Komponenten](https://js.devexpress.com/Vue/Documentation/ApiReference/UI_Components/) dienen als funktionale Orientierung. Es besteht keine austauschbare DevExpress-API und keine vollständige Abdeckung aller herstellerspezifischen Optionen.
 

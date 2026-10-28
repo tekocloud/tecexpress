@@ -1,6 +1,6 @@
 name: tecexpress
 description: Native Flutter UI components with light and dark themes, editors, data grids, scheduler, cards and chat for mobile, desktop and web.
-version: 0.7.0
+version: 0.7.1
 repository: https://github.com/tekocloud/tecexpress/tree/main/flutter
 homepage: https://github.com/tekocloud/tecexpress
 issue_tracker: https://github.com/tekocloud/tecexpress/issues

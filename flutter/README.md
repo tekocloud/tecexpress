@@ -7,7 +7,7 @@
 <a id="de"></a>
 ## Deutsch
 
-Vollständige öffentliche API von tecexpress 0.7.0 für Flutter. MIT-Lizenz, ohne Lizenzkey.
+Vollständige öffentliche API von tecexpress 0.7.1 für Flutter. MIT-Lizenz, ohne Lizenzkey.
 
 [Installation und Einstieg](#de-start) · [Daten und Zustandsverwaltung](#de-data) · [Dateien, Uploads und Karten](#de-adapters) · [API-Verzeichnis](#de-api) · [Entwicklung](#de-development)
 
@@ -3030,7 +3030,7 @@ Die Befehle im jeweiligen Paketordner ausführen. Ein Dry-run veröffentlicht ni
 <a id="en"></a>
 ## English
 
-Complete public API for tecexpress 0.7.0 for Flutter. MIT licensed, no license key.
+Complete public API for tecexpress 0.7.1 for Flutter. MIT licensed, no license key.
 
 [Installation and getting started](#en-start) · [Data and state](#en-data) · [Files, uploads and maps](#en-adapters) · [API index](#en-api) · [Development](#en-development)
 
