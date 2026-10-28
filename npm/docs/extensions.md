@@ -2,7 +2,7 @@
 
 Alle Exporte sind eigenständige Implementierungen. Die [DevExtreme-Komponenten](https://js.devexpress.com/Vue/Documentation/ApiReference/UI_Components/) dienen als funktionale Orientierung. Es besteht keine austauschbare DevExpress-API und keine vollständige Abdeckung aller herstellerspezifischen Optionen.
 
-[DataSource-Konfiguration und Datenverträge](data-source.md) · [Gemeinsame Funktionsmatrix für Vue und Flutter](../../flutter/EXTENSIONS.md).
+[DataSource-Konfiguration und Datenverträge](data-source.md) · [Vollständige zweisprachige API](https://github.com/tekocloud/tecexpress/blob/main/npm/README.md#de-api) · [Gemeinsame Funktionsmatrix für Vue und Flutter](https://github.com/tekocloud/tecexpress/blob/main/flutter/EXTENSIONS.md).
 
 ## Öffentliche Komponenten
 

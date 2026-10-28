@@ -4,12 +4,39 @@ import 'package:flutter/material.dart';
 
 import 'source.dart';
 
+/// Geografische Breite und Länge in Grad.
+///
+/// Geographic latitude and longitude in degrees.
+///
+/// ```dart
+/// const point = TxCoordinate(52.52, 13.405);
+/// print(point.lat);
+/// ```
 class TxCoordinate {
+  /// Geografische Breite und Länge in Grad.
+  ///
+  /// Geographic latitude and longitude in degrees.
   const TxCoordinate(this.lat, this.lng);
+  /// lat: Geografische Breite in Grad.
+  /// lng: Geografische Länge in Grad.
+  ///
+  /// lat: Latitude in degrees.
+  /// lng: Longitude in degrees.
   final double lat, lng;
 }
 
+/// Koordinate mit eindeutiger ID und optionalem Popuptext und Farbe.
+///
+/// Coordinate with a unique ID and optional popup text and color.
+///
+/// ```dart
+/// const marker = TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin');
+/// print(marker.text);
+/// ```
 class TxMapMarker extends TxCoordinate {
+  /// Koordinate mit eindeutiger ID und optionalem Popuptext und Farbe.
+  ///
+  /// Coordinate with a unique ID and optional popup text and color.
   const TxMapMarker(
     super.lat,
     super.lng, {
@@ -17,35 +44,96 @@ class TxMapMarker extends TxCoordinate {
     this.text,
     this.color,
   });
+  /// Eindeutige stabile ID.
+  ///
+  /// Unique stable ID.
   final Object id;
+  /// Anzuzeigender Text.
+  ///
+  /// Text to display.
   final String? text;
+  /// Darstellungsfarbe.
+  ///
+  /// Display color.
   final Color? color;
 }
 
+/// Darzustellende Routenlinie aus Koordinaten; berechnet keine Route.
+///
+/// Route line to draw from coordinates; it does not calculate a route.
+///
+/// ```dart
+/// const route = TxMapRoute(id: 'walk', points: [TxCoordinate(52.52, 13.405), TxCoordinate(52.53, 13.41)]);
+/// print(route.points.length);
+/// ```
 class TxMapRoute {
+  /// Darzustellende Routenlinie aus Koordinaten; berechnet keine Route.
+  ///
+  /// Route line to draw from coordinates; it does not calculate a route.
   const TxMapRoute({
     required this.id,
     required this.points,
     this.color = Colors.blue,
     this.width = 3,
   });
+  /// Eindeutige stabile ID.
+  ///
+  /// Unique stable ID.
   final Object id;
+  /// Koordinaten der Routenlinie in Reihenfolge.
+  ///
+  /// Route line coordinates in order.
   final List<TxCoordinate> points;
+  /// Darstellungsfarbe.
+  ///
+  /// Display color.
   final Color color;
+  /// Breite; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Width; Vue numbers use pixels, Flutter uses logical pixels.
   final double width;
 }
 
+/// Vertrag eigener Geocoding-/Routing-Dienste. Dienste selbst aufrufen und Ergebnisse an die Karte binden.
+///
+/// Contract for custom geocoding/routing services. Call services yourself and bind results to the map.
+///
+/// ```dart
+/// // An implementation is supplied by your application.
+/// Future<void> locate(TxGeoAdapter adapter) async {
+///   final points = await adapter.geocode('Berlin');
+///   if (points.length >= 2) print(await adapter.route(points));
+/// }
+/// print(locate);
+/// ```
 abstract class TxGeoAdapter {
+  /// Fragt den eigenen Geodienst nach Koordinaten für einen Suchtext.
+  ///
+  /// Queries a custom geographic service for coordinates matching text.
   Future<List<TxCoordinate>> geocode(
     String query, {
     TxCancellation? cancellation,
   });
+  /// Fragt den eigenen Routingdienst nach einer Route durch die Wegpunkte.
+  ///
+  /// Queries a custom routing service for a route through waypoints.
   Future<List<TxCoordinate>> route(
     List<TxCoordinate> points, {
     TxCancellation? cancellation,
   });
 }
 
+/// Projiziert geografische Koordinaten in Web-Mercator-Weltpixel bei gegebenem Zoom; begrenzt die Breite auf etwa ±85,05°.
+///
+/// Parameter: point mit lat/lng in Grad und zoom. Rückgabe synchron: { x, y } in Vue, Offset in Dart; Weltpixel, keine Pixel relativ zum sichtbaren Kartenausschnitt.
+///
+/// Projects geographic coordinates to Web Mercator world pixels at a given zoom; clamps latitude to about ±85.05°.
+///
+/// Parameters: point with lat/lng in degrees and zoom. Synchronous return: { x, y } in Vue, Offset in Dart; world pixels, not pixels relative to the visible viewport.
+///
+/// ```dart
+/// print(txProject(const TxCoordinate(52.52, 13.405), 5));
+/// ```
 Offset txProject(TxCoordinate point, double zoom) {
   final scale = 256 * math.pow(2, zoom),
       lat = point.lat.clamp(-85.05112878, 85.05112878) * math.pi / 180;
@@ -55,6 +143,18 @@ Offset txProject(TxCoordinate point, double zoom) {
   );
 }
 
+/// Wandelt Web-Mercator-Weltpixel beim gleichen Zoom zurück in geografische Koordinaten.
+///
+/// Parameter: Vue x, y, zoom; Dart Offset point, zoom. Rückgabe synchron TxCoordinate mit lat/lng in Grad; denselben Zoom wie bei txProject verwenden.
+///
+/// Converts Web Mercator world pixels back to geographic coordinates at the same zoom.
+///
+/// Parameters: Vue x, y, zoom; Dart Offset point, zoom. Synchronously returns TxCoordinate with lat/lng in degrees; use the same zoom as txProject.
+///
+/// ```dart
+/// final pixel = txProject(const TxCoordinate(52.52, 13.405), 5);
+/// print(txUnproject(pixel, 5).lat);
+/// ```
 TxCoordinate txUnproject(Offset point, double zoom) {
   final scale = 256 * math.pow(2, zoom),
       n = math.pi * (1 - 2 * point.dy / scale);
@@ -64,7 +164,24 @@ TxCoordinate txUnproject(Offset point, double zoom) {
   );
 }
 
+/// Karte mit Pan/Zoom, Markern und Routenlinien. Ohne tileUrl bleibt die Fläche neutral; Quellen und Attribution richtet die Anwendung ein.
+///
+/// Map with pan/zoom, markers and route lines. Without tileUrl the background is neutral; the application configures sources and attribution.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return const TxMap(
+///     markers: [TxMapMarker(52.52, 13.405, id: 'berlin', text: 'Berlin')],
+///   );
+/// }
+/// ```
 class TxMap extends StatefulWidget {
+  /// Karte mit Pan/Zoom, Markern und Routenlinien. Ohne tileUrl bleibt die Fläche neutral; Quellen und Attribution richtet die Anwendung ein.
+  ///
+  /// Map with pan/zoom, markers and route lines. Without tileUrl the background is neutral; the application configures sources and attribution.
   const TxMap({
     super.key,
     this.center = const TxCoordinate(52.52, 13.405),
@@ -83,16 +200,57 @@ class TxMap extends StatefulWidget {
     this.height = 360,
     this.disabled = false,
   });
+  /// Geografischer Kartenmittelpunkt.
+  ///
+  /// Geographic map center.
   final TxCoordinate center;
+  /// zoom: Kartenzoomstufe.
+  /// minZoom: Kleinste Zoomstufe.
+  /// maxZoom: Größte Zoomstufe.
+  ///
+  /// zoom: Map zoom level.
+  /// minZoom: Minimum zoom level.
+  /// maxZoom: Maximum zoom level.
   final int zoom, minZoom, maxZoom;
+  /// tileUrl: Kachel-URL mit Platzhaltern {z}/{x}/{y}.
+  /// attribution: Quellen-/Lizenzhinweis des Kartenanbieters.
+  ///
+  /// tileUrl: Tile URL with {z}/{x}/{y} placeholders.
+  /// attribution: Map provider attribution/license text.
   final String? tileUrl, attribution;
+  /// Darzustellende Kartenmarker.
+  ///
+  /// Map markers to display.
   final List<TxMapMarker> markers;
+  /// Darzustellende Routenlinien.
+  ///
+  /// Route lines to display.
   final List<TxMapRoute> routes;
+  /// dataSource: Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  /// routeDataSource: Separate Datenquelle für Routenlinien.
+  ///
+  /// dataSource: List, configuration or DataSource instance; takes precedence over items.
+  /// routeDataSource: Separate data source for route lines.
   final Object? dataSource, routeDataSource;
+  /// Meldet center; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports center; update controlled state in the callback.
   final ValueChanged<TxCoordinate>? onCenterChanged;
+  /// Meldet zoom; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports zoom; update controlled state in the callback.
   final ValueChanged<int>? onZoomChanged;
+  /// Aktivierter TxMapMarker.
+  ///
+  /// Activated TxMapMarker.
   final ValueChanged<TxMapMarker>? onMarkerClick;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
   @override
   State<TxMap> createState() => _TxMapState();

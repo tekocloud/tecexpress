@@ -6,7 +6,25 @@ import 'package:flutter/services.dart';
 import 'editors.dart';
 import 'models.dart';
 
+/// Reiternavigation mit optionalem Inhalt des aktiven Reiters.
+///
+/// Tab navigation with optional content for the active tab.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxTabs(
+///     items: const [TxMenuItem('Home'), TxMenuItem('Settings')],
+///     builder: (context, index) => Text('Page $index'),
+///   );
+/// }
+/// ```
 class TxTabs extends StatefulWidget {
+  /// Reiternavigation mit optionalem Inhalt des aktiven Reiters.
+  ///
+  /// Tab navigation with optional content for the active tab.
   const TxTabs({
     super.key,
     this.items = const [],
@@ -21,15 +39,47 @@ class TxTabs extends StatefulWidget {
     this.swipeEnabled = false,
     this.animationEnabled = true,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxMenuItem> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Nullbasierter aktiver Eintrag.
+  ///
+  /// Zero-based active entry.
   final int? selectedIndex;
+  /// Anfänglicher Reiter im unkontrollierten Modus.
+  ///
+  /// Initial tab in uncontrolled mode.
   final int initialIndex;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<int>? onChanged;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext context, int selectedIndex)? builder;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
+  /// Ausrichtung der Reiter.
+  ///
+  /// Tab orientation.
   final Axis orientation;
+  /// swipeEnabled: Erlaubt Reiterwechsel durch Wischen.
+  /// animationEnabled: Aktiviert Inhaltsübergänge.
+  ///
+  /// swipeEnabled: Allows switching tabs by swiping.
+  /// animationEnabled: Enables content transitions.
   final bool swipeEnabled, animationEnabled;
   @override
   State<TxTabs> createState() => _TxTabsState();
@@ -183,14 +233,40 @@ class _TxTabsState extends State<TxTabs>
   }
 }
 
+/// Werkzeugleiste mit Hauptinhalt und nachgestellten Aktionen.
+///
+/// Toolbar with primary content and trailing actions.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxToolbar(
+///     children: [TxButton(text: 'Save', onPressed: () {})],
+///     after: const [Text('Ready')],
+///   );
+/// }
+/// ```
 class TxToolbar extends StatelessWidget {
+  /// Werkzeugleiste mit Hauptinhalt und nachgestellten Aktionen.
+  ///
+  /// Toolbar with primary content and trailing actions.
   const TxToolbar({
     super.key,
     this.children = const [],
     this.after = const [],
     this.label = 'Werkzeugleiste',
   });
+  /// children: Unterfilter beziehungsweise enthaltene Widgets.
+  /// after: Nachgestellte Toolbar-Aktionen.
+  ///
+  /// children: Child filters or contained widgets.
+  /// after: Trailing toolbar actions.
   final List<Widget> children, after;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) => Semantics(
@@ -219,7 +295,28 @@ class TxToolbar extends StatelessWidget {
   );
 }
 
+/// Flache Liste von Menüaktionen; verschachtelte Aktionen gehören ins ContextMenu.
+///
+/// Flat list of menu actions; use ContextMenu for nested actions.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var saved = false;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxMenu(
+///       items: const [TxMenuItem('Home')],
+///       onItemClick: (item, index) => setState(() => saved = true),
+///     ),
+///   );
+/// }
+/// ```
 class TxMenu extends StatelessWidget {
+  /// Flache Liste von Menüaktionen; verschachtelte Aktionen gehören ins ContextMenu.
+  ///
+  /// Flat list of menu actions; use ContextMenu for nested actions.
   const TxMenu({
     super.key,
     this.items = const [],
@@ -228,10 +325,25 @@ class TxMenu extends StatelessWidget {
     this.disabled = false,
     this.label = 'Menü',
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxMenuItem> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  ///
+  /// Reports the activated entry; arguments follow the callback signature.
   final void Function(TxMenuItem item, int index)? onItemClick;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) => TxDataSourceBuilder<TxMenuItem>(

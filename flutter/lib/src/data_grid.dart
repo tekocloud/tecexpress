@@ -9,7 +9,29 @@ import 'models.dart';
 import 'overlays.dart';
 import 'theme.dart';
 
+/// Datentabelle mit Einspaltensortierung, UND-Textfiltern, Pagination, Auswahl und eigenen Zellen.
+///
+/// Data table with single-column sorting, AND text filters, paging, selection and custom cells.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   final rows = <Map<String, Object>>[
+///     {'id': 1, 'name': 'Alex'},
+///   ];
+///   return TxDataGrid<Map<String, Object>>(
+///     dataSource: rows,
+///     keyOf: (row) => row['id']!,
+///     columns: [TxColumn(caption: 'Name', valueGetter: (row) => row['name'])],
+///   );
+/// }
+/// ```
 class TxDataGrid<T> extends StatefulWidget {
+  /// Datentabelle mit Einspaltensortierung, UND-Textfiltern, Pagination, Auswahl und eigenen Zellen.
+  ///
+  /// Data table with single-column sorting, AND text filters, paging, selection and custom cells.
   const TxDataGrid({
     super.key,
     required this.dataSource,
@@ -31,20 +53,71 @@ class TxDataGrid<T> extends StatefulWidget {
     this.noDataText = 'Keine Daten vorhanden.',
     this.label = 'Datentabelle',
   }) : assert(pageSize > 0);
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object dataSource;
+  /// Liest den stabilen Datensatzschlüssel.
+  ///
+  /// Reads the stable record key.
   final Object Function(T row) keyOf;
+  /// Spalten- beziehungsweise Kartenfeldkonfigurationen.
+  ///
+  /// Column or card field configurations.
   final List<TxColumn<T>> columns;
+  /// filterRow: Zeigt die Textfilterzeile.
+  /// loading: Zeigt den Ladezustand.
+  /// disabled: Sperrt die Interaktion.
+  ///
+  /// filterRow: Shows the text filter row.
+  /// loading: Shows the loading state.
+  /// disabled: Disables interaction.
   final bool filterRow, loading, disabled;
+  /// Anzahl Datensätze je Seite.
+  ///
+  /// Records per page.
   final int pageSize;
+  /// Nullbasierter Seitenindex.
+  ///
+  /// Zero-based page index.
   final int? pageIndex;
+  /// Meldet pageIndex; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports pageIndex; update controlled state in the callback.
   final ValueChanged<int>? onPageIndexChanged;
+  /// Auswahlmodus.
+  ///
+  /// Selection mode.
   final TxSelectionMode selection;
+  /// Kontrollierte Menge ausgewählter Zeilenschlüssel.
+  ///
+  /// Controlled set of selected row keys.
   final Set<Object>? selectedRowKeys;
+  /// Meldet selectedRowKeys; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports selectedRowKeys; update controlled state in the callback.
   final ValueChanged<Set<Object>>? onSelectedRowKeysChanged;
+  /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports selection; update controlled state in the callback.
   final ValueChanged<TxSelection<T>>? onSelectionChanged;
+  /// Meldet den angeklickten Datensatz.
+  ///
+  /// Reports the clicked record.
   final ValueChanged<T>? onRowClick;
+  /// Meldet sort; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports sort; update controlled state in the callback.
   final void Function(String? field, bool descending)? onSortChanged;
+  /// Meldet filter; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports filter; update controlled state in the callback.
   final ValueChanged<Map<String, String>>? onFilterChanged;
+  /// noDataText: Text bei leerem Datenbestand.
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// noDataText: Text for an empty collection.
+  /// label: Label or accessible name.
   final String noDataText, label;
   @override
   State<TxDataGrid<T>> createState() => _TxDataGridState<T>();

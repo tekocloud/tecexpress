@@ -1,6 +1,7 @@
 .dart_tool/
 build/
 coverage/
+doc/api/
 pubspec.lock
 test/
 test-results/

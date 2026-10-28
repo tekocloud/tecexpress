@@ -4,7 +4,35 @@ import 'package:flutter/services.dart';
 import 'theme.dart';
 import 'models.dart';
 
+/// Dialog mit Titel und Inhalt. Vorereignisse können synchron abgebrochen werden; externe Sichtbarkeit bleibt maßgeblich.
+///
+/// Dialog with a title and content. Before-events can be cancelled synchronously; external visibility remains authoritative.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var visible = false;
+///   return StatefulBuilder(
+///     builder: (context, setState) => Column(
+///       mainAxisSize: MainAxisSize.min,
+///       children: [
+///         TxButton(text: 'Open', onPressed: () => setState(() => visible = true)),
+///         TxPopup(
+///           visible: visible,
+///           onVisibleChanged: (v) => setState(() => visible = v),
+///           child: const Text('Hello'),
+///         ),
+///       ],
+///     ),
+///   );
+/// }
+/// ```
 class TxPopup extends StatefulWidget {
+  /// Dialog mit Titel und Inhalt. Vorereignisse können synchron abgebrochen werden; externe Sichtbarkeit bleibt maßgeblich.
+  ///
+  /// Dialog with a title and content. Before-events can be cancelled synchronously; external visibility remains authoritative.
   const TxPopup({
     super.key,
     required this.visible,
@@ -25,19 +53,66 @@ class TxPopup extends StatefulWidget {
     this.onShowing,
     this.onHiding,
   });
+  /// visible: Steuert die Sichtbarkeit.
+  /// showCloseButton: Zeigt die Schließen-Aktion.
+  /// hideOnOutsideClick: Erlaubt Schließen über den Außenbereich.
+  ///
+  /// visible: Controls visibility.
+  /// showCloseButton: Shows a close action.
+  /// hideOnOutsideClick: Allows closing by clicking outside.
   final bool visible, showCloseButton, hideOnOutsideClick;
+  /// Titel der Ansicht.
+  ///
+  /// View title.
   final String title;
+  /// Breite; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Width; Vue numbers use pixels, Flutter uses logical pixels.
   final double width;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double? height;
+  /// fullScreen: Füllt den Bildschirm.
+  /// dragEnabled: Erlaubt das Verschieben des Dialogs.
+  /// resizeEnabled: Erlaubt Größenänderungen des Dialogs.
+  ///
+  /// fullScreen: Fills the screen.
+  /// dragEnabled: Allows dragging the dialog.
+  /// resizeEnabled: Allows resizing the dialog.
   final bool fullScreen, dragEnabled, resizeEnabled;
+  /// Ausrichtung des Inhalts.
+  ///
+  /// Content alignment.
   final Alignment alignment;
+  /// onShowing: Vor Anzeige: TxChange&lt;bool&gt;; cancel synchron setzen, um abzubrechen.
+  /// onHiding: Vor benutzerinitiiertem Schließen: TxChange&lt;bool&gt;; synchron abbrechbar.
+  ///
+  /// onShowing: Before showing: TxChange&lt;bool&gt;; set cancel synchronously to abort.
+  /// onHiding: Before user-initiated closing: TxChange&lt;bool&gt;; synchronously cancellable.
   final ValueChanged<TxChange<bool>>? onShowing, onHiding;
+  /// Inhalt beziehungsweise Zielwidget.
+  ///
+  /// Content or target widget.
   final Widget child;
+  /// Aktionen des Dialogs beziehungsweise der Karte.
+  ///
+  /// Dialog or card actions.
   final List<Widget> actions;
+  /// Meldet visible; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports visible; update controlled state in the callback.
   final ValueChanged<bool>? onVisibleChanged;
+  /// onShown: Nach Anzeige, ohne Payload.
+  /// onHidden: Nach Verbergen, ohne Payload.
+  ///
+  /// onShown: After showing, without a payload.
+  /// onHidden: After hiding, without a payload.
   final VoidCallback? onShown, onHidden;
 
-  /// Imperative alternative returning a value when the dialog closes.
+  /// Öffnet die native Overlay-Alternative; den Rückgabevertrag der jeweiligen Signatur beachten.
+  ///
+  /// Opens the native overlay alternative; follow the return contract in the signature.
   static Future<T?> show<T>(
     BuildContext context, {
     required String title,
@@ -288,7 +363,22 @@ class _PopupSurfaceState extends State<_PopupSurface> {
   );
 }
 
+/// Hinweis zum Zielinhalt mit Verzögerung und optional eigenem Inhalt.
+///
+/// Hint for target content with a delay and optional custom content.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return const TxTooltip(text: 'More information', child: Text('Help'));
+/// }
+/// ```
 class TxTooltip extends StatefulWidget {
+  /// Hinweis zum Zielinhalt mit Verzögerung und optional eigenem Inhalt.
+  ///
+  /// Hint for target content with a delay and optional custom content.
   const TxTooltip({
     super.key,
     required this.text,
@@ -301,13 +391,39 @@ class TxTooltip extends StatefulWidget {
     this.visible,
     this.content,
   });
+  /// Anzuzeigender Text.
+  ///
+  /// Text to display.
   final String text;
+  /// Inhalt beziehungsweise Zielwidget.
+  ///
+  /// Content or target widget.
   final Widget child;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// waitDuration: Wartezeit vor dem Tooltip.
+  /// showDuration: Dauer des Tooltips nach Aktivierung.
+  ///
+  /// waitDuration: Delay before the tooltip.
+  /// showDuration: Tooltip duration after activation.
   final Duration waitDuration, showDuration;
+  /// Bevorzugt die Position unter dem Ziel.
+  ///
+  /// Prefers placement below the target.
   final bool preferBelow;
+  /// Native Tooltip-Aktivierungsart.
+  ///
+  /// Native tooltip trigger mode.
   final TooltipTriggerMode triggerMode;
+  /// Steuert die Sichtbarkeit.
+  ///
+  /// Controls visibility.
   final bool? visible;
+  /// Eigener Inhalt beziehungsweise Dateiinhalt als Blob.
+  ///
+  /// Custom content or file contents as a Blob.
   final Widget? content;
   @override
   State<TxTooltip> createState() => _TxTooltipState();
@@ -361,9 +477,47 @@ class _TxTooltipState extends State<TxTooltip> {
         );
 }
 
+/// Statusfarben einer Meldung: Info, Erfolg, Warnung oder Fehler.
+///
+/// Notification status colors: info, success, warning or error.
+///
+/// ```dart
+/// print(TxToastType.values);
+/// ```
 enum TxToastType { info, success, warning, error }
 
+/// Zeitlich begrenzte Statusmeldung; Sichtbarkeitsänderungen in der Anwendung übernehmen.
+///
+/// Timed status message; accept visibility changes in the application.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var visible = false;
+///   return StatefulBuilder(
+///     builder: (context, setState) => Column(
+///       mainAxisSize: MainAxisSize.min,
+///       children: [
+///         TxButton(
+///           text: 'Notify',
+///           onPressed: () => setState(() => visible = true),
+///         ),
+///         TxToast(
+///           visible: visible,
+///           message: 'Saved',
+///           onVisibleChanged: (v) => setState(() => visible = v),
+///         ),
+///       ],
+///     ),
+///   );
+/// }
+/// ```
 class TxToast extends StatefulWidget {
+  /// Zeitlich begrenzte Statusmeldung; Sichtbarkeitsänderungen in der Anwendung übernehmen.
+  ///
+  /// Timed status message; accept visibility changes in the application.
   const TxToast({
     super.key,
     required this.visible,
@@ -372,12 +526,30 @@ class TxToast extends StatefulWidget {
     this.type = TxToastType.info,
     this.displayTime = const Duration(milliseconds: 3500),
   });
+  /// Steuert die Sichtbarkeit.
+  ///
+  /// Controls visibility.
   final bool visible;
+  /// Meldungstext.
+  ///
+  /// Notification text.
   final String message;
+  /// Darstellungs-/Eingabetyp; zulässige Werte siehe Signatur.
+  ///
+  /// Appearance/input type; see the signature for allowed values.
   final TxToastType type;
+  /// Anzeigedauer; 0 beziehungsweise Duration.zero bleibt offen.
+  ///
+  /// Display duration; 0 or Duration.zero stays open.
   final Duration displayTime;
+  /// Meldet visible; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports visible; update controlled state in the callback.
   final ValueChanged<bool>? onVisibleChanged;
 
+  /// Öffnet die native Overlay-Alternative; den Rückgabevertrag der jeweiligen Signatur beachten.
+  ///
+  /// Opens the native overlay alternative; follow the return contract in the signature.
   static void show(
     BuildContext context,
     String message, {
@@ -471,13 +643,34 @@ class _TxToastState extends State<TxToast> {
   Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
+/// Zugängliche Ladeanzeige mit Beschriftung.
+///
+/// Accessible loading indicator with a label.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return const TxLoadIndicator(label: 'Loading');
+/// }
+/// ```
 class TxLoadIndicator extends StatelessWidget {
+  /// Zugängliche Ladeanzeige mit Beschriftung.
+  ///
+  /// Accessible loading indicator with a label.
   const TxLoadIndicator({
     super.key,
     this.visible = true,
     this.label = 'Wird geladen …',
   });
+  /// Steuert die Sichtbarkeit.
+  ///
+  /// Controls visibility.
   final bool visible;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) => !visible

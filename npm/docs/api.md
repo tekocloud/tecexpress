@@ -1,5 +1,10 @@
 # API · tecexpress 0.5.0
 
+Die vollständige Referenz aller öffentlichen Exporte mit deutschen und englischen
+Erklärungen und einfachen Beispielen steht direkt in der
+[Paket-README](https://github.com/tekocloud/tecexpress/blob/main/npm/README.md#de-api).
+Diese Seite ergänzt sie um thematische Hinweise zu den ursprünglichen Komponenten.
+
 Alle Komponenten werden aus `@tekocloud.de/tecexpress` importiert. CamelCase-Props lassen sich in Templates als kebab-case schreiben. Native Attribute und Listener sind möglich; bei Editoren gehen sie an das Eingabeelement, bei anderen Komponenten an das Wurzelelement. Globale Registrierung: `app.use(Tecexpress)`.
 
 ## DataSource und Erweiterungen
@@ -35,7 +40,7 @@ Seit 0.2.0: `TxScheduler` mit Tag/Woche/Monat, lokaler Terminbearbeitung, Ganzta
 | `TxDateBox` | ISO-Datumsstring `YYYY-MM-DD`, anfangs `''`; `min`, `max` als ISO-Strings. Kein Date-Objekt und keine Uhrzeit. | `<TxDateBox v-model="date" label="Datum" min="2026-01-01" />` |
 | `TxCheckBox` | Boolean, anfangs `false`; keine Dreizustandsauswahl | `<TxCheckBox v-model="accepted" label="Zustimmen" />` |
 | `TxSwitch` | Boolean, anfangs `false`; native Checkbox mit `role="switch"` | `<TxSwitch v-model="enabled" label="Aktiv" />` |
-| `TxSelectBox` | String, Zahl, Boolean oder `null`; `items=[]`, `displayExpr='text'`, `valueExpr='value'`. Primitive Items oder Objekte, optionale `disabled`-Eigenschaft je Objekt. Keine Remote-Daten oder Suche. | `<TxSelectBox v-model="category" label="Kategorie" :items="['A', 'B']" />` |
+| `TxSelectBox` | String, Zahl, Boolean oder `null`; `items=[]`, `displayExpr='text'`, `valueExpr='value'`. Primitive Items oder Objekte, optionale `disabled`-Eigenschaft je Objekt. `dataSource` akzeptiert Arrays, Konfigurationen und Instanzen einschließlich Remote-Stores; keine eigene Suche. | `<TxSelectBox v-model="category" label="Kategorie" :items="['A', 'B']" />` |
 
 Editorwerte sind primitiv; ganze Objekte als SelectBox-Wert werden nicht unterstützt. `id`, `autocomplete`, `aria-label` und weitere native Attribute können direkt gesetzt werden. Immer `label` oder `aria-label` für namenlose Editoren angeben. Die native Datumsdarstellung hängt vom Browser und dessen Sprache ab. Schreibgeschützte SelectBoxen können ihren nativen Picker öffnen, übernehmen aber keine Änderungen.
 
@@ -74,8 +79,8 @@ Editorwerte sind primitiv; ganze Objekte als SelectBox-Wert werden nicht unterst
 | Komponente | Props und Slots | Events / Verhalten |
 | --- | --- | --- |
 | `TxPopup` | `visible=false`, `title='Dialog'`, `width=480` (Zahl in px oder CSS-String), `showCloseButton=true`, `hideOnOutsideClick=false`. Default-Inhalt und `footer`-Slot. | `update:visible`, `shown`, `hidden`. Mit `v-model:visible` steuern. Escape und Close-Button fordern Schließen an; kontrollierender Parent muss den Wert übernehmen. Fokus wird im obersten Dialog gehalten und nach Schließen zurückgesetzt. |
-| `TxTooltip` | Pflicht-Prop `text`, `disabled=false`; Default-Slot für den Trigger | Umschließt seinen Trigger; Anzeige auf Hover/Fokus, Escape blendet aus. Wrapper ist per Tab erreichbar. Kein `target`-Selektor, kein Teleport. |
-| `TxToast` | `visible=false`, `message`, `type='info'` (`info | success | error`), `displayTime=3500` in ms; Default-Slot ersetzt Nachricht | `update:visible`; `v-model:visible` verwenden. `displayTime<=0` deaktiviert Zeitlimit. Timer startet bei geänderter Nachricht, Dauer oder Sichtbarkeit neu. Live-Region, Fehler mit `role="alert"`. |
+| `TxTooltip` | `text=''`, `disabled=false`; Default-Slot für den Trigger, `content` für eigenen Hinweisinhalt; `visible`, `showDelay/hideDelay`, `showOn`, `position` | Umschließt seinen Trigger; Anzeige auf Hover/Fokus beziehungsweise Klick, Escape blendet aus. `update:visible`, `shown`, `hidden`. Wrapper ist per Tab erreichbar. Kein `target`-Selektor, kein Teleport. |
+| `TxToast` | `visible=false`, `message`, `type='info'` (`info | success | warning | error`), `displayTime=3500` in ms, `position`; Default-Slot ersetzt Nachricht, Slot `actions` ergänzt Aktionen | `update:visible`; `v-model:visible` verwenden. `displayTime<=0` deaktiviert Zeitlimit. Timer startet bei geänderter Nachricht, Dauer oder Sichtbarkeit neu. Live-Region, Fehler mit `role="alert"`. |
 | `TxLoadIndicator` | `visible=true`, `label='Wird geladen …'` | Animierte Ladeanzeige mit Statusrolle; berücksichtigt reduzierte Bewegung. |
 
 ```vue
@@ -94,7 +99,7 @@ Overlays werden im Komponentenbaum gerendert und erben dessen Theme. Popup und T
 
 | Prop | Standard / Verhalten |
 | --- | --- |
-| `dataSource` | `[]`; lokales `Record<string, unknown>[]`, Daten werden nicht verändert. |
+| `dataSource` | `[]`; `Record<string, unknown>[]`, DataSource-Konfiguration oder Instanz. Arrays werden lokal verarbeitet; Stores können Remote-Operationen übernehmen. Geladene DataSource-Seiten werden nicht erneut lokal verarbeitet. |
 | `keyExpr` | `'id'`; eindeutiger String oder endliche Zahl je Datensatz, auch Punktpfade wie `order.id`. Fehlende oder doppelte Schlüssel werfen einen erklärenden Fehler. |
 | `columns` | Optionales `Column[]`. Ohne Konfiguration Felder der ersten Zeile. Direkte `TxColumn`-Kinder (auch in `v-for`/Fragmenten) haben Vorrang vor dem gesamten `columns`-Prop. |
 | `filterRow` | `true`, alternativ `{ visible: boolean }`; Textfilter pro Spalte. Alle Filter werden mit UND verknüpft; Groß-/Kleinschreibung wird ignoriert. Zahlen und Boolean-Werte werden ebenfalls als Text gefiltert. |
@@ -135,4 +140,4 @@ Events:
 </TxDataGrid>
 ```
 
-Die vollständige ausführbare Kombination aller Beispiele steht in `demo/App.vue`. Nicht implementiert: verschachtelte DevExtreme-Option-Komponenten wie `DxPaging`, Instanzmethoden, mehrere Sortierspalten, Remote-Operationen, Gruppierung, Bearbeitung und Virtualisierung. Nur dokumentierte Optionen werden unterstützt.
+Die vollständige ausführbare Kombination aller Beispiele steht in `demo/App.vue`. Remote-Abfragen und Gruppierung sind über die gemeinsame DataSource verfügbar; Gruppen werden im Grid weiterhin als flache Zeilen angezeigt. Nicht implementiert sind verschachtelte DevExtreme-Option-Komponenten wie `DxPaging`, eine DevExtreme-Instanz-API, lokale Mehrspaltensortierung im Grid, Bearbeitung und Virtualisierung. Nur dokumentierte Optionen werden unterstützt.

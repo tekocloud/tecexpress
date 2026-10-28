@@ -113,6 +113,21 @@ Die folgende Prüfung muss vor einem erneuten Upload bestätigen, dass die gewü
 
 Details: [npm-Vorgaben für 2FA beim Veröffentlichen](https://docs.npmjs.com/requiring-2fa-for-package-publishing-and-settings-modification/) und [2FA einrichten](https://docs.npmjs.com/configuring-two-factor-authentication/).
 
+### E404 beim PUT: Anmeldung zuerst prüfen
+
+Ein erfolgreicher Build, bestandene Tests und ein erzeugtes Archiv belegen keine gültige Registry-Anmeldung. Im lokal untersuchten Fall vom 27.10.2026 wurde der Upload von 0.5.0 mit E404 abgelehnt; `npm whoami --registry=https://registry.npmjs.org/` lieferte anschließend **E401 Unauthorized**. Das öffentliche Paket existierte bereits mit aktueller Version 0.4.0. Der E404 belegt hier deshalb keinen fehlenden Paketnamen oder Scope.
+
+In `C:\source\own\tecexpress\npm`:
+
+```powershell
+npm login --registry=https://registry.npmjs.org/
+npm whoami --registry=https://registry.npmjs.org/
+```
+
+Die Browser-/2FA-Anmeldung selbst abschließen. Erst wenn `whoami` den vorgesehenen npm-Benutzernamen ausgibt, `npm publish --access public` erneut ausführen. Falls der Upload dann weiterhin abgelehnt wird, die Schreibrechte dieses Accounts auf `@tekocloud.de/tecexpress` beziehungsweise die verwendeten Tokenrechte prüfen. Keine Tokens oder Einmalcodes weitergeben. Die Paketversion nicht allein wegen eines fehlgeschlagenen Uploads erhöhen; zuerst die konkrete Version in der Registry prüfen.
+
+`always-auth` ist eine separate Konfigurationswarnung. Der veraltete Eintrag kann mit `npm config delete always-auth --location=user` entfernt werden; das repariert keine Anmeldung. Vue-Warnungen innerhalb der Tests für fehlende/doppelte Datensatzschlüssel entstehen bei absichtlich ungültigen Testdaten. Maßgeblich ist das abschließende Testergebnis.
+
 Danach prüfen:
 
 ```sh

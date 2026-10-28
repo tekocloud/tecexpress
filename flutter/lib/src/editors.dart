@@ -7,7 +7,26 @@ import 'package:intl/intl.dart';
 import 'models.dart';
 import 'theme.dart';
 
+/// Schaltfläche mit Text, Symbol und Klickaktion.
+///
+/// Button with text, an icon and a click action.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var saved = false;
+///   return StatefulBuilder(
+///     builder: (context, setState) =>
+///         TxButton(text: 'Save', onPressed: () => setState(() => saved = true)),
+///   );
+/// }
+/// ```
 class TxButton extends StatelessWidget {
+  /// Schaltfläche mit Text, Symbol und Klickaktion.
+  ///
+  /// Button with text, an icon and a click action.
   const TxButton({
     super.key,
     this.text,
@@ -17,11 +36,29 @@ class TxButton extends StatelessWidget {
     this.type = TxButtonType.normal,
     this.icon,
   });
+  /// Anzuzeigender Text.
+  ///
+  /// Text to display.
   final String? text;
+  /// Inhalt beziehungsweise Zielwidget.
+  ///
+  /// Content or target widget.
   final Widget? child;
+  /// Callback für pressed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for pressed; see the signature for arguments and return type.
   final VoidCallback? onPressed;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Darstellungs-/Eingabetyp; zulässige Werte siehe Signatur.
+  ///
+  /// Appearance/input type; see the signature for allowed values.
   final TxButtonType type;
+  /// Symbol der Aktion.
+  ///
+  /// Action icon.
   final IconData? icon;
   @override
   Widget build(BuildContext context) {
@@ -78,7 +115,29 @@ InputDecoration _decoration({
   errorText: isValid ? null : validationMessage,
 );
 
+/// Einzeilige Texteingabe; Änderungen über das Modell oder den Callback übernehmen.
+///
+/// Single-line text input; accept edits through its model or callback.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var text = '';
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxTextBox(
+///       label: 'Name',
+///       initialValue: 'Alex',
+///       onChanged: (v) => setState(() => text = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxTextBox extends StatelessWidget {
+  /// Einzeilige Texteingabe; Änderungen über das Modell oder den Callback übernehmen.
+  ///
+  /// Single-line text input; accept edits through its model or callback.
   const TxTextBox({
     super.key,
     this.controller,
@@ -96,13 +155,49 @@ class TxTextBox extends StatelessWidget {
     this.keyboardType,
     this.focusNode,
   }) : assert(controller == null || initialValue == null);
+  /// Externer Textcontroller; Entsorgung bleibt Aufgabe der Anwendung.
+  ///
+  /// External text controller; the application disposes it.
   final TextEditingController? controller;
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  /// placeholder: Hinweis bei leerer Eingabe.
+  ///
+  /// initialValue: Starting value in uncontrolled mode.
+  /// label: Label or accessible name.
+  /// placeholder: Hint for an empty input.
   final String? initialValue, label, placeholder;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<String>? onChanged;
+  /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<String>>? onValueChanged;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// required: Kennzeichnet die erforderliche Eingabe.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  /// obscureText: Verbirgt die Texteingabe.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// required: Marks a required input.
+  /// isValid: Controls error presentation; does not perform validation.
+  /// obscureText: Obscures text input.
   final bool disabled, readOnly, required, isValid, obscureText;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
+  /// Gewünschte Bildschirmtastatur.
+  ///
+  /// Requested on-screen keyboard type.
   final TextInputType? keyboardType;
+  /// Externer Fokuscontroller.
+  ///
+  /// External focus controller.
   final FocusNode? focusNode;
   @override
   Widget build(BuildContext context) => _TxTextInput(
@@ -123,7 +218,29 @@ class TxTextBox extends StatelessWidget {
   );
 }
 
+/// Mehrzeilige Texteingabe mit konfigurierbarer Zeilenzahl.
+///
+/// Multiline text input with a configurable row count.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var text = '';
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxTextArea(
+///       label: 'Notes',
+///       rows: 4,
+///       onChanged: (v) => setState(() => text = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxTextArea extends StatelessWidget {
+  /// Mehrzeilige Texteingabe mit konfigurierbarer Zeilenzahl.
+  ///
+  /// Multiline text input with a configurable row count.
   const TxTextArea({
     super.key,
     this.controller,
@@ -141,13 +258,47 @@ class TxTextArea extends StatelessWidget {
     this.focusNode,
   }) : assert(controller == null || initialValue == null),
        assert(rows > 0);
+  /// Externer Textcontroller; Entsorgung bleibt Aufgabe der Anwendung.
+  ///
+  /// External text controller; the application disposes it.
   final TextEditingController? controller;
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  /// placeholder: Hinweis bei leerer Eingabe.
+  ///
+  /// initialValue: Starting value in uncontrolled mode.
+  /// label: Label or accessible name.
+  /// placeholder: Hint for an empty input.
   final String? initialValue, label, placeholder;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<String>? onChanged;
+  /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<String>>? onValueChanged;
+  /// Sichtbare Textzeilen.
+  ///
+  /// Visible text rows.
   final int rows;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// required: Kennzeichnet die erforderliche Eingabe.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// required: Marks a required input.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, required, isValid;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
+  /// Externer Fokuscontroller.
+  ///
+  /// External focus controller.
   final FocusNode? focusNode;
   @override
   Widget build(BuildContext context) => _TxTextInput(
@@ -259,7 +410,30 @@ class _TxTextInputState extends State<_TxTextInput> {
   );
 }
 
+/// Zahleneingabe mit Grenzen und Schritten. Ein leerer Wert ergibt null.
+///
+/// Numeric input with bounds and steps. An empty input produces null.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   num? amount = 10;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxNumberBox(
+///       value: amount,
+///       min: 0,
+///       max: 100,
+///       onChanged: (v) => setState(() => amount = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxNumberBox extends StatefulWidget {
+  /// Zahleneingabe mit Grenzen und Schritten. Ein leerer Wert ergibt null.
+  ///
+  /// Numeric input with bounds and steps. An empty input produces null.
   const TxNumberBox({
     super.key,
     this.value,
@@ -276,12 +450,45 @@ class TxNumberBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+  /// value: Aktueller Eingabe-/Optionswert.
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// min: Untere zulässige Grenze.
+  /// max: Obere zulässige Grenze.
+  ///
+  /// value: Current input/option value.
+  /// initialValue: Starting value in uncontrolled mode.
+  /// min: Lower allowed bound.
+  /// max: Upper allowed bound.
   final num? value, initialValue, min, max;
+  /// Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
+  ///
+  /// Step size; milliseconds for Vue date ranges.
   final num step;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<num?>? onChanged;
+  /// Meldet value; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports value; update controlled state in the callback.
   final ValueChanged<TxValueChange<num?>>? onValueChanged;
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  /// placeholder: Hinweis bei leerer Eingabe.
+  ///
+  /// label: Label or accessible name.
+  /// placeholder: Hint for an empty input.
   final String? label, placeholder;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, isValid;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
   @override
   State<TxNumberBox> createState() => _TxNumberBoxState();
@@ -386,7 +593,29 @@ class _TxNumberBoxState extends State<TxNumberBox> {
   );
 }
 
+/// Kontrollkästchen für einen booleschen Wert.
+///
+/// Checkbox for a boolean value.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var enabled = true;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxCheckBox(
+///       value: enabled,
+///       label: 'Active',
+///       onChanged: (v) => setState(() => enabled = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxCheckBox extends StatefulWidget {
+  /// Kontrollkästchen für einen booleschen Wert.
+  ///
+  /// Checkbox for a boolean value.
   const TxCheckBox({
     super.key,
     this.value,
@@ -398,10 +627,31 @@ class TxCheckBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final bool? value;
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// initialValue: Starting value in uncontrolled mode.
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool initialValue, disabled, readOnly, isValid;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String? label;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<bool>? onChanged;
   @override
   State<TxCheckBox> createState() => _TxCheckBoxState();
@@ -435,7 +685,29 @@ class _TxCheckBoxState extends State<TxCheckBox> {
   );
 }
 
+/// Schalter für einen booleschen Wert.
+///
+/// Switch for a boolean value.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var enabled = true;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxSwitch(
+///       value: enabled,
+///       label: 'Active',
+///       onChanged: (v) => setState(() => enabled = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxSwitch extends StatefulWidget {
+  /// Schalter für einen booleschen Wert.
+  ///
+  /// Switch for a boolean value.
   const TxSwitch({
     super.key,
     this.value,
@@ -447,10 +719,31 @@ class TxSwitch extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final bool? value;
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// initialValue: Starting value in uncontrolled mode.
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool initialValue, disabled, readOnly, isValid;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String? label;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<bool>? onChanged;
   @override
   State<TxSwitch> createState() => _TxSwitchState();
@@ -482,7 +775,33 @@ class _TxSwitchState extends State<TxSwitch> {
   );
 }
 
+/// Einfachauswahl aus einer Liste oder Datenquelle.
+///
+/// Single selection from a list or data source.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   const options = [
+///     TxItem(value: 1, text: 'One'),
+///     TxItem(value: 2, text: 'Two'),
+///   ];
+///   int? choice = 1;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxSelectBox<int>(
+///       items: options,
+///       value: choice,
+///       onChanged: (v) => setState(() => choice = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxSelectBox<T> extends StatefulWidget {
+  /// Einfachauswahl aus einer Liste oder Datenquelle.
+  ///
+  /// Single selection from a list or data source.
   const TxSelectBox({
     super.key,
     this.items = const [],
@@ -496,12 +815,39 @@ class TxSelectBox<T> extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final T? value;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T?>? onChanged;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String? label;
+  /// placeholder: Hinweis bei leerer Eingabe.
+  /// validationMessage: Fehlermeldung bei isValid = false.
+  ///
+  /// placeholder: Hint for an empty input.
+  /// validationMessage: Error message when isValid is false.
   final String placeholder, validationMessage;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, isValid;
   @override
   State<TxSelectBox<T>> createState() => _TxSelectBoxState<T>();
@@ -565,7 +911,26 @@ class _TxSelectBoxState<T> extends State<TxSelectBox<T>>
   }
 }
 
+/// Datumseingabe mit unterer und oberer Grenze.
+///
+/// Date input with lower and upper bounds.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   DateTime? date = DateTime(2026, 10, 28);
+///   return StatefulBuilder(
+///     builder: (context, setState) =>
+///         TxDateBox(value: date, onChanged: (v) => setState(() => date = v)),
+///   );
+/// }
+/// ```
 class TxDateBox extends StatefulWidget {
+  /// Datumseingabe mit unterer und oberer Grenze.
+  ///
+  /// Date input with lower and upper bounds.
   const TxDateBox({
     super.key,
     this.value,
@@ -579,10 +944,35 @@ class TxDateBox extends StatefulWidget {
     this.isValid = true,
     this.validationMessage = 'Bitte Eingabe prüfen.',
   });
+  /// value: Aktueller Eingabe-/Optionswert.
+  /// initialValue: Startwert im unkontrollierten Modus.
+  /// min: Untere zulässige Grenze.
+  /// max: Obere zulässige Grenze.
+  ///
+  /// value: Current input/option value.
+  /// initialValue: Starting value in uncontrolled mode.
+  /// min: Lower allowed bound.
+  /// max: Upper allowed bound.
   final DateTime? value, initialValue, min, max;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<DateTime?>? onChanged;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String? label;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// isValid: Steuert die Fehlerdarstellung; führt keine eigene Validierung aus.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// isValid: Controls error presentation; does not perform validation.
   final bool disabled, readOnly, isValid;
+  /// Fehlermeldung bei isValid = false.
+  ///
+  /// Error message when isValid is false.
   final String validationMessage;
   @override
   State<TxDateBox> createState() => _TxDateBoxState();

@@ -6,7 +6,33 @@ import 'package:flutter/services.dart';
 import 'models.dart';
 import 'source.dart';
 
+/// Sichtbare Optionsfelder für eine Einzelwahl.
+///
+/// Visible radio options for a single selection.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   const options = [
+///     TxItem(value: 1, text: 'One'),
+///     TxItem(value: 2, text: 'Two'),
+///   ];
+///   int? choice = 1;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxRadioGroup<int>(
+///       items: options,
+///       value: choice,
+///       onChanged: (v) => setState(() => choice = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxRadioGroup<T> extends StatelessWidget {
+  /// Sichtbare Optionsfelder für eine Einzelwahl.
+  ///
+  /// Visible radio options for a single selection.
   const TxRadioGroup({
     super.key,
     this.items = const [],
@@ -17,12 +43,33 @@ class TxRadioGroup<T> extends StatelessWidget {
     this.disabled = false,
     this.label = 'Auswahl',
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final T? value;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T>? onChanged;
+  /// Anordnung der Einträge.
+  ///
+  /// Entry layout direction.
   final Axis direction;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) => TxDataSourceBuilder<TxItem<T>>(
@@ -57,7 +104,33 @@ class TxRadioGroup<T> extends StatelessWidget {
   );
 }
 
+/// Gruppe von Aktionen mit keiner, einfacher oder mehrfacher Auswahl.
+///
+/// Group of actions with no, single or multiple selection.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   const options = [
+///     TxItem(value: 1, text: 'One'),
+///     TxItem(value: 2, text: 'Two'),
+///   ];
+///   var keys = <int>{};
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxButtonGroup<int>(
+///       items: options,
+///       values: keys,
+///       onChanged: (v) => setState(() => keys = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxButtonGroup<T> extends StatelessWidget {
+  /// Gruppe von Aktionen mit keiner, einfacher oder mehrfacher Auswahl.
+  ///
+  /// Group of actions with no, single or multiple selection.
   const TxButtonGroup({
     super.key,
     this.items = const [],
@@ -69,13 +142,37 @@ class TxButtonGroup<T> extends StatelessWidget {
     this.disabled = false,
     this.direction = Axis.horizontal,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Aktuell ausgewählte Werte.
+  ///
+  /// Currently selected values.
   final Set<T> values;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<Set<T>>? onChanged;
+  /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  ///
+  /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxItem<T>>? onItemClick;
+  /// Auswahlmodus.
+  ///
+  /// Selection mode.
   final TxSelectionMode selection;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Anordnung der Einträge.
+  ///
+  /// Entry layout direction.
   final Axis direction;
   @override
   Widget build(BuildContext context) => TxDataSourceBuilder<TxItem<T>>(
@@ -110,7 +207,33 @@ class TxButtonGroup<T> extends StatelessWidget {
   );
 }
 
+/// Suchbare Einzelwahl mit nachladbarer Datenquelle.
+///
+/// Searchable single selection backed by a loadable data source.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   const options = [
+///     TxItem(value: 1, text: 'One'),
+///     TxItem(value: 2, text: 'Two'),
+///   ];
+///   int? choice = 1;
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxLookup<int>(
+///       items: options,
+///       value: choice,
+///       onChanged: (v) => setState(() => choice = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxLookup<T> extends StatelessWidget {
+  /// Suchbare Einzelwahl mit nachladbarer Datenquelle.
+  ///
+  /// Searchable single selection backed by a loadable data source.
   const TxLookup({
     super.key,
     this.items = const [],
@@ -121,11 +244,31 @@ class TxLookup<T> extends StatelessWidget {
     this.label = 'Auswählen',
     this.searchEnabled = true,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final T? value;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<T?>? onChanged;
+  /// disabled: Sperrt die Interaktion.
+  /// searchEnabled: Aktiviert die Suche.
+  ///
+  /// disabled: Disables interaction.
+  /// searchEnabled: Enables searching.
   final bool disabled, searchEnabled;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) => _TxLookup<T>(
@@ -139,7 +282,33 @@ class TxLookup<T> extends StatelessWidget {
   );
 }
 
+/// Suchbare Mehrfachauswahl mit Tags. Alle auswählen betrifft die geladenen Ergebnisse.
+///
+/// Searchable multiple selection with tags. Select all applies to loaded results.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   const options = [
+///     TxItem(value: 1, text: 'One'),
+///     TxItem(value: 2, text: 'Two'),
+///   ];
+///   var keys = <int>{};
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxTagBox<int>(
+///       items: options,
+///       values: keys,
+///       onChanged: (v) => setState(() => keys = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxTagBox<T> extends StatelessWidget {
+  /// Suchbare Mehrfachauswahl mit Tags. Alle auswählen betrifft die geladenen Ergebnisse.
+  ///
+  /// Searchable multiple selection with tags. Select all applies to loaded results.
   const TxTagBox({
     super.key,
     this.items = const [],
@@ -153,13 +322,41 @@ class TxTagBox<T> extends StatelessWidget {
     this.onCustomItemCreating,
     this.showSelectionControls = true,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxItem<T>> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Aktuell ausgewählte Werte.
+  ///
+  /// Currently selected values.
   final Set<T> values;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<Set<T>>? onChanged;
+  /// disabled: Sperrt die Interaktion.
+  /// applyOnConfirm: Übernimmt die Auswahl erst bei Bestätigung.
+  /// showSelectionControls: Zeigt Mehrfachauswahl-/Alle-Steuerelemente.
+  ///
+  /// disabled: Disables interaction.
+  /// applyOnConfirm: Applies selection only on confirmation.
+  /// showSelectionControls: Shows multiple/select-all controls.
   final bool disabled, applyOnConfirm, showSelectionControls;
+  /// Maximal sichtbare Tags vor der Zusammenfassung.
+  ///
+  /// Maximum visible tags before summarizing.
   final int maxDisplayedTags;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
+  /// Erzeugt synchron oder asynchron einen TxItem aus dem eingegebenen Text.
+  ///
+  /// Creates a TxItem synchronously or asynchronously from entered text.
   final FutureOr<TxItem<T>> Function(String)? onCustomItemCreating;
   @override
   Widget build(BuildContext context) => _TxLookup<T>(
@@ -476,7 +673,27 @@ class _TxLookupState<T> extends State<_TxLookup<T>>
   );
 }
 
+/// Liste mit Suche, Auswahl und optionalem Löschen oder Umordnen über Ereignisse.
+///
+/// List with search, selection and optional deletion or reordering through events.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxList<String>(
+///     items: const ['One', 'Two'],
+///     keyOf: (v) => v,
+///     textOf: (v) => v,
+///     searchEnabled: true,
+///   );
+/// }
+/// ```
 class TxList<T> extends StatefulWidget {
+  /// Liste mit Suche, Auswahl und optionalem Löschen oder Umordnen über Ereignisse.
+  ///
+  /// List with search, selection and optional deletion or reordering through events.
   const TxList({
     super.key,
     this.items = const [],
@@ -496,19 +713,65 @@ class TxList<T> extends StatefulWidget {
     this.itemExtent,
     this.disabled = false,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<T> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Getter des sichtbaren Listentexts.
+  ///
+  /// Visible list text getter.
   final String Function(T) textOf;
+  /// Liest den stabilen Datensatzschlüssel.
+  ///
+  /// Reads the stable record key.
   final Object Function(T) keyOf;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, T)? itemBuilder;
+  /// Getter für die Gruppierung der Liste.
+  ///
+  /// List grouping getter.
   final String? Function(T)? groupOf;
+  /// Ausgewählte Eintragsschlüssel.
+  ///
+  /// Selected entry keys.
   final Set<Object> selectedKeys;
+  /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports selection; update controlled state in the callback.
   final ValueChanged<Set<Object>>? onSelectionChanged;
+  /// onItemClick: Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  /// onDelete: Meldet den zu löschenden Listeneintrag; die Anwendung aktualisiert ihre Liste.
+  ///
+  /// onItemClick: Reports the activated entry; arguments follow the callback signature.
+  /// onDelete: Reports the list entry to delete; the application updates its list.
   final ValueChanged<T>? onItemClick, onDelete;
+  /// Meldet Quell- und Zielindex; die Anwendung aktualisiert ihre Liste.
+  ///
+  /// Reports source and target indices; the application updates its list.
   final void Function(int, int)? onReorder;
+  /// Auswahlmodus.
+  ///
+  /// Selection mode.
   final TxSelectionMode selection;
+  /// searchEnabled: Aktiviert die Suche.
+  /// disabled: Sperrt die Interaktion.
+  ///
+  /// searchEnabled: Enables searching.
+  /// disabled: Disables interaction.
   final bool searchEnabled, disabled;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+  /// Feste Flutter-Listenzeilenhöhe, wenn angegeben.
+  ///
+  /// Fixed Flutter list row height when specified.
   final double? itemExtent;
   @override
   State<TxList<T>> createState() => _TxListState<T>();
@@ -655,7 +918,25 @@ class _TxListState<T> extends State<TxList<T>>
   }
 }
 
+/// Durchblätterbare Galerie mit optionaler automatischer Wiedergabe; kein Medienplayer.
+///
+/// Browsable gallery with optional autoplay; it is not a media player.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxGallery<String>(
+///     items: const ['One', 'Two'],
+///     itemBuilder: (context, item) => Center(child: Text(item)),
+///   );
+/// }
+/// ```
 class TxGallery<T> extends StatefulWidget {
+  /// Durchblätterbare Galerie mit optionaler automatischer Wiedergabe; kein Medienplayer.
+  ///
+  /// Browsable gallery with optional autoplay; it is not a media player.
   const TxGallery({
     super.key,
     this.items = const [],
@@ -667,13 +948,37 @@ class TxGallery<T> extends StatefulWidget {
     this.slideshowDelay = Duration.zero,
     this.height = 240,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<T> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, T) itemBuilder;
+  /// Nullbasierter aktiver Eintrag.
+  ///
+  /// Zero-based active entry.
   final int selectedIndex;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<int>? onChanged;
+  /// Erlaubt Umlauf vom letzten zum ersten Galerieeintrag.
+  ///
+  /// Allows wrapping from the last gallery entry to the first.
   final bool loop;
+  /// Intervall der automatischen Navigation; 0 schaltet sie aus.
+  ///
+  /// Automatic navigation interval; 0 disables it.
   final Duration slideshowDelay;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
   @override
   State<TxGallery<T>> createState() => _TxGalleryState<T>();
@@ -778,7 +1083,18 @@ class _TxGalleryState<T> extends State<TxGallery<T>>
   );
 }
 
+/// Kontext-/Sheet-/FAB-Aktion mit ID, Text und optionalen Unteraktionen.
+///
+/// Context/sheet/FAB action with an ID, text and optional nested actions.
+///
+/// ```dart
+/// const action = TxAction(id: 'copy', text: 'Copy');
+/// print(action.id);
+/// ```
 class TxAction {
+  /// Kontext-/Sheet-/FAB-Aktion mit ID, Text und optionalen Unteraktionen.
+  ///
+  /// Context/sheet/FAB action with an ID, text and optional nested actions.
   const TxAction({
     required this.id,
     required this.text,
@@ -788,14 +1104,51 @@ class TxAction {
     this.items = const [],
     this.separator = false,
   });
+  /// Eindeutige stabile ID.
+  ///
+  /// Unique stable ID.
   final Object id;
+  /// Anzuzeigender Text.
+  ///
+  /// Text to display.
   final String text;
+  /// Symbol der Aktion.
+  ///
+  /// Action icon.
   final IconData? icon;
+  /// disabled: Sperrt die Interaktion.
+  /// destructive: Kennzeichnet eine destruktive Aktion.
+  /// separator: Kennzeichnet einen Menütrenner.
+  ///
+  /// disabled: Disables interaction.
+  /// destructive: Marks a destructive action.
+  /// separator: Marks a menu separator.
   final bool disabled, destructive, separator;
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
 }
 
+/// Schwebende Hauptaktion oder aufklappbare Aktionsgruppe.
+///
+/// Floating primary action or expandable action group.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxFloatingActionButton(
+///     items: const [TxAction(id: 'add', text: 'Add')],
+///     onItemClick: (action) {},
+///   );
+/// }
+/// ```
 class TxFloatingActionButton extends StatefulWidget {
+  /// Schwebende Hauptaktion oder aufklappbare Aktionsgruppe.
+  ///
+  /// Floating primary action or expandable action group.
   const TxFloatingActionButton({
     super.key,
     this.items = const [],
@@ -804,10 +1157,25 @@ class TxFloatingActionButton extends StatefulWidget {
     this.disabled = false,
     this.icon = Icons.add,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  ///
+  /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Symbol der Aktion.
+  ///
+  /// Action icon.
   final IconData icon;
   @override
   State<TxFloatingActionButton> createState() => _TxFloatingActionButtonState();
@@ -860,7 +1228,26 @@ class _TxFloatingActionButtonState extends State<TxFloatingActionButton>
   );
 }
 
+/// Aktionsauswahl am unteren Bildschirmrand mit Abbrechen-Aktion.
+///
+/// Bottom action sheet with a cancel action.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxActionSheet(
+///     title: 'Actions',
+///     items: const [TxAction(id: 'copy', text: 'Copy')],
+///     onItemClick: (action) {},
+///   );
+/// }
+/// ```
 class TxActionSheet extends StatelessWidget {
+  /// Aktionsauswahl am unteren Bildschirmrand mit Abbrechen-Aktion.
+  ///
+  /// Bottom action sheet with a cancel action.
   const TxActionSheet({
     super.key,
     this.items = const [],
@@ -869,11 +1256,29 @@ class TxActionSheet extends StatelessWidget {
     this.onItemClick,
     this.cancelText = 'Abbrechen',
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Titel der Ansicht.
+  ///
+  /// View title.
   final String? title;
+  /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  ///
+  /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+  /// Beschriftung der Abbrechen-Aktion.
+  ///
+  /// Cancel action label.
   final String cancelText;
+  /// Öffnet die native Overlay-Alternative; den Rückgabevertrag der jeweiligen Signatur beachten.
+  ///
+  /// Opens the native overlay alternative; follow the return contract in the signature.
   static Future<TxAction?> show(
     BuildContext context, {
     List<TxAction> items = const [],
@@ -926,7 +1331,26 @@ class TxActionSheet extends StatelessWidget {
   );
 }
 
+/// Kontextaktionen über Rechtsklick oder langes Drücken auf den Zielinhalt.
+///
+/// Context actions opened by right-clicking or long-pressing the target.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxContextMenu(
+///     items: const [TxAction(id: 'copy', text: 'Copy')],
+///     onItemClick: (action) {},
+///     child: const Text('Right click here'),
+///   );
+/// }
+/// ```
 class TxContextMenu extends StatelessWidget {
+  /// Kontextaktionen über Rechtsklick oder langes Drücken auf den Zielinhalt.
+  ///
+  /// Context actions opened by right-clicking or long-pressing the target.
   const TxContextMenu({
     super.key,
     required this.child,
@@ -935,10 +1359,25 @@ class TxContextMenu extends StatelessWidget {
     this.onItemClick,
     this.disabled = false,
   });
+  /// Inhalt beziehungsweise Zielwidget.
+  ///
+  /// Content or target widget.
   final Widget child;
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxAction> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Meldet den aktivierten Eintrag; Parameter gemäß der Callbacksignatur.
+  ///
+  /// Reports the activated entry; arguments follow the callback signature.
   final ValueChanged<TxAction>? onItemClick;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
   @override
   Widget build(BuildContext context) => TxDataSourceBuilder<TxAction>(

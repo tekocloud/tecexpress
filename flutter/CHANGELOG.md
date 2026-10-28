@@ -1,5 +1,12 @@
 # Änderungen
 
+## 0.6.0 · 2026-10-28
+
+- Vollständige deutsche und englische Paketdokumentation aller öffentlichen APIs mit einfachen Beispielen direkt in der README.
+- Ergänzte Dart-API-Kommentare für die generierte Referenz auf pub.dev.
+- README unterhalb der pub.dev-Grenze von 262144 Bytes; automatisierte Größen-, Abdeckungs- und Beispielprüfungen.
+- Complete German and English API documentation, examples and Dart API comments; compact README with automatic pub.dev size checks.
+
 ## 0.5.0 · 2026-10-27
 
 - TxDataSource mit konfigurierbaren Array-/Custom-Stores, Filtern, Suche, Sortierung, Gruppen, Paging, CRUD, Abbruch und Änderungsbenachrichtigungen.

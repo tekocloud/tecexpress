@@ -12,7 +12,35 @@ import 'models.dart';
 import 'overlays.dart';
 import 'theme.dart';
 
+/// Tag-, Wochen- und Monatskalender mit Terminbearbeitung. Ganztagsenden sind exklusiv; keine Serien, Ressourcen oder Drag-and-drop.
+///
+/// Day, week and month calendar with appointment editing. All-day end dates are exclusive; recurrence, resources and drag-and-drop are unavailable.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var appointments = [
+///     TxAppointment(
+///       id: 1,
+///       text: 'Meeting',
+///       startDate: DateTime(2026, 10, 28, 9),
+///       endDate: DateTime(2026, 10, 28, 10),
+///     ),
+///   ];
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxScheduler(
+///       dataSource: appointments,
+///       onDataSourceChanged: (v) => setState(() => appointments = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxScheduler extends StatefulWidget {
+  /// Tag-, Wochen- und Monatskalender mit Terminbearbeitung. Ganztagsenden sind exklusiv; keine Serien, Ressourcen oder Drag-and-drop.
+  ///
+  /// Day, week and month calendar with appointment editing. All-day end dates are exclusive; recurrence, resources and drag-and-drop are unavailable.
   const TxScheduler({
     super.key,
     this.dataSource,
@@ -46,30 +74,99 @@ class TxScheduler extends StatefulWidget {
     this.onAppointmentUpdated,
     this.onAppointmentDeleted,
   });
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Meldet dataSource; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports dataSource; update controlled state in the callback.
   final ValueChanged<List<TxAppointment>>? onDataSourceChanged;
+  /// Aktueller Kalendertag; für Navigation kontrollierten Wert aktualisieren.
+  ///
+  /// Current calendar date; update a controlled value for navigation.
   final DateTime? currentDate;
+  /// Meldet currentDate; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports currentDate; update controlled state in the callback.
   final ValueChanged<DateTime>? onCurrentDateChanged;
+  /// Aktuelle Kalenderansicht.
+  ///
+  /// Current calendar view.
   final TxSchedulerView? currentView;
+  /// Meldet currentView; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports currentView; update controlled state in the callback.
   final ValueChanged<TxSchedulerView>? onCurrentViewChanged;
+  /// Angebotene Kalenderansichten.
+  ///
+  /// Available calendar views.
   final List<TxSchedulerView> views;
+  /// firstDayOfWeek: Erster Wochentag; 1 = Montag.
+  /// startDayHour: Erste sichtbare Tagesstunde.
+  /// endDayHour: Letzte sichtbare Tagesstunde.
+  /// cellDuration: Länge einer Kalenderzelle in Minuten.
+  ///
+  /// firstDayOfWeek: First weekday; 1 = Monday.
+  /// startDayHour: First visible hour of the day.
+  /// endDayHour: Last visible hour of the day.
+  /// cellDuration: Calendar cell duration in minutes.
   final int firstDayOfWeek, startDayHour, endDayHour, cellDuration;
+  /// Berechtigungen zum Anlegen, Ändern und Löschen.
+  ///
+  /// Permissions to create, update and delete.
   final TxSchedulerEditing editing;
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// disabled: Sperrt die Interaktion.
+  /// loading: Zeigt den Ladezustand.
+  ///
+  /// readOnly: Prevents value changes.
+  /// disabled: Disables interaction.
+  /// loading: Shows the loading state.
   final bool readOnly, disabled, loading;
+  /// locale: Locale für Datums-/Zeitformatierung.
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// locale: Locale for date/time formatting.
+  /// label: Label or accessible name.
   final String locale, label;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(
     BuildContext context,
     TxAppointment item,
     TxSchedulerView view,
   )?
   appointmentBuilder;
+  /// onAppointmentClick: Meldet den aktivierten TxAppointment.
+  /// onAppointmentAdded: Meldet den lokal angelegten TxAppointment.
+  /// onAppointmentDeleted: Meldet den lokal gelöschten TxAppointment.
+  ///
+  /// onAppointmentClick: Reports the activated TxAppointment.
+  /// onAppointmentAdded: Reports the locally inserted TxAppointment.
+  /// onAppointmentDeleted: Reports the locally deleted TxAppointment.
   final ValueChanged<TxAppointment>? onAppointmentClick,
       onAppointmentAdded,
       onAppointmentDeleted;
+  /// Meldet TxAppointmentUpdate mit altem und neuem Termin.
+  ///
+  /// Reports TxAppointmentUpdate containing old and new appointments.
   final ValueChanged<TxAppointmentUpdate>? onAppointmentUpdated;
+  /// Meldet Zellenbeginn, Zellenende und Ganztagskennzeichen als drei Argumente.
+  ///
+  /// Reports cell start, cell end and the all-day flag as three arguments.
   final void Function(DateTime start, DateTime end, bool allDay)? onCellClick;
+  /// onAppointmentAdding: Vor Anlegen: TxChange&lt;TxAppointment&gt;; cancel synchron setzen, um abzubrechen.
+  /// onAppointmentDeleting: Vor Löschen: TxChange&lt;TxAppointment&gt;; cancel synchron setzen, um abzubrechen.
+  ///
+  /// onAppointmentAdding: Before insertion: TxChange&lt;TxAppointment&gt;; set cancel synchronously to abort.
+  /// onAppointmentDeleting: Before deletion: TxChange&lt;TxAppointment&gt;; set cancel synchronously to abort.
   final ValueChanged<TxChange<TxAppointment>>? onAppointmentAdding,
       onAppointmentDeleting;
+  /// Vor Ändern: TxChange&lt;TxAppointmentUpdate&gt; mit altem und neuem Termin; synchron abbrechbar.
+  ///
+  /// Before updating: TxChange&lt;TxAppointmentUpdate&gt; with old and new appointments; synchronously cancellable.
   final ValueChanged<TxChange<TxAppointmentUpdate>>? onAppointmentUpdating;
   @override
   State<TxScheduler> createState() => _TxSchedulerState();

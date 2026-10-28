@@ -1,5 +1,10 @@
 # Erweiterungen und Funktionsmatrix · 0.5.0
 
+Die [Paket-README](https://github.com/tekocloud/tecexpress/blob/main/flutter/README.md#de-api)
+enthält die vollständige öffentliche API mit deutschen und englischen Erklärungen
+und einfachen Beispielen. Die folgende Matrix beschreibt ergänzend die Unterschiede
+zwischen Vue und Flutter.
+
 Die Bibliotheken bieten 37 Komponenten beziehungsweise Konfigurationen und zusätzlich DataSource-/Store-/Provider-APIs. Die Zuordnung beschreibt die tatsächlich implementierten Fähigkeiten; eine vollständige DevExtreme-Options- oder API-Kompatibilität wird nicht behauptet.
 
 ## Gemeinsame DataSource

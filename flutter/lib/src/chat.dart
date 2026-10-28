@@ -12,7 +12,29 @@ import 'models.dart';
 import 'overlays.dart';
 import 'theme.dart';
 
+/// Lokaler Nachrichtenverlauf mit Autoren, Schreibanzeige und Sendeereignissen. sent bestätigt die lokale Aufnahme, keine Serverzustellung.
+///
+/// Local message history with authors, typing indicators and send events. sent confirms local acceptance, not server delivery.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var messages = <TxChatMessage>[];
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxChat(
+///       user: TxChatUser(id: 'me', name: 'Alex'),
+///       items: messages,
+///       onItemsChanged: (v) => setState(() => messages = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxChat extends StatefulWidget {
+  /// Lokaler Nachrichtenverlauf mit Autoren, Schreibanzeige und Sendeereignissen. sent bestätigt die lokale Aufnahme, keine Serverzustellung.
+  ///
+  /// Local message history with authors, typing indicators and send events. sent confirms local acceptance, not server delivery.
   const TxChat({
     super.key,
     required this.user,
@@ -47,17 +69,79 @@ class TxChat extends StatefulWidget {
     this.empty,
     this.messageBuilder,
   }) : assert(maxLength > 0);
+  /// Aktueller Chatautor.
+  ///
+  /// Current chat author.
   final TxChatUser user;
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxChatMessage>? items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Meldet items; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports items; update controlled state in the callback.
   final ValueChanged<List<TxChatMessage>>? onItemsChanged;
+  /// Externer Textcontroller; Entsorgung bleibt Aufgabe der Anwendung.
+  ///
+  /// External text controller; the application disposes it.
   final TextEditingController? controller;
+  /// Anfänglicher Entwurf ohne externen Controller.
+  ///
+  /// Initial draft without an external controller.
   final String initialText;
+  /// Meldet inputFieldText; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports inputFieldText; update controlled state in the callback.
   final ValueChanged<String>? onInputFieldTextChanged;
+  /// Vor lokaler Aufnahme: TxChange&lt;TxChatMessage&gt;; cancel synchron setzen, um eigene Verarbeitung zu übernehmen.
+  ///
+  /// Before local acceptance: TxChange&lt;TxChatMessage&gt;; set cancel synchronously to take over processing.
   final ValueChanged<TxChange<TxChatMessage>>? onMessageEntered;
+  /// Liefert die lokal aufgenommene TxChatMessage; keine Serverzustellbestätigung.
+  ///
+  /// Provides the locally accepted TxChatMessage; not a server delivery receipt.
   final ValueChanged<TxChatMessage>? onMessageSent;
+  /// onTypingStart: Meldet den Beginn des Schreibens mit dem betroffenen TxChatUser.
+  /// onTypingEnd: Meldet das Ende des Schreibens mit dem betroffenen TxChatUser.
+  ///
+  /// onTypingStart: Reports the start of typing with the affected TxChatUser.
+  /// onTypingEnd: Reports the end of typing with the affected TxChatUser.
   final ValueChanged<TxChatUser>? onTypingStart, onTypingEnd;
+  /// title: Titel der Ansicht.
+  /// subtitle: Zusätzlicher Untertitel.
+  /// label: Beschriftung beziehungsweise zugänglicher Name.
+  /// placeholder: Hinweis bei leerer Eingabe.
+  /// emptyText: Text des Leerzustands.
+  /// locale: Locale für Datums-/Zeitformatierung.
+  ///
+  /// title: View title.
+  /// subtitle: Additional subtitle.
+  /// label: Label or accessible name.
+  /// placeholder: Hint for an empty input.
+  /// emptyText: Empty state text.
+  /// locale: Locale for date/time formatting.
   final String title, subtitle, label, placeholder, emptyText, locale;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  /// loading: Zeigt den Ladezustand.
+  /// sending: Sperrt Senden während einer eigenen laufenden Anfrage.
+  /// showAvatar: Zeigt Autorenbilder.
+  /// showUserName: Zeigt Autorennamen.
+  /// showDayHeaders: Gruppiert Nachrichten mit Tagesüberschriften.
+  /// showMessageTimestamp: Zeigt Nachrichtenzeiten.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
+  /// loading: Shows the loading state.
+  /// sending: Disables sending during an application request.
+  /// showAvatar: Shows author avatars.
+  /// showUserName: Shows author names.
+  /// showDayHeaders: Groups messages using day headers.
+  /// showMessageTimestamp: Shows message timestamps.
   final bool disabled,
       readOnly,
       loading,
@@ -66,10 +150,27 @@ class TxChat extends StatefulWidget {
       showUserName,
       showDayHeaders,
       showMessageTimestamp;
+  /// Maximale Textlänge.
+  ///
+  /// Maximum text length.
   final int maxLength;
+  /// Aktuell schreibende Autoren.
+  ///
+  /// Authors currently typing.
   final List<TxChatUser> typingUsers;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+  /// header: Eigener Kopfbereich.
+  /// empty: Eigener Leerzustand.
+  ///
+  /// header: Custom header.
+  /// empty: Custom empty state.
   final Widget? header, empty;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(
     BuildContext context,
     TxChatMessage message,

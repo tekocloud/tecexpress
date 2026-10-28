@@ -9,5 +9,6 @@ build/
 .flutter-plugins-dependencies
 flutter/pubspec.lock
 coverage/
+flutter/doc/api/
 *.iml
 .idea/

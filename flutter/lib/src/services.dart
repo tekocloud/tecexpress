@@ -7,7 +7,25 @@ import 'navigation.dart';
 import 'models.dart';
 import 'overlays.dart';
 
+/// Reiter und zugehöriger aktiver Inhalt in einer gemeinsamen Ansicht.
+///
+/// Tabs and their active content in one view.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return TxTabPanel(
+///     items: const [TxMenuItem('Home')],
+///     builder: (context, index) => Text('Page $index'),
+///   );
+/// }
+/// ```
 class TxTabPanel extends StatelessWidget {
+  /// Reiter und zugehöriger aktiver Inhalt in einer gemeinsamen Ansicht.
+  ///
+  /// Tabs and their active content in one view.
   const TxTabPanel({
     super.key,
     this.items = const [],
@@ -20,13 +38,39 @@ class TxTabPanel extends StatelessWidget {
     this.swipeEnabled = false,
     this.animationEnabled = true,
   });
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<TxMenuItem> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Nullbasierter aktiver Eintrag.
+  ///
+  /// Zero-based active entry.
   final int? selectedIndex;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<int>? onChanged;
+  /// Erzeugt eigenen Inhalt; Callbackparameter und Rückgabetyp stehen in der Signatur.
+  ///
+  /// Builds custom content; callback arguments and return type are given in the signature.
   final Widget Function(BuildContext, int) builder;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Ausrichtung der Reiter.
+  ///
+  /// Tab orientation.
   final Axis orientation;
+  /// swipeEnabled: Erlaubt Reiterwechsel durch Wischen.
+  /// animationEnabled: Aktiviert Inhaltsübergänge.
+  ///
+  /// swipeEnabled: Allows switching tabs by swiping.
+  /// animationEnabled: Enables content transitions.
   final bool swipeEnabled, animationEnabled;
   @override
   Widget build(BuildContext context) => TxTabs(
@@ -42,7 +86,25 @@ class TxTabPanel extends StatelessWidget {
   );
 }
 
+/// Ladeoverlay, gesteuert durch Sichtbarkeit oder den Ladezustand einer DataSource.
+///
+/// Loading overlay controlled by visibility or a DataSource loading state.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   return const SizedBox(
+///     height: 160,
+///     child: TxLoadPanel(visible: true, child: Center(child: Text('Content'))),
+///   );
+/// }
+/// ```
 class TxLoadPanel extends StatefulWidget {
+  /// Ladeoverlay, gesteuert durch Sichtbarkeit oder den Ladezustand einer DataSource.
+  ///
+  /// Loading overlay controlled by visibility or a DataSource loading state.
   const TxLoadPanel({
     super.key,
     this.visible,
@@ -52,11 +114,29 @@ class TxLoadPanel extends StatefulWidget {
     this.shading = true,
     this.child,
   });
+  /// Steuert die Sichtbarkeit.
+  ///
+  /// Controls visibility.
   final bool? visible;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final TxDataSource<dynamic>? dataSource;
+  /// Meldungstext.
+  ///
+  /// Notification text.
   final String message;
+  /// Wartezeit vor Anzeige des Ladeoverlays.
+  ///
+  /// Delay before showing the loading overlay.
   final Duration delay;
+  /// Zeigt eine abgedunkelte Hintergrundfläche.
+  ///
+  /// Shows a shaded background.
   final bool shading;
+  /// Inhalt beziehungsweise Zielwidget.
+  ///
+  /// Content or target widget.
   final Widget? child;
   @override
   State<TxLoadPanel> createState() => _TxLoadPanelState();
@@ -151,9 +231,31 @@ class _TxLoadPanelState extends State<TxLoadPanel> {
   }
 }
 
+/// Handle zum Schließen oder Aktualisieren einer bestehenden Benachrichtigung.
+///
+/// Handle for closing or updating an existing notification.
+///
+/// ```dart
+/// // Obtain the handle inside a widget callback, below MaterialApp.
+/// void showMessage(BuildContext context) {
+///   final handle = txNotify(context, message: 'Working', displayTime: Duration.zero);
+///   handle.update(message: 'Done', type: TxToastType.success);
+///   handle.close();
+/// }
+/// print(showMessage);
+/// ```
 class TxNotifyHandle {
+  /// Handle zum Schließen oder Aktualisieren einer bestehenden Benachrichtigung.
+  ///
+  /// Handle for closing or updating an existing notification.
   TxNotifyHandle(this.close, this.update);
+  /// Schließt die zugehörige Benachrichtigung.
+  ///
+  /// Closes the associated notification.
   final VoidCallback close;
+  /// Aktualisiert eine Meldung beziehungsweise einen Datensatz.
+  ///
+  /// Updates a notification or record.
   final void Function({
     String? message,
     TxToastType? type,
@@ -251,6 +353,22 @@ class _NotifyStack {
   );
 }
 
+/// Zeigt eine gestapelte Meldung im Overlay des Kontexts. Standard: info, 3500 ms, unten rechts; Duration.zero bleibt offen.
+///
+/// Parameter context muss unter einem Overlay liegen, üblicherweise innerhalb einer MaterialApp-Route. message ist erforderlich. Rückgabe synchron TxNotifyHandle; close() liefert void, update({message, type, displayTime}) ändert die Meldung und setzt deren Timer neu. Eigene actionText/onAction sind optional. Das Handle vor Entsorgen des besitzenden Overlays schließen.
+///
+/// Shows a stacked notification in the context overlay. Defaults: info, 3500 ms, bottom right; Duration.zero stays open.
+///
+/// Parameter context must be below an Overlay, usually within a MaterialApp route. message is required. Synchronously returns TxNotifyHandle; close() returns void, update({message, type, displayTime}) changes the message and resets its timer. Custom actionText/onAction are optional. Close the handle before disposing its owning overlay.
+///
+/// ```dart
+/// void showMessage(BuildContext context) {
+///   final handle = txNotify(context, message: 'Saved');
+///   handle.update(message: 'Updated');
+///   handle.close();
+/// }
+/// print(showMessage);
+/// ```
 TxNotifyHandle txNotify(
   BuildContext context, {
   required String message,

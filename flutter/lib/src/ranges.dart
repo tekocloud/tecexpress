@@ -2,7 +2,28 @@ import 'package:flutter/material.dart';
 
 import 'source.dart';
 
+/// Auswahl eines Intervalls mit zwei Grenzen, Schritten und Mindest-/Höchstabstand.
+///
+/// Select an interval using two bounds, steps and minimum/maximum distances.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var range = const RangeValues(20, 80);
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxRangeSlider(
+///       value: range,
+///       onChanged: (v) => setState(() => range = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxRangeSlider extends StatelessWidget {
+  /// Auswahl eines Intervalls mit zwei Grenzen, Schritten und Mindest-/Höchstabstand.
+  ///
+  /// Select an interval using two bounds, steps and minimum/maximum distances.
   const TxRangeSlider({
     super.key,
     required this.value,
@@ -17,12 +38,41 @@ class TxRangeSlider extends StatelessWidget {
     this.format,
     this.label = 'Bereich',
   });
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final RangeValues value;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<RangeValues>? onChanged;
+  /// min: Untere zulässige Grenze.
+  /// max: Obere zulässige Grenze.
+  /// step: Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
+  /// minRange: Mindestabstand zwischen den Bereichsgrenzen.
+  ///
+  /// min: Lower allowed bound.
+  /// max: Upper allowed bound.
+  /// step: Step size; milliseconds for Vue date ranges.
+  /// minRange: Minimum distance between range bounds.
   final double min, max, step, minRange;
+  /// Höchstabstand zwischen den Bereichsgrenzen.
+  ///
+  /// Maximum distance between range bounds.
   final double? maxRange;
+  /// disabled: Sperrt die Interaktion.
+  /// readOnly: Verhindert Änderungen des Werts.
+  ///
+  /// disabled: Disables interaction.
+  /// readOnly: Prevents value changes.
   final bool disabled, readOnly;
+  /// Formatiert Bereichswerte für die Anzeige.
+  ///
+  /// Formats range values for display.
   final String Function(double)? format;
+  /// Beschriftung beziehungsweise zugänglicher Name.
+  ///
+  /// Label or accessible name.
   final String label;
   @override
   Widget build(BuildContext context) {
@@ -164,7 +214,33 @@ class _RangeDragState extends State<_RangeDrag> {
   );
 }
 
+/// Intervallauswahl über einer einfachen Flächen-, Linien- oder Balkenserie.
+///
+/// Interval selection over a simple area, line or bar series.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   var range = const RangeValues(20, 80);
+///   return StatefulBuilder(
+///     builder: (context, setState) => TxRangeSelector<double>(
+///       value: range,
+///       min: 0,
+///       max: 100,
+///       items: const [20, 80],
+///       argumentOf: (v) => v,
+///       valueOf: (v) => v / 2,
+///       onChanged: (v) => setState(() => range = v),
+///     ),
+///   );
+/// }
+/// ```
 class TxRangeSelector<T> extends StatelessWidget {
+  /// Intervallauswahl über einer einfachen Flächen-, Linien- oder Balkenserie.
+  ///
+  /// Interval selection over a simple area, line or bar series.
   factory TxRangeSelector.date({
     Key? key,
     required DateTimeRange value,
@@ -207,6 +283,9 @@ class TxRangeSelector<T> extends StatelessWidget {
     seriesType: seriesType,
     disabled: disabled,
   );
+  /// Intervallauswahl über einer einfachen Flächen-, Linien- oder Balkenserie.
+  ///
+  /// Interval selection over a simple area, line or bar series.
   const TxRangeSelector({
     super.key,
     required this.value,
@@ -222,14 +301,47 @@ class TxRangeSelector<T> extends StatelessWidget {
     this.seriesType = 'area',
     this.disabled = false,
   });
+  /// Aktueller Eingabe-/Optionswert.
+  ///
+  /// Current input/option value.
   final RangeValues value;
+  /// min: Untere zulässige Grenze.
+  /// max: Obere zulässige Grenze.
+  /// step: Schrittweite; bei zeitlichen Vue-Bereichen in Millisekunden.
+  ///
+  /// min: Lower allowed bound.
+  /// max: Upper allowed bound.
+  /// step: Step size; milliseconds for Vue date ranges.
   final double min, max, step;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<RangeValues>? onChanged;
+  /// Einträge; bei Datenbindung durch dataSource ersetzt.
+  ///
+  /// Entries; replaced by dataSource when bound.
   final List<T> items;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// argumentOf: Getter der numerischen oder zeitlichen X-Achse.
+  /// valueOf: Getter des numerischen Serienwerts.
+  ///
+  /// argumentOf: Getter for the numeric or date X axis.
+  /// valueOf: Getter for the numeric series value.
   final double Function(T) argumentOf, valueOf;
+  /// Formatiert Bereichswerte für die Anzeige.
+  ///
+  /// Formats range values for display.
   final String Function(double)? format;
+  /// Seriendarstellung area/line/bar.
+  ///
+  /// Series appearance: area/line/bar.
   final String seriesType;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
   @override
   Widget build(BuildContext context) => TxDataSourceBuilder<T>(

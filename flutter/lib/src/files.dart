@@ -70,7 +70,22 @@ class _DirectoryTreeState extends State<_DirectoryTree> {
   );
 }
 
+/// Datei-/Ordnermetadaten mit stabiler ID; parentId null bezeichnet das Wurzelverzeichnis.
+///
+/// Dart copyWith behält nicht angegebene Felder bei; root: true setzt parentId ausdrücklich auf null. parentId: null allein behält den bisherigen Elternordner.
+///
+/// File/directory metadata with a stable ID; a null parentId denotes the root directory.
+///
+/// Dart copyWith preserves omitted fields; root: true explicitly sets parentId to null. Passing parentId: null alone preserves the existing parent.
+///
+/// ```dart
+/// const entry = TxFileEntry(id: '1', name: 'hello.txt');
+/// print(entry.copyWith(name: 'renamed.txt').name);
+/// ```
 class TxFileEntry {
+  /// Datei-/Ordnermetadaten mit stabiler ID; parentId null bezeichnet das Wurzelverzeichnis.
+  ///
+  /// File/directory metadata with a stable ID; a null parentId denotes the root directory.
   const TxFileEntry({
     required this.id,
     required this.name,
@@ -80,12 +95,35 @@ class TxFileEntry {
     this.modified,
     this.bytes,
   });
+  /// id: Eindeutige stabile ID.
+  /// name: Name des Eingabefelds beziehungsweise Dateiname.
+  ///
+  /// id: Unique stable ID.
+  /// name: Input field name or file name.
   final String id, name;
+  /// Elternordner-ID; null bezeichnet die Wurzel.
+  ///
+  /// Parent directory ID; null denotes the root.
   final String? parentId;
+  /// Kennzeichnet einen Ordner.
+  ///
+  /// Identifies a directory.
   final bool isDirectory;
+  /// Dateigröße in Bytes.
+  ///
+  /// File size in bytes.
   final int size;
+  /// Letzter Änderungszeitpunkt.
+  ///
+  /// Last modification time.
   final DateTime? modified;
+  /// Dateiinhalt im Speicher.
+  ///
+  /// File contents in memory.
   final Uint8List? bytes;
+  /// Erzeugt eine Kopie mit den angegebenen Änderungen; alle übrigen Werte bleiben erhalten.
+  ///
+  /// Creates a copy with the supplied changes; preserves other values.
   TxFileEntry copyWith({
     String? id,
     String? name,
@@ -102,30 +140,93 @@ class TxFileEntry {
   );
 }
 
+/// Asynchroner Vertrag für Verzeichnislisten und Dateioperationen.
+///
+/// list ist erforderlich. Vue bietet optionale Methoden; Dart-Implementierungen deklarieren Fähigkeiten in capabilities und überschreiben die entsprechenden Methoden. Nicht implementierte Dart-Operationen werfen UnsupportedError. list/upload berücksichtigen kooperativen Abbruch. createDirectory/upload liefern einen Eintrag; rename/copy/move/remove keinen Wert; download liefert Blob (Vue) oder Uint8List (Dart).
+///
+/// Asynchronous contract for directory listings and file operations.
+///
+/// list is required. Vue offers optional methods; Dart implementations declare capabilities and override matching methods. Unimplemented Dart operations throw UnsupportedError. list/upload support cooperative cancellation. createDirectory/upload return an entry; rename/copy/move/remove return no value; download returns Blob (Vue) or Uint8List (Dart).
+///
+/// ```dart
+/// TxFileProvider provider = TxMemoryFileProvider();
+/// print(provider.capabilities);
+/// print(await provider.list(null));
+/// ```
 abstract class TxFileProvider {
+  /// Unterstützte Dateiaufgaben; steuert sichtbare Aktionen.
+  ///
+  /// Supported file operations; controls visible actions.
   Set<String> get capabilities;
+  /// Liefert Einträge des angegebenen Elternordners; null liest die Wurzel.
+  ///
+  /// Returns entries in the parent directory; null reads the root.
   Future<List<TxFileEntry>> list(
     String? parentId, {
     TxCancellation? cancellation,
   });
+  /// Legt einen Ordner mit gültigem, im Elternordner eindeutigem Namen an.
+  ///
+  /// Creates a directory with a valid name unique within its parent.
   Future<TxFileEntry> createDirectory(String? parentId, String name) =>
       throw UnsupportedError('createDirectory');
+  /// Benennt eine Datei oder einen Ordner um; ID und Elternordner bleiben erhalten.
+  ///
+  /// Renames a file or directory; preserves its ID and parent.
   Future<void> rename(String id, String name) =>
       throw UnsupportedError('rename');
+  /// Kopiert einen Eintrag rekursiv in den Zielordner; neue IDs werden vergeben.
+  ///
+  /// Recursively copies an entry to the target directory, assigning new IDs.
   Future<void> copy(String id, String? target) =>
       throw UnsupportedError('copy');
+  /// Verschiebt einen Eintrag in den Zielordner; Zyklen werden abgelehnt.
+  ///
+  /// Moves an entry to the target directory; cycles are rejected.
   Future<void> move(String id, String? target) =>
       throw UnsupportedError('move');
+  /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
+  ///
+  /// Removes the record or recursively removes a file/directory tree.
   Future<void> remove(String id) => throw UnsupportedError('remove');
+  /// Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag.
+  ///
+  /// Uploads a file to the specified directory and returns its new entry.
   Future<TxFileEntry> upload(
     String? parentId,
     XFile file, {
     TxCancellation? cancellation,
   }) => throw UnsupportedError('upload');
+  /// Liefert Dateiinhalt; Ordnerdownloads schlagen fehl.
+  ///
+  /// Returns file contents; downloading a directory fails.
   Future<Uint8List> download(String id) => throw UnsupportedError('download');
 }
 
+/// Flüchtiger Datei-Provider mit rekursivem Kopieren/Löschen, Namensprüfung und Zyklusschutz; Daten überleben keinen Neustart.
+///
+/// Alle Dateioperationen sind asynchron. Ordner-IDs und Datei-IDs sind Strings, null als Eltern-/Ziel-ID bezeichnet die Wurzel. Ungültige Namen, Namenskollisionen, unbekannte IDs, doppelte IDs und Zyklen schlagen fehl. Kopieren erhält Inhalte, vergibt neue IDs und kopiert Unterordner. Entfernen löscht rekursiv. Ohne gespeicherten Inhalt ist der Download leer; Ordnerdownloads sind nicht möglich.
+///
+/// Volatile file provider with recursive copy/delete, name validation and cycle protection; data does not survive a restart.
+///
+/// All file operations are asynchronous. Directory and file IDs are strings; null as parent/target denotes the root. Invalid names, name collisions, unknown IDs, duplicate IDs and cycles fail. Copy preserves contents, assigns new IDs and includes descendants. Remove deletes recursively. Without stored contents, download is empty; directory downloads are unavailable.
+///
+/// ```dart
+/// final provider = TxMemoryFileProvider();
+/// final folder = await provider.createDirectory(null, 'Documents');
+/// final file = await provider.upload(folder.id, XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'));
+/// await provider.rename(file.id, 'renamed.txt');
+/// await provider.copy(file.id, null);
+/// await provider.rename(file.id, 'moved.txt');
+/// await provider.move(file.id, null);
+/// print(await provider.list(null));
+/// print(await provider.download(file.id));
+/// await provider.remove(folder.id);
+/// ```
 class TxMemoryFileProvider extends TxFileProvider {
+  /// Flüchtiger Datei-Provider mit rekursivem Kopieren/Löschen, Namensprüfung und Zyklusschutz; Daten überleben keinen Neustart.
+  ///
+  /// Volatile file provider with recursive copy/delete, name validation and cycle protection; data does not survive a restart.
   TxMemoryFileProvider([List<TxFileEntry> entries = const []])
     : _entries = List.of(entries) {
     if (entries.map((v) => v.id).toSet().length != entries.length) {
@@ -145,6 +246,9 @@ class TxMemoryFileProvider extends TxFileProvider {
   }
   final List<TxFileEntry> _entries;
   var _serial = 0;
+  /// Unterstützte Dateiaufgaben; steuert sichtbare Aktionen.
+  ///
+  /// Supported file operations; controls visible actions.
   @override
   Set<String> get capabilities => {
     'createDirectory',
@@ -198,6 +302,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     }
   }
 
+  /// Liefert Einträge des angegebenen Elternordners; null liest die Wurzel.
+  ///
+  /// Returns entries in the parent directory; null reads the root.
   @override
   Future<List<TxFileEntry>> list(
     String? parentId, {
@@ -207,6 +314,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     return _entries.where((v) => v.parentId == parentId).toList();
   }
 
+  /// Legt einen Ordner mit gültigem, im Elternordner eindeutigem Namen an.
+  ///
+  /// Creates a directory with a valid name unique within its parent.
   @override
   Future<TxFileEntry> createDirectory(String? parentId, String name) async {
     _validate(parentId, name);
@@ -221,6 +331,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     return entry;
   }
 
+  /// Benennt eine Datei oder einen Ordner um; ID und Elternordner bleiben erhalten.
+  ///
+  /// Renames a file or directory; preserves its ID and parent.
   @override
   Future<void> rename(String id, String name) async {
     final item = _get(id);
@@ -228,6 +341,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     _entries[_entries.indexOf(item)] = item.copyWith(name: name);
   }
 
+  /// Verschiebt einen Eintrag in den Zielordner; Zyklen werden abgelehnt.
+  ///
+  /// Moves an entry to the target directory; cycles are rejected.
   @override
   Future<void> move(String id, String? target) async {
     final item = _get(id);
@@ -239,6 +355,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     );
   }
 
+  /// Kopiert einen Eintrag rekursiv in den Zielordner; neue IDs werden vergeben.
+  ///
+  /// Recursively copies an entry to the target directory, assigning new IDs.
   @override
   Future<void> copy(String id, String? target) async {
     final item = _get(id);
@@ -260,6 +379,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     clone(item, target);
   }
 
+  /// Löscht den Datensatz beziehungsweise rekursiv den Datei-/Ordnerbestand.
+  ///
+  /// Removes the record or recursively removes a file/directory tree.
   @override
   Future<void> remove(String id) async {
     _get(id);
@@ -274,6 +396,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     _entries.removeWhere((v) => ids.contains(v.id));
   }
 
+  /// Lädt eine Datei in den angegebenen Ordner; liefert den neuen Dateieintrag.
+  ///
+  /// Uploads a file to the specified directory and returns its new entry.
   @override
   Future<TxFileEntry> upload(
     String? parentId,
@@ -296,6 +421,9 @@ class TxMemoryFileProvider extends TxFileProvider {
     return entry;
   }
 
+  /// Liefert Dateiinhalt; Ordnerdownloads schlagen fehl.
+  ///
+  /// Returns file contents; downloading a directory fails.
   @override
   Future<Uint8List> download(String id) async {
     final item = _get(id);
@@ -304,6 +432,18 @@ class TxMemoryFileProvider extends TxFileProvider {
   }
 }
 
+/// Verbindet einen Provider und einen Getter des aktuellen Ordners mit einem abfragbaren Store.
+///
+/// Parameter: provider und parent als Getter der aktuellen Ordner-ID (null = Wurzel). Rückgabe: TxStore&lt;TxFileEntry&gt;. load liefert Promise/Future&lt;TxLoadResult&lt;TxFileEntry&gt;&gt;. Providerfehler werden weitergegeben. Nach einem Ordnerwechsel erneut laden.
+///
+/// Connects a provider and a current-directory getter to a queryable store.
+///
+/// Parameters: provider and parent, a getter for the current directory ID (null = root). Returns TxStore&lt;TxFileEntry&gt;. load returns Promise/Future&lt;TxLoadResult&lt;TxFileEntry&gt;&gt;. Provider failures propagate. Reload after changing directories.
+///
+/// ```dart
+/// final store = txFileStore(TxMemoryFileProvider(), () => null);
+/// print(await store.load(const TxLoadOptions()));
+/// ```
 TxStore<TxFileEntry> txFileStore(
   TxFileProvider provider,
   String? Function() parent,
@@ -317,18 +457,60 @@ TxStore<TxFileEntry> txFileStore(
       : null,
 );
 
+/// Abbruch und Fortschrittsmeldung einer einzelnen Uploadoperation; Fortschritt wird in Bytes gemeldet.
+///
+/// Cancellation and progress reporting for one upload operation; progress is reported in bytes.
+///
+/// ```dart
+/// final context = TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print(loaded));
+/// context.onProgress(10, 20);
+/// ```
 class TxUploadContext {
+  /// Abbruch und Fortschrittsmeldung einer einzelnen Uploadoperation; Fortschritt wird in Bytes gemeldet.
+  ///
+  /// Cancellation and progress reporting for one upload operation; progress is reported in bytes.
   const TxUploadContext({required this.cancellation, required this.onProgress});
+  /// Token für kooperativen Abbruch.
+  ///
+  /// Cooperative cancellation token.
   final TxCancellation cancellation;
+  /// Meldet abgeschlossene Bytes und Gesamtgröße.
+  ///
+  /// Reports completed bytes and total size.
   final void Function(int loaded, int total) onProgress;
 }
 
+/// Asynchroner Callback für den Upload einer Datei; Ergebnis geht an den Erfolgs-Callback, Fehler an die Fehlerbehandlung.
+///
+/// Asynchronous callback uploading one file; its result reaches the success callback and errors reach error handling.
+///
+/// ```dart
+/// TxUploadAdapter adapter = (file, context) async {
+///   context.cancellation.throwIfCancelled();
+///   final size = await file.length();
+///   context.onProgress(size, size);
+///   return file.name;
+/// };
+/// print(await adapter(XFile.fromData(Uint8List(0), name: 'empty.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) {})));
+/// ```
 typedef TxUploadAdapter = Future<Object?> Function(
   XFile file,
   TxUploadContext context,
 );
 
+/// Multipart-HTTP-Konfiguration mit Zieladresse, Feldern, Headern und optionalen Chunks.
+///
+/// Multipart HTTP configuration with a destination, fields, headers and optional chunks.
+///
+/// ```dart
+/// final config = TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload'), fieldName: 'file', chunkSize: 1024 * 1024);
+/// final adapter = txHttpUpload(config);
+/// print(adapter);
+/// ```
 class TxHttpUploadConfig {
+  /// Multipart-HTTP-Konfiguration mit Zieladresse, Feldern, Headern und optionalen Chunks.
+  ///
+  /// Multipart HTTP configuration with a destination, fields, headers and optional chunks.
   const TxHttpUploadConfig({
     required this.url,
     this.fieldName = 'file',
@@ -337,13 +519,43 @@ class TxHttpUploadConfig {
     this.chunkSize,
     this.chunkFields,
   });
+  /// Zieladresse des Uploadservers.
+  ///
+  /// Upload server destination.
   final Uri url;
+  /// Multipart-Feldname der Datei.
+  ///
+  /// Multipart file field name.
   final String fieldName;
+  /// headers: Zusätzliche HTTP-Header.
+  /// fields: Zusätzliche Multipart-Textfelder.
+  ///
+  /// headers: Additional HTTP headers.
+  /// fields: Additional multipart text fields.
   final Map<String, String> headers, fields;
+  /// Chunkgröße in Bytes; muss positiv sein.
+  ///
+  /// Chunk size in bytes; must be positive.
   final int? chunkSize;
+  /// Felder je Chunk; Index ist nullbasiert.
+  ///
+  /// Fields per chunk; index is zero-based.
   final Map<String, String> Function(XFile, int, int)? chunkFields;
 }
 
+/// Erzeugt einen Multipart-POST-Adapter. Der Server muss Chunks zusammensetzen. Nicht erfolgreiche HTTP-Antworten und Netzwerkfehler schlagen fehl.
+///
+/// Parameter: config mit erforderlicher URL; Rückgabe TxUploadAdapter. Der Adapter erhält file und context und liefert asynchron den letzten HTTP-Antworttext. fieldName = file; zusätzliche Felder/Header standardmäßig leer. chunkSize muss positiv sein; chunkFields erhält file, nullbasierten index und count. Abbruch und HTTP-/Netzwerkfehler lehnen die Operation ab. Kein automatisches JSON-Parsing und keine automatische serverseitige Chunk-Zusammenführung.
+///
+/// Creates a multipart POST adapter. The server must assemble chunks. Non-success HTTP responses and network errors fail the upload.
+///
+/// Parameter: config with a required URL; returns TxUploadAdapter. The adapter receives file and context and asynchronously returns the final HTTP response text. fieldName = file; extra fields/headers default to empty. chunkSize must be positive; chunkFields receives file, zero-based index and count. Cancellation and HTTP/network failures reject the operation. No automatic JSON parsing or server-side chunk assembly.
+///
+/// ```dart
+/// // Requires your own multipart server with matching chunk assembly.
+/// final upload = txHttpUpload(TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')));
+/// await upload(XFile.fromData(Uint8List.fromList([72, 105]), name: 'hello.txt'), TxUploadContext(cancellation: TxCancellation(), onProgress: (loaded, total) => print('$loaded/$total')));
+/// ```
 TxUploadAdapter txHttpUpload(TxHttpUploadConfig config) =>
     (file, context) async {
       final bytes = await file.readAsBytes(),
@@ -386,7 +598,26 @@ TxUploadAdapter txHttpUpload(TxHttpUploadConfig config) =>
       }
     };
 
+/// Dateiauswahl und Uploadwarteschlange mit Größen-/Typprüfung, Fortschritt und Wiederholung ab Dateianfang.
+///
+/// File picker and upload queue with size/type checks, progress and retry from the beginning.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   // Replace with your server's multipart endpoint.
+///   final upload = txHttpUpload(
+///     TxHttpUploadConfig(url: Uri.parse('https://example.com/api/upload')),
+///   );
+///   return TxFileUploader(adapter: upload, extensions: const ['txt']);
+/// }
+/// ```
 class TxFileUploader extends StatefulWidget {
+  /// Dateiauswahl und Uploadwarteschlange mit Größen-/Typprüfung, Fortschritt und Wiederholung ab Dateianfang.
+  ///
+  /// File picker and upload queue with size/type checks, progress and retry from the beginning.
   const TxFileUploader({
     super.key,
     this.adapter,
@@ -401,14 +632,45 @@ class TxFileUploader extends StatefulWidget {
     this.onError,
     this.onChanged,
   });
+  /// Uploadfunktion für eine Datei.
+  ///
+  /// Upload function for one file.
   final TxUploadAdapter? adapter;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// multiple: Erlaubt mehrere Dateien.
+  /// instantly: Startet gültige Dateien unmittelbar nach Auswahl.
+  /// disabled: Sperrt die Interaktion.
+  ///
+  /// multiple: Allows multiple files.
+  /// instantly: Starts valid files immediately after selection.
+  /// disabled: Disables interaction.
   final bool multiple, instantly, disabled;
+  /// Maximale Dateigröße in Bytes.
+  ///
+  /// Maximum file size in bytes.
   final int? maxFileSize;
+  /// Minimale Dateigröße in Bytes.
+  ///
+  /// Minimum file size in bytes.
   final int minFileSize;
+  /// Erlaubte Dateiendungen ohne Punkt.
+  ///
+  /// Allowed file extensions without a dot.
   final List<String> extensions;
+  /// Liefert die hochgeladene XFile und das Adapterergebnis.
+  ///
+  /// Provides the uploaded XFile and adapter result.
   final void Function(XFile, Object?)? onUploaded;
+  /// Meldet Datei und Fehler einer fehlgeschlagenen Uploadoperation.
+  ///
+  /// Reports the file and error of a failed upload operation.
   final void Function(XFile, Object)? onError;
+  /// Callback für changed; Argumente und Rückgabetyp siehe Signatur.
+  ///
+  /// Callback for changed; see the signature for arguments and return type.
   final ValueChanged<List<XFile>>? onChanged;
   @override
   State<TxFileUploader> createState() => _TxFileUploaderState();
@@ -626,7 +888,25 @@ class _TxFileUploaderState extends State<TxFileUploader>
   );
 }
 
+/// Ordnernavigation und Dateiaktionen. Der Provider bestimmt die verfügbaren Operationen; kein Dateiserver enthalten.
+///
+/// Directory navigation and file actions. Provider capabilities determine available operations; no file server is included.
+///
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:tecexpress/tecexpress.dart';
+///
+/// Widget example() {
+///   final provider = TxMemoryFileProvider([
+///     const TxFileEntry(id: '1', name: 'Documents', isDirectory: true),
+///   ]);
+///   return TxFileManager(provider: provider);
+/// }
+/// ```
 class TxFileManager extends StatefulWidget {
+  /// Ordnernavigation und Dateiaktionen. Der Provider bestimmt die verfügbaren Operationen; kein Dateiserver enthalten.
+  ///
+  /// Directory navigation and file actions. Provider capabilities determine available operations; no file server is included.
   const TxFileManager({
     super.key,
     required this.provider,
@@ -637,12 +917,33 @@ class TxFileManager extends StatefulWidget {
     this.onFileOpened,
     this.onDownload,
   });
+  /// Datei-Provider mit unterstützten Operationen.
+  ///
+  /// File provider with supported operations.
   final TxFileProvider provider;
+  /// Liste, Konfiguration oder DataSource-Instanz; hat Vorrang vor items.
+  ///
+  /// List, configuration or DataSource instance; takes precedence over items.
   final Object? dataSource;
+  /// Sperrt die Interaktion.
+  ///
+  /// Disables interaction.
   final bool disabled;
+  /// Höhe; Vue-Zahlen in Pixeln, Flutter in logischen Pixeln.
+  ///
+  /// Height; Vue numbers use pixels, Flutter uses logical pixels.
   final double height;
+  /// Meldet selection; kontrollierten Zustand im Callback aktualisieren.
+  ///
+  /// Reports selection; update controlled state in the callback.
   final ValueChanged<List<TxFileEntry>>? onSelectionChanged;
+  /// Meldet den aktivierten Dateieintrag.
+  ///
+  /// Reports the activated file entry.
   final ValueChanged<TxFileEntry>? onFileOpened;
+  /// Liefert Dateieintrag und Bytes für eine eigene Speicherintegration.
+  ///
+  /// Provides a file entry and bytes for custom saving.
   final void Function(TxFileEntry, Uint8List)? onDownload;
   @override
   State<TxFileManager> createState() => _TxFileManagerState();
