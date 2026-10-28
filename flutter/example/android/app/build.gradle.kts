@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // Flutter follows AGP; Kotlin is provided by AGP's built-in compiler.
     id("dev.flutter.flutter-gradle-plugin")
 }
 

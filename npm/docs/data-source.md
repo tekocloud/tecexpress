@@ -1,4 +1,4 @@
-# TxDataSource · 0.7.0
+# TxDataSource · 0.7.1
 
 Importe: `TxDataSource`, `TxDataSourceConfig`, `TxArrayStore`, `TxCustomStore`, `TxStore`, `TxLoadOptions`, `TxLoadResult`, `TxFilter`, `TxSort`, `TxGroup`, `TxSource`, `TxPush`. Konfigurationen und Verträge sind TypeScript-Typen; Stores und DataSource sind Klassen.
 

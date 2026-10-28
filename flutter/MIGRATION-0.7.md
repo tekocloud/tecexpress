@@ -2,6 +2,17 @@
 
 ## Deutsch
 
+Ab 0.7.1 unterstützen iOS und macOS sowohl Swift Package Manager als auch
+CocoaPods aus denselben Swift-Quellen. Der lokale Swift-Package-Verweis auf
+`FlutterFramework` bindet ausschließlich das von Flutter bereitgestellte SDK ein.
+Android verwendet Built-in Kotlin; die Beispiel-App aktiviert
+`android.builtInKotlin=true` unter AGP 9.1. Die bisherigen Mindestversionen
+Flutter 3.47.7 / Dart 3.13.5 bleiben unverändert.
+Die Beispiel-App setzt den von AGP verwendeten Kotlin-Compiler auf 2.4.0, da
+der mit AGP gelieferte Standard 2.2.10 unter der vom lokalen Flutter-SDK
+geforderten Mindestversion 2.2.20 liegt. Dies ist eine Build-Tool-Konfiguration;
+das separate Kotlin-Android-Plugin wird weiterhin nicht angewendet.
+
 tecexpress hat keine direkten externen Laufzeit-Abhängigkeiten mehr. Die einzigen
 Laufzeitpakete stammen aus dem Flutter-SDK: `flutter`, `flutter_localizations`
 und `flutter_web_plugins`. SDK-interne transitive Pakete, etwa `intl`, bleiben
@@ -61,6 +72,11 @@ andere Sprachen fallen auf Englisch zurück. Der Datumseditor nutzt die
 Material-Lokalisierung der App.
 
 ## English
+
+Version 0.7.1 adds Swift Package Manager support for iOS/macOS alongside
+CocoaPods, sharing the same sources. The local FlutterFramework package is
+provided by Flutter itself. Android uses built-in Kotlin, enabled in the example
+under AGP 9.1. The minimum Flutter/Dart versions remain unchanged.
 
 Version 0.7.0 replaces the third-party `XFile` type with `TxFile` and removes all
 direct non-SDK runtime dependencies. Flutter's own transitive dependencies remain.

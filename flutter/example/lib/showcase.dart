@@ -146,7 +146,7 @@ class _ShowcaseHomeState extends State<_ShowcaseHome> {
     final wide = MediaQuery.sizeOf(context).width >= 950;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('tecexpress · Flutter 0.7.0'),
+        title: const Text('tecexpress · Flutter 0.7.1'),
         actions: [
           IconButton(
             tooltip: 'Theme wechseln',

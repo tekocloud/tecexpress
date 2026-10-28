@@ -48,6 +48,7 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed lib test tool example/lib example/test example/test_support
       - run: flutter analyze
       - run: dart run tool/verify_dependencies.dart
+      - run: dart run tool/verify_platform_packaging.dart
       - run: flutter test --reporter expanded
       - uses: actions/setup-node@v7
         with:
@@ -60,7 +61,7 @@ jobs:
       - run: flutter pub publish --dry-run
 
   flutter-platforms:
-    name: Flutter ${{ matrix.target }} ${{ matrix.arguments }}
+    name: Flutter ${{ matrix.target }} ${{ matrix.arguments }} ${{ matrix.applePackaging }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:
@@ -71,8 +72,10 @@ jobs:
           - { os: ubuntu-latest, target: web, arguments: '--release --wasm' }
           - { os: windows-latest, target: windows, arguments: '--release' }
           - { os: ubuntu-latest, target: linux, arguments: '--release' }
-          - { os: macos-latest, target: macos, arguments: '--release' }
-          - { os: macos-latest, target: ios, arguments: '--release --no-codesign' }
+          - { os: macos-latest, target: macos, arguments: '--release', applePackaging: spm }
+          - { os: macos-latest, target: macos, arguments: '--release', applePackaging: pods }
+          - { os: macos-latest, target: ios, arguments: '--release --no-codesign', applePackaging: spm }
+          - { os: macos-latest, target: ios, arguments: '--release --no-codesign', applePackaging: pods }
           - { os: ubuntu-latest, target: apk, arguments: '--debug' }
     defaults:
       run:
@@ -92,5 +95,9 @@ jobs:
           flutter-version: '3.47.7'
           channel: stable
           cache: true
+      - run: flutter config --enable-swift-package-manager
+        if: matrix.applePackaging == 'spm'
+      - run: flutter config --no-enable-swift-package-manager
+        if: matrix.applePackaging == 'pods'
       - run: flutter pub get
       - run: flutter build ${{ matrix.target }} ${{ matrix.arguments }}

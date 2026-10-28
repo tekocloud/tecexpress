@@ -1,26 +1,19 @@
 group 'cloud.teko.tecexpress'
-version '0.7.0'
+version '0.7.1'
 
 buildscript {
     repositories { google(); mavenCentral() }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.9.1'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0'
+        classpath 'com.android.tools.build:gradle:9.1.0'
     }
 }
 apply plugin: 'com.android.library'
-// AGP 9 enables its compiler by default; Flutter hosts may explicitly opt out.
-def embeddedKotlin = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('\\.')[0].toInteger() >= 9 &&
-    project.findProperty('android.builtInKotlin')?.toString() != 'false'
-if (!embeddedKotlin) {
-    apply plugin: 'kotlin-android'
-}
+// Kotlin is provided by AGP/Flutter; do not apply a separate Kotlin plugin.
 android {
     namespace 'cloud.teko.tecexpress'
     compileSdk 35
     defaultConfig { minSdk 21 }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    sourceSets { main.java.srcDirs += 'src/main/kotlin' }
 }
 kotlin {
     compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 }

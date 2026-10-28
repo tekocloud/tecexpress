@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.7.1 · 2026-10-28
+
+- Swift-Package-Manager-Unterstützung für iOS/macOS mit gemeinsamen Quellen für SPM und CocoaPods ergänzt.
+- Android auf Built-in Kotlin umgestellt; Legacy-Kotlin-Plugin-Anwendung und eigener KGP-Classpath entfernt.
+- Beispiel-App verwendet Built-in Kotlin; CI prüft Apple-Builds mit SPM und CocoaPods getrennt.
+- Adds Swift Package Manager support for iOS/macOS while preserving CocoaPods; migrates Android to built-in Kotlin. Runtime dependencies remain SDK-only.
+
+
 ## 0.7.0 · 2026-10-28
 
 - Breaking: XFile durch den eigenen Typ TxFile mit expliziter Ressourcenfreigabe ersetzt.
