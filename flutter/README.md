@@ -20,6 +20,8 @@ flutter pub add tecexpress
 
 Benötigt Flutter 3.47.7+ und Dart 3.13.5+. Zielplattformen: Android, iOS, Web, Windows, macOS und Linux.
 
+Die Beispielanwendung wird auch mit `flutter build web --wasm --release` geprüft. `desktop_drop` ist vorübergehend auf 0.8.0 festgelegt, um die unbedingte D-Bus/FFI-Abhängigkeit neuerer 0.8.x-Versionen zu vermeiden. Linux-Drag-and-drop über das File-Transfer-Portal (etwa in Flatpak) ist damit nicht verfügbar. Ein Update auf 0.9.x benötigt zuerst eine mit `cross_file` 0.4 kompatible Version von `file_selector`.
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:tecexpress/tecexpress.dart';
@@ -3287,6 +3289,8 @@ flutter pub add tecexpress
 ```
 
 Requires Flutter 3.47.7+ and Dart 3.13.5+. Targets Android, iOS, web, Windows, macOS and Linux.
+
+The example application is also checked with `flutter build web --wasm --release`. `desktop_drop` is temporarily pinned to 0.8.0 to avoid the unconditional D-Bus/FFI dependency in later 0.8.x versions. Linux drag-and-drop through the file-transfer portal (for example in Flatpak) is unavailable with this version. Updating to 0.9.x first requires a `file_selector` version compatible with `cross_file` 0.4.
 
 ```dart
 import 'package:flutter/material.dart';

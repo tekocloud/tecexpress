@@ -62,6 +62,7 @@ jobs:
       matrix:
         include:
           - { os: ubuntu-latest, target: web, arguments: '--release' }
+          - { os: ubuntu-latest, target: web, arguments: '--release --wasm' }
           - { os: windows-latest, target: windows, arguments: '--release' }
           - { os: ubuntu-latest, target: linux, arguments: '--release' }
           - { os: macos-latest, target: macos, arguments: '--release' }

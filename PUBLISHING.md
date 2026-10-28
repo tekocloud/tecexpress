@@ -1,5 +1,13 @@
 # tecexpress auf npm und pub.dev veröffentlichen
 
+```sh
+cd flutter
+flutter pub publish
+cd .. && cd npm
+npm login --registry=https://registry.npmjs.org/
+npm publish --access public
+```
+
 Diese Anleitung liegt bewusst im **Projektstamm**. Sie beschreibt manuelle Releases der zwei eigenständigen Pakete. Die CI prüft und baut; sie veröffentlicht nichts.
 
 ## 1. Voraussetzungen und Ordner

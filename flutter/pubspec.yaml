@@ -1,6 +1,6 @@
 name: tecexpress
 description: Native Flutter UI components with light and dark themes, editors, data grids, scheduler, cards and chat for mobile, desktop and web.
-version: 0.6.0
+version: 0.6.1
 repository: https://github.com/tekocloud/tecexpress/tree/main/flutter
 homepage: https://github.com/tekocloud/tecexpress
 issue_tracker: https://github.com/tekocloud/tecexpress/issues
@@ -14,7 +14,10 @@ environment:
   sdk: '>=3.13.5 <4.0.0'
   flutter: '>=3.47.7'
 dependencies:
-  desktop_drop: ^0.8.4
+  # 0.8.1-0.8.4 unconditionally import Linux D-Bus/FFI code, affecting
+  # pub.dev platform/Wasm detection. 0.9.x requires cross_file ^0.4.0,
+  # which conflicts with file_selector's cross_file ^0.3.0 constraint.
+  desktop_drop: '>=0.8.0 <0.8.1'
   file_selector: ^1.1.0
   flutter:
     sdk: flutter

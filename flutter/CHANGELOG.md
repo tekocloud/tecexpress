@@ -1,5 +1,12 @@
 # Änderungen
 
+## 0.6.1 · 2026-10-28
+
+- desktop_drop auf >=0.8.0 <0.8.1 begrenzt, um die unbedingte D-Bus/FFI-Abhängigkeit späterer 0.8.x-Versionen zu vermeiden.
+- WASM-Release-Build der Beispielanwendung zur CI hinzugefügt.
+- Einschränkung: Linux-Drag-and-drop über das File-Transfer-Portal (etwa in Flatpak) ist vorübergehend nicht verfügbar.
+- Restrict desktop_drop to >=0.8.0 <0.8.1 to avoid unconditional D-Bus/FFI imports; add a Wasm release build to CI. Linux file-transfer portal drag-and-drop is temporarily unavailable.
+
 ## 0.6.0 · 2026-10-28
 
 - Vollständige deutsche und englische Paketdokumentation aller öffentlichen APIs mit einfachen Beispielen direkt in der README.
