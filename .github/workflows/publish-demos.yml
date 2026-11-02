@@ -87,8 +87,23 @@ jobs:
         shell: bash
         run: |
           docker run -d --name tecexpress-smoke --read-only --cap-drop ALL --security-opt no-new-privileges:true -p 127.0.0.1:18080:8080 tecexpress-demos:test
-          trap 'docker logs tecexpress-smoke; docker rm -f tecexpress-smoke' EXIT
-          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:18080/healthz
+          trap 'docker inspect --format "{{json .State}}" tecexpress-smoke; docker logs tecexpress-smoke; docker rm -f tecexpress-smoke' EXIT
+          ready=false
+          for attempt in {1..30}; do
+            if [ "$(docker inspect --format '{{.State.Running}}' tecexpress-smoke)" != true ]; then
+              echo 'Demo container exited before becoming ready.' >&2
+              exit 1
+            fi
+            if curl --fail --silent --show-error --connect-timeout 1 --max-time 2 http://127.0.0.1:18080/healthz; then
+              ready=true
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" != true ]; then
+            echo 'Demo container did not become ready within 30 attempts.' >&2
+            exit 1
+          fi
           curl --fail http://127.0.0.1:18080/vue/
           curl --fail http://127.0.0.1:18080/flutter/
           curl --fail http://127.0.0.1:18080/flutter/flutter_bootstrap.js -o /dev/null
