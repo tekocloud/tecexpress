@@ -1,0 +1,127 @@
+name: Build and publish demo image
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - '_web/**'
+      - 'npm/**'
+      - 'flutter/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.dockerignore'
+      - '.github/workflows/publish-demos.yml'
+  pull_request:
+    paths:
+      - '_web/**'
+      - 'npm/**'
+      - 'flutter/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.dockerignore'
+      - '.github/workflows/publish-demos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify documentation and demo server
+        run: |
+          npm ci
+          node _web/tools/build-content.mjs
+          git diff --exit-code -- _web/content/catalog.json _web/demos/manifest.json
+          node _web/tools/verify.mjs
+          node --test _web/docker/server.test.mjs
+          php _web/tools/verify.php
+          find _web -name '*.php' -not -path '*/generated/*' -print0 | xargs -0 -n1 php -l
+      - name: Define lowercase image name
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/tecexpress-demos" >> "$GITHUB_OUTPUT"
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6.2.0
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=tecexpress Vue and Flutter demos
+            org.opencontainers.image.description=Interactive Vue and Flutter examples for the separate tecexpress PHP documentation portal
+            org.opencontainers.image.licenses=MIT
+      - uses: docker/setup-buildx-action@v4.4.1
+      - name: Build and load image for smoke test
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          file: _web/docker/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: tecexpress-demos:test
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke-test the built container
+        shell: bash
+        run: |
+          docker run -d --name tecexpress-smoke --read-only --cap-drop ALL --security-opt no-new-privileges:true -p 127.0.0.1:18080:8080 tecexpress-demos:test
+          trap 'docker logs tecexpress-smoke; docker rm -f tecexpress-smoke' EXIT
+          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:18080/healthz
+          curl --fail http://127.0.0.1:18080/vue/
+          curl --fail http://127.0.0.1:18080/flutter/
+          curl --fail http://127.0.0.1:18080/flutter/flutter_bootstrap.js -o /dev/null
+          curl --fail http://127.0.0.1:18080/tiles/demo.png -o /dev/null
+          printf 'tecexpress upload smoke test' > /tmp/tecexpress-upload.txt
+          curl --fail -F file=@/tmp/tecexpress-upload.txt http://127.0.0.1:18080/api/upload
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish verified image
+        if: github.event_name != 'pull_request'
+        id: publish
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          file: _web/docker/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+      - name: Write image summary
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+          IMAGE_DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          echo '### Published demo image' >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "$IMAGE_TAGS" "$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Use an image tag or digest in the Portainer stack. The PHP portal is deployed separately.' >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/.dart_tool
+**/build
+**/dist
+**/doc/api
+**/.gradle
+**/Pods
+**/.symlinks
+**/ephemeral
+**/.flutter-plugins-dependencies
+**/config.local.php
+**/*.tgz
+test-results
+playwright-report

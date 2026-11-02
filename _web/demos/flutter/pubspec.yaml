@@ -1,0 +1,14 @@
+name: tecexpress_web_demos
+publish_to: none
+environment:
+  sdk: '>=3.13.5 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  tecexpress:
+    path: ../../../flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true

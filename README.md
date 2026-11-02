@@ -8,6 +8,7 @@ Eigenständige UI-Bibliotheken unter MIT-Lizenz, ohne Lizenzkey: Vue 3 und nativ
 | --- | --- | --- |
 | [`npm/`](npm/) | Vue-Paket `@tekocloud.de/tecexpress` 0.7.1, TypeScript, CSS-Themes, Demo und Tests | [Vue-Anleitung](npm/README.md) |
 | [`flutter/`](flutter/) | Flutter-Paket `tecexpress` 0.7.1 für Android, iOS, Web, Windows, macOS und Linux | [Flutter-Anleitung](flutter/README.md) |
+| [`_web/`](_web/) | Zweisprachiges PHP-Dokumentationsportal und Vue-/Flutter-Live-Demos als Docker-Image | [Webspace, Portainer & GHCR](_web/README.md) |
 
 Die aktuellen 37 Komponenten und Konfigurationen stehen auf beiden Seiten zur Verfügung, ergänzt um TxDataSource, Stores sowie Datei-/Upload-/Kartenadapter. [Funktions- und API-Zuordnung](flutter/COMPONENTS.md). Die APIs folgen den Konventionen des jeweiligen Frameworks.
 

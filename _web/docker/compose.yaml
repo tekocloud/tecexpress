@@ -1,0 +1,17 @@
+services:
+  tecexpress-demos:
+    image: ${TECEXPRESS_IMAGE:-ghcr.io/tekocloud/tecexpress-demos:latest}
+    restart: unless-stopped
+    ports:
+      - "${DEMO_PORT:-8088}:8080"
+    environment:
+      PORT: "8080"
+      # Space-separated exact origins of the separate PHP portal, without paths.
+      PORTAL_ORIGINS: "${PORTAL_ORIGINS:-https://www.tekocloud.de https://tekocloud.de}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=16m
