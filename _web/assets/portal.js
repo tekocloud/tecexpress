@@ -65,16 +65,17 @@
   });
   let loading = false, timer;
   const status = document.querySelector('[data-demo-status]');
-  document.querySelectorAll('[data-load-demo]').forEach(button => button.addEventListener('click', () => {
+  const loadDemo = () => {
     if (loading) return;
     loading = true;
-    document.querySelector('[data-demo-placeholder]').hidden = true;
     frame.hidden = false;
     frame.src = demoLink.href;
     status.hidden = false;
     status.textContent = text('Demo wird geladen …', 'Loading demo …');
     clearTimeout(timer);
     timer = setTimeout(() => { status.textContent = text('Falls die Vorschau nicht erscheint, prüfe die Verbindung oder öffne die Demo separat. Du kannst das Laden erneut versuchen.', 'If the preview does not appear, check your connection or open the demo separately. You can retry loading.'); loading = false; }, 18000);
-  }));
+  };
+  document.querySelectorAll('[data-load-demo]').forEach(button => button.addEventListener('click', loadDemo));
   frame?.addEventListener('load', () => { clearTimeout(timer); loading = false; status.textContent = text('Vorschau geöffnet. Bei einer leeren Anzeige bitte separat öffnen oder erneut laden.', 'Preview opened. If it remains blank, open it separately or reload.'); });
+  if (frame) loadDemo();
 })();

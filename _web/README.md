@@ -27,7 +27,7 @@ Lokal aus dem Repository-Stamm starten:
 php -S 127.0.0.1:8090 -t _web
 ```
 
-Portal: http://127.0.0.1:8090/. Dokumentationsnavigation und Suche funktionieren auch ohne Demo-Container. Die Vorschau lädt erst nach Klick. Bei Verbindungsproblemen gibt es einen Hinweis und einen direkten Demo-Link.
+Portal: http://127.0.0.1:8090/. Dokumentationsnavigation und Suche funktionieren auch ohne Demo-Container. Die Vorschau startet beim Öffnen einer Komponentenseite automatisch und kann über „Erneut laden“ neu gestartet werden. Bei Verbindungsproblemen gibt es einen Hinweis und einen direkten Demo-Link.
 
 ## Docker-Image bauen
 

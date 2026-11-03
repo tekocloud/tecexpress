@@ -31,7 +31,6 @@ try {
   assert.ok(await page.locator('[data-results] a').count() > 0);
   await page.locator('[data-results] a').first().click();
   assert.match(await page.locator('h1').textContent(), /TxDataGrid/);
-  await page.locator('[data-load-demo]').last().click();
   await page.frameLocator('[data-demo-frame]').locator('.stage').waitFor();
   await page.screenshot({ path: path.join(output, 'datagrid.png'), fullPage: true });
   await page.locator('button[data-theme]').click();
@@ -39,7 +38,6 @@ try {
   await page.screenshot({ path: path.join(output, 'dark.png'), fullPage: true });
   await page.goto(portal + '/index.php?framework=flutter&lang=en&page=txbutton');
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
-  await page.locator('[data-load-demo]').last().click();
   await page.frameLocator('[data-demo-frame]').locator('flt-glass-pane').waitFor({ state: 'attached', timeout: 45000 });
   await page.frameLocator('[data-demo-frame]').locator('canvas').first().waitFor({ timeout: 45000 });
   await page.screenshot({ path: path.join(output, 'flutter.png'), fullPage: true });
